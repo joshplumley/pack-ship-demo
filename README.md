@@ -5,6 +5,8 @@ By default, app will run on port 3000, add PORT to your .env file to change that
 
 To fill DB with dummy data: `GET /reset`
 
+Postman endpoints included in 'Packing & Shipping Demo.postman_collection.json'
+
 ### Intended Flow
 Work Orders & Customers exist permanently.
 
