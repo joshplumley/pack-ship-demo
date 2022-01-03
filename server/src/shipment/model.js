@@ -25,8 +25,15 @@ const schema = new Schema({
     ref: 'packingSlip'
   }],
 
-  trackingNumber: String,
+  deliveryMethod: String, // PICKUP, DROPOFF, CARRIER
 
+  customerName: String,   // For PICKUP or DROPOFF
+
+  // For CARRIER
+  carrier: String,        // UPS, FEDEX, FREIGHT, OTHER
+  deliverySpeed: String,
+  customerAccount: String,
+  trackingNumber: String,
   cost: Number,
 });
 
