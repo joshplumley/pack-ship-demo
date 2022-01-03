@@ -27,7 +27,7 @@ const schema = new Schema({
 
   deliveryMethod: String, // PICKUP, DROPOFF, CARRIER
 
-  customerName: String,   // For PICKUP or DROPOFF
+  customerHandoffName: String,   // For PICKUP or DROPOFF
 
   // For CARRIER
   carrier: String,        // UPS, FEDEX, FREIGHT, OTHER
