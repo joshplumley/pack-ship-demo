@@ -1,6 +1,8 @@
 ## Packing & Shipping demo module.
-Client is WIP
+Client is WIP.
+
 To run server `cd server` & `yarn dev`
+
 By default, app will run on port 3000, add PORT to your .env file to change that.
 
 To fill DB with dummy data: `GET /reset`
