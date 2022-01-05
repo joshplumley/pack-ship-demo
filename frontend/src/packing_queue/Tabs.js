@@ -75,27 +75,39 @@ const TabsList = styled(TabsListUnstyled)`
   align-content: space-between;
 `;
 
-export default function PackingQueueTabs({ onQueueRowClick, selectedOrderNumber }) {
+export default function PackingQueueTabs({
+  isShowUnfinishedBatches,
+  onQueueRowClick,
+  selectedOrderNumber
+}) {
   const [packingQueue, setPackingQueue] = useState([]);
 
   useEffect(() => {
-    Promise.all([
-      API.getPackingQueue().then((data) => {
-        let tableData = []
-        data?.forEach(e => {
-          tableData.push({
-            id: e._id,
-            orderNumber: e.orderNumber,
-            part: `${e.partNumber} - ${e.partRev}`,
-            partDescription: e.partDescription,
-            batchQty: e.batchQty,
-            fulfilledQty: e.packedQty
-          })
-        });
-        setPackingQueue(tableData);
-      }),
-    ]);
-  }, []);
+    async function fetchData() {
+      if (isShowUnfinishedBatches) {
+        return await API.getAllWorkOrders()
+      }
+      else {
+        return await API.getPackingQueue()
+      }
+    }
+
+    fetchData().then((data) => {
+      let tableData = []
+      data?.forEach(e => {
+        tableData.push({
+          id: e._id,
+          orderNumber: e.orderNumber,
+          part: `${e.partNumber} - ${e.partRev}`,
+          partDescription: e.partDescription,
+          batchQty: e.batchQty,
+          fulfilledQty: e.packedQty
+        })
+      });
+      setPackingQueue(tableData);
+    });
+
+  }, [isShowUnfinishedBatches]);
 
   return (
     <TabsUnstyled defaultValue={0}>

@@ -11,4 +11,12 @@ export const API = {
             console.error("getPackingQueue", error);
         }
     },
+    async getAllWorkOrders() {
+        try {
+            const response = await axios.get(`${REACT_APP_API_URL}/workOrders`,);
+            return response.data;
+        } catch (error) {
+            console.error("getAllWorkOrders", error);
+        }
+    },
 }
