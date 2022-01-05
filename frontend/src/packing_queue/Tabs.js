@@ -75,7 +75,7 @@ const TabsList = styled(TabsListUnstyled)`
   align-content: space-between;
 `;
 
-export default function PackingQueueTabs() {
+export default function PackingQueueTabs({ onQueueRowClick, selectedOrderNumber }) {
   const [packingQueue, setPackingQueue] = useState([]);
 
   useEffect(() => {
@@ -103,7 +103,12 @@ export default function PackingQueueTabs() {
         <Tab>Queue ({packingQueue.length})</Tab>
         <Tab>History</Tab>
       </TabsList>
-      <TabPanel value={0}><QueueTable tableData={packingQueue} /> </TabPanel>
+      <TabPanel value={0}>
+        <QueueTable
+          onRowClick={onQueueRowClick}
+          tableData={packingQueue}
+          selectedOrderNumber={selectedOrderNumber}
+        /> </TabPanel>
       <TabPanel value={1}><HistoryTable /></TabPanel>
     </TabsUnstyled>
   );
