@@ -2,11 +2,10 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 
 
-const MakePackingSlipButton = () => {
-    const isDisabled = true;
+const MakePackingSlipButton = ({ disabled = false }) => {
 
     return (
-        <Button disabled={isDisabled} variant="contained">Make Packing Slip</Button>
+        <Button disabled={disabled} variant="contained">Make Packing Slip</Button>
     )
 
 };
