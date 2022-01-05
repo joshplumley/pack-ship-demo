@@ -43,7 +43,7 @@ const QueueTable = ({ tableData, onRowClick, selectedOrderNumber }) => {
                 return (
                     <div className={classes.fulfilledQtyHeader}>
                         <Typography>Fulfilled Qty</Typography>
-                        <Tooltip title="TODO SOME TEXT GOES HERE">
+                        <Tooltip title="This includes number of items that have been packed as well as number of items that have shipped.">
                             <HelpOutlineIcon className={classes.help} />
                         </Tooltip>
                     </div>
