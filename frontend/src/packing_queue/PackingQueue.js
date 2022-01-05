@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import MakePackingSlipButton from "./buttons/MakePackingSlip";
 import Search from "./Search";
 import PackingQueueTabs from "./Tabs";
