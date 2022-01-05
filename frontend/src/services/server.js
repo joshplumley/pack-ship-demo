@@ -5,7 +5,7 @@ let { API_URL } = process.env;
 export const API = {
     async getPackingQueue() {
         try {
-            const response = await axios.get(`http://localhost:3000/workOrders/packingQueue`,);
+            const response = await axios.get(`${API_URL}/workOrders/packingQueue`,);
             return response.data;
         } catch (error) {
             console.error("getPackingQueue", error);

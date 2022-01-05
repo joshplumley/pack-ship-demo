@@ -20,7 +20,7 @@ const QueueTable = () => {
         Promise.all([
             API.getPackingQueue().then((data) => {
                 let tableData = []
-                data.forEach(e => {
+                data?.forEach(e => {
                     tableData.push({
                         id: e._id,
                         orderNumber: e.orderNumber,
@@ -42,8 +42,8 @@ const QueueTable = () => {
                     // If orders are selected, disable selecting of 
                     // other orders if the order number does not match
                     // that if the selected order
-                    if (selectedOrderNumber != null &&
-                        selectedOrderNumber != params.row.orderNumber) {
+                    if (selectedOrderNumber !== null &&
+                        selectedOrderNumber !== params.row.orderNumber) {
                         console.log(params.row.orderNumber)
                         return false
                     }
@@ -55,12 +55,12 @@ const QueueTable = () => {
                         // All selected items will have the same order number
                         // so we just take the first one
                         if (selectionModel.length > 0 &&
-                            item.id == selectionModel[0]) {
+                            item.id === selectionModel[0]) {
                             setSelectedOrderNumber(item.orderNumber)
                             break
                         }
                         // If nothing selected set it to null
-                        if (selectionModel.length == 0) {
+                        if (selectionModel.length === 0) {
                             setSelectedOrderNumber(null)
                         }
                     }
