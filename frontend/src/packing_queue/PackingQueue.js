@@ -5,6 +5,8 @@ import PackingQueueTabs from "./Tabs";
 import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
 
 const PackingQueue = () => {
+
+    const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
     const [selectedOrderIds, setSelectedOrderIds] = useState([]);
     const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
 
@@ -26,11 +28,24 @@ const PackingQueue = () => {
         }
     }
 
+    function onUnfinishedBatchesClick() {
+        setIsShowUnfinishedBatches(!isShowUnfinishedBatches)
+    }
+
     return <>
-        <MakePackingSlipButton disabled={selectedOrderIds.length === 0} />
+        <MakePackingSlipButton
+            disabled={selectedOrderIds.length === 0}
+        />
         <Search />
-        <UnfinishedBatchesCheckbox />
-        <PackingQueueTabs onQueueRowClick={onQueueRowClick} selectedOrderNumber={selectedOrderNumber} />
+        <UnfinishedBatchesCheckbox
+            onChange={onUnfinishedBatchesClick}
+            checked={isShowUnfinishedBatches}
+        />
+        <PackingQueueTabs
+            isShowUnfinishedBatches={isShowUnfinishedBatches}
+            onQueueRowClick={onQueueRowClick}
+            selectedOrderNumber={selectedOrderNumber}
+        />
     </>
 };
 
