@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useState } from "react";
 import { styled } from '@mui/system';
 import TabsUnstyled from '@mui/base/TabsUnstyled';
 import TabsListUnstyled from '@mui/base/TabsListUnstyled';
@@ -7,6 +7,7 @@ import { buttonUnstyledClasses } from '@mui/base/ButtonUnstyled';
 import TabUnstyled, { tabUnstyledClasses } from '@mui/base/TabUnstyled';
 import HistoryTable from './tables/HistoryTable';
 import QueueTable from './tables/QueueTable';
+import { API } from '../services/server';
 
 const blue = {
   50: '#F0F7FF',
@@ -75,14 +76,33 @@ const TabsList = styled(TabsListUnstyled)`
 `;
 
 export default function PackingQueueTabs() {
+  const [packingQueue, setPackingQueue] = useState([]);
+
+  useEffect(() => {
+    Promise.all([
+      API.getPackingQueue().then((data) => {
+        let tableData = []
+        data?.forEach(e => {
+          tableData.push({
+            id: e._id,
+            orderNumber: e.orderNumber,
+            part: `${e.partNumber} - ${e.partRev} : ${e.partDescription}`,
+            batchQty: e.batchQty,
+            fulfilledQty: e.packedQty
+          })
+        });
+        setPackingQueue(tableData);
+      }),
+    ]);
+  }, []);
+
   return (
     <TabsUnstyled defaultValue={0}>
       <TabsList>
-        {/* TODO need count on the Queue */}
-        <Tab>Queue </Tab>
+        <Tab>Queue ({packingQueue.length})</Tab>
         <Tab>History</Tab>
       </TabsList>
-      <TabPanel value={0}><QueueTable /></TabPanel>
+      <TabPanel value={0}><QueueTable tableData={packingQueue} /> </TabPanel>
       <TabPanel value={1}><HistoryTable /></TabPanel>
     </TabsUnstyled>
   );
