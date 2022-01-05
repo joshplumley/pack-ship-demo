@@ -3,8 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { API } from '../../services/server';
 
 const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'orderId', headerName: 'Order', width: 200 },
+    { field: 'orderNumber', headerName: 'Order', width: 200 },
     { field: 'part', headerName: 'Part', width: 250 },
     { field: 'batchQty', headerName: 'Batch Qty', width: 150, type: 'number' },
     { field: 'fulfilledQty', headerName: 'Fulfilled Qty', width: 150, type: 'number' },
@@ -18,28 +17,29 @@ const QueueTable = () => {
     useEffect(() => {
         Promise.all([
             API.getPackingQueue().then((data) => {
-                setpackingQueue(data);
+                let tableData = []
+                data.forEach(e => {
+                    console.log(e.orderId)
+                    tableData.push({
+                        id: e._id,
+                        orderNumber: e.orderNumber,
+                        part: `${e.partNumber} - ${e.partRev} : ${e.partDescription}`,
+                        batchQty: e.batchQty,
+                        fulfilledQty: e.packedQty
+                    })
+                });
+                setpackingQueue(tableData);
             }),
         ]);
-    });
-
-    const rows = [
-        {
-            id: 1,
-            orderId: 'ABC1001',
-            part: 'PN-001-Rev 01',
-            batchQty: 7,
-            fulfilledQty: 1
-        },
-    ];
+    }, []);
 
     return (
-        <div style={{ height: 400, width: '100%' }}>
+        <div style={{ height: 800, width: '100%' }}>
             <DataGrid
-                rows={rows}
+                rows={packingQueue}
                 columns={columns}
-                pageSize={5}
-                rowsPerPageOptions={[5]}
+                pageSize={10}
+                rowsPerPageOptions={[10]}
                 checkboxSelection
             />
         </div>
