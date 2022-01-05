@@ -12,14 +12,15 @@ const columns = [
 
 
 const QueueTable = () => {
-    const [packingQueue, setpackingQueue] = useState([]);
+    const [packingQueue, setPackingQueue] = useState([]);
+    const [selectedOrderIds, setSelectedOrderIds] = useState([]);
+    const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
 
     useEffect(() => {
         Promise.all([
             API.getPackingQueue().then((data) => {
                 let tableData = []
                 data.forEach(e => {
-                    console.log(e.orderId)
                     tableData.push({
                         id: e._id,
                         orderNumber: e.orderNumber,
@@ -28,7 +29,7 @@ const QueueTable = () => {
                         fulfilledQty: e.packedQty
                     })
                 });
-                setpackingQueue(tableData);
+                setPackingQueue(tableData);
             }),
         ]);
     }, []);
@@ -36,6 +37,34 @@ const QueueTable = () => {
     return (
         <div style={{ height: 800, width: '100%' }}>
             <DataGrid
+                disableSelectionOnClick={false}
+                isRowSelectable={(params) => {
+                    // If orders are selected, disable selecting of 
+                    // other orders if the order number does not match
+                    // that if the selected order
+                    if (selectedOrderNumber != null &&
+                        selectedOrderNumber != params.row.orderNumber) {
+                        console.log(params.row.orderNumber)
+                        return false
+                    }
+                    return true
+                }}
+                onSelectionModelChange={(selectionModel, details) => {
+                    setSelectedOrderIds(selectionModel)
+                    for (const item of packingQueue) {
+                        // All selected items will have the same order number
+                        // so we just take the first one
+                        if (selectionModel.length > 0 &&
+                            item.id == selectionModel[0]) {
+                            setSelectedOrderNumber(item.orderNumber)
+                            break
+                        }
+                        // If nothing selected set it to null
+                        if (selectionModel.length == 0) {
+                            setSelectedOrderNumber(null)
+                        }
+                    }
+                }}
                 rows={packingQueue}
                 columns={columns}
                 pageSize={10}
