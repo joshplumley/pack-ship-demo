@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import { DataGrid } from '@mui/x-data-grid';
+import { Typography } from "@mui/material";
 
 const columns = [
     { field: 'orderNumber', headerName: 'Order', width: 200 },
-    { field: 'part', headerName: 'Part', width: 250 },
+    {
+        field: 'part', headerName: 'Part', width: 250, renderCell: (params) => (
+            <div>
+                <Typography>{params.row.part}</Typography>
+                <Typography color="textSecondary">{params.row.partDescription}</Typography>
+            </div>
+        )
+    },
     { field: 'batchQty', headerName: 'Batch Qty', width: 150, type: 'number' },
     { field: 'fulfilledQty', headerName: 'Fulfilled Qty', width: 150, type: 'number' },
 ];
