@@ -86,7 +86,8 @@ export default function PackingQueueTabs() {
           tableData.push({
             id: e._id,
             orderNumber: e.orderNumber,
-            part: `${e.partNumber} - ${e.partRev} : ${e.partDescription}`,
+            part: `${e.partNumber} - ${e.partRev}`,
+            partDescription: e.partDescription,
             batchQty: e.batchQty,
             fulfilledQty: e.packedQty
           })
