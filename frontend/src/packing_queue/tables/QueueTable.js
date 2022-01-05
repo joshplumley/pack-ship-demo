@@ -1,26 +1,59 @@
 import React from "react";
+import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from '@mui/x-data-grid';
-import { Typography } from "@mui/material";
+import { Tooltip, Typography } from "@mui/material";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
-const columns = [
-    { field: 'orderNumber', headerName: 'Order', width: 200 },
-    {
-        field: 'part', headerName: 'Part', width: 250, renderCell: (params) => (
-            <div>
-                <Typography>{params.row.part}</Typography>
-                <Typography color="textSecondary">{params.row.partDescription}</Typography>
-            </div>
-        )
+const useStyle = makeStyles((theme) => ({
+    root: {
+        height: 800,
+        width: '95%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        display: 'flex',
     },
-    { field: 'batchQty', headerName: 'Batch Qty', width: 150, type: 'number' },
-    { field: 'fulfilledQty', headerName: 'Fulfilled Qty', width: 150, type: 'number' },
-];
+    fulfilledQtyHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+    },
+    help: {
+        paddingLeft: '10px',
+    }
+}));
 
 
 const QueueTable = ({ tableData, onRowClick, selectedOrderNumber }) => {
+    const classes = useStyle();
+
+    const columns = [
+        { field: 'orderNumber', headerName: 'Order', width: 200 },
+        {
+            field: 'part', headerName: 'Part', width: 250, renderCell: (params) => (
+                <div>
+                    <Typography>{params.row.part}</Typography>
+                    <Typography color="textSecondary">{params.row.partDescription}</Typography>
+                </div>
+            )
+        },
+        { field: 'batchQty', headerName: 'Batch Qty', width: 250, type: 'number' },
+        {
+            field: 'fulfilledQty', headerName: 'Fulfilled Qty', width: 250, type: 'number',
+            renderHeader: (params) => {
+                return (
+                    <div className={classes.fulfilledQtyHeader}>
+                        <Typography>Fulfilled Qty</Typography>
+                        <Tooltip title="TODO SOME TEXT GOES HERE">
+                            <HelpOutlineIcon className={classes.help} />
+                        </Tooltip>
+                    </div>
+                );
+            }
+        },
+    ];
 
     return (
-        <div style={{ height: 800, width: '100%' }}>
+        <div className={classes.root}>
             <DataGrid
                 disableSelectionOnClick={false}
                 isRowSelectable={(params) => {
