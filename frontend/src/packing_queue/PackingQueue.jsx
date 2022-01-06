@@ -70,7 +70,9 @@ const PackingQueue = () => {
 
   function onSearch(value) {
     const filtered = packingQueue.filter(
-      (order) => order.orderNumber.includes(value) || order.part.includes(value)
+      (order) =>
+        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
+        order.part.toLowerCase().includes(value.toLowerCase())
     );
 
     setFilteredPackingQueue(filtered);
