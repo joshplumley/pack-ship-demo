@@ -4,7 +4,7 @@ const UnfinishedBatchesCheckbox = ({ onChange, checked = true }) => {
   return (
     <FormGroup>
       <FormControlLabel
-        control={<Checkbox defaultChecked checked={checked} />}
+        control={<Checkbox checked={checked} />}
         label="Show Unfinished Batches"
         onChange={onChange}
       />
