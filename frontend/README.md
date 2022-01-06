@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-Swap `REACT_APP_API_URL` in `frontend/frontend` if you have changed your default PORT for the backend in `server/.env`
+Swap `REACT_APP_API_URL` in `frontend/.env` if you have changed your default PORT for the backend in `server/.env`
 
 In the `frontend` directory.
 
