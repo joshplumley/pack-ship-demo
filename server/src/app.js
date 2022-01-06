@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const packingSlipsController = require('./packingSlip/controller');
 const shipmentsController = require('./shipment/controller');
 const workOrdersController = require('./workOrder/controller');
@@ -8,6 +9,7 @@ require('dotenv').config();
 
 const app = express();
 
+app.use( cors() );
 app.use( express.json() );
 app.use( express.urlencoded({ extended: true }) );
 
