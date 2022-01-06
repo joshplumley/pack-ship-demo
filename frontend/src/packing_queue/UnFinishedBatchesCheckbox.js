@@ -1,8 +1,6 @@
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
-
 const UnfinishedBatchesCheckbox = ({ onChange, checked = true }) => {
-
   return (
     <FormGroup>
       <FormControlLabel
@@ -11,8 +9,7 @@ const UnfinishedBatchesCheckbox = ({ onChange, checked = true }) => {
         onChange={onChange}
       />
     </FormGroup>
-  )
-
+  );
 };
 
 export default UnfinishedBatchesCheckbox;

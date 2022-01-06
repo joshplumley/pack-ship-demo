@@ -1,24 +1,25 @@
-import { IconButton, InputAdornment, TextField } from "@mui/material";
-import SearchIcon from '@mui/icons-material/Search';
+import React from "react";
+import { InputAdornment, TextField } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
-
-const Search = () => {
-
-    return (
-        <TextField
-            label="Search"
-            InputProps={{
-                endAdornment: (
-                    <InputAdornment>
-                        <IconButton>
-                            <SearchIcon />
-                        </IconButton>
-                    </InputAdornment>
-                )
-            }}
-        />
-    )
-
+const Search = ({ onSearch }) => {
+  return (
+    <TextField
+      id="packing-queue-search"
+      onChange={(e) => {
+        onSearch(e.target.value);
+      }}
+      placeholder="Search"
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon />
+          </InputAdornment>
+        ),
+      }}
+      variant="standard"
+    />
+  );
 };
 
 export default Search;

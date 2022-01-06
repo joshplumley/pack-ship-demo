@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { styled } from '@mui/system';
-import TabsUnstyled from '@mui/base/TabsUnstyled';
-import TabsListUnstyled from '@mui/base/TabsListUnstyled';
-import TabPanelUnstyled from '@mui/base/TabPanelUnstyled';
-import { buttonUnstyledClasses } from '@mui/base/ButtonUnstyled';
-import TabUnstyled, { tabUnstyledClasses } from '@mui/base/TabUnstyled';
-import HistoryTable from './tables/HistoryTable';
-import QueueTable from './tables/QueueTable';
-import { API } from '../services/server';
+import React from "react";
+import { styled } from "@mui/system";
+import TabsUnstyled from "@mui/base/TabsUnstyled";
+import TabsListUnstyled from "@mui/base/TabsListUnstyled";
+import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
+import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
+import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
+import HistoryTable from "./tables/HistoryTable";
+import QueueTable from "./tables/QueueTable";
+// import { API } from '../services/server';
 
 const blue = {
-  50: '#F0F7FF',
-  100: '#C2E0FF',
-  200: '#80BFFF',
-  300: '#66B2FF',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E5',
-  700: '#0059B2',
-  800: '#004C99',
-  900: '#003A75',
+  50: "#F0F7FF",
+  100: "#C2E0FF",
+  200: "#80BFFF",
+  300: "#66B2FF",
+  400: "#3399FF",
+  500: "#007FFF",
+  600: "#0072E5",
+  700: "#0059B2",
+  800: "#004C99",
+  900: "#003A75",
 };
 
 const Tab = styled(TabUnstyled)`
@@ -76,52 +76,26 @@ const TabsList = styled(TabsListUnstyled)`
 `;
 
 export default function PackingQueueTabs({
-  isShowUnfinishedBatches,
+  queueData,
   onQueueRowClick,
-  selectedOrderNumber
+  selectedOrderNumber,
 }) {
-  const [packingQueue, setPackingQueue] = useState([]);
-
-  useEffect(() => {
-    async function fetchData() {
-      if (isShowUnfinishedBatches) {
-        return await API.getAllWorkOrders()
-      }
-      else {
-        return await API.getPackingQueue()
-      }
-    }
-
-    fetchData().then((data) => {
-      let tableData = []
-      data?.forEach(e => {
-        tableData.push({
-          id: e._id,
-          orderNumber: e.orderNumber,
-          part: `${e.partNumber} - ${e.partRev}`,
-          partDescription: e.partDescription,
-          batchQty: e.batchQty,
-          fulfilledQty: e.packedQty
-        })
-      });
-      setPackingQueue(tableData);
-    });
-
-  }, [isShowUnfinishedBatches]);
-
   return (
     <TabsUnstyled defaultValue={0}>
       <TabsList>
-        <Tab>Queue ({packingQueue.length})</Tab>
+        <Tab>Queue ({queueData.length})</Tab>
         <Tab>History</Tab>
       </TabsList>
       <TabPanel value={0}>
         <QueueTable
           onRowClick={onQueueRowClick}
-          tableData={packingQueue}
+          tableData={queueData}
           selectedOrderNumber={selectedOrderNumber}
-        /> </TabPanel>
-      <TabPanel value={1}><HistoryTable /></TabPanel>
+        />
+      </TabPanel>
+      <TabPanel value={1}>
+        <HistoryTable />
+      </TabPanel>
     </TabsUnstyled>
   );
 }
