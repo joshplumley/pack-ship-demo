@@ -4,6 +4,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+Swap `REACT_APP_API_URL` if you have changed your default PORT for the backend in `server/.env`
+
 In the `frontend` directory.
 
 ### `yarn install`
