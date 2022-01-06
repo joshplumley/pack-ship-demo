@@ -78,6 +78,7 @@ export default function PackingQueueTabs({
   queueData,
   onQueueRowClick,
   selectedOrderNumber,
+  selectionOrderIds,
 }) {
   return (
     <Box borderRadius="16px" p={2} backgroundColor="grey.200">
@@ -91,6 +92,7 @@ export default function PackingQueueTabs({
             onRowClick={onQueueRowClick}
             tableData={queueData}
             selectedOrderNumber={selectedOrderNumber}
+            selectionOrderIds={selectionOrderIds}
           />
         </TabPanel>
         <TabPanel value={1}>

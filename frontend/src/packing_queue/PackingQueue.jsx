@@ -21,6 +21,7 @@ const PackingQueue = () => {
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
+  const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -50,6 +51,7 @@ const PackingQueue = () => {
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
+    setFilteredSelectedIds(selectionModel);
     for (const item of tableData) {
       // All selected items will have the same order number
       // so we just take the first one
@@ -75,6 +77,13 @@ const PackingQueue = () => {
         order.part.toLowerCase().includes(value.toLowerCase())
     );
 
+    let filteredSelectedIds = [];
+    filtered.forEach((e) => {
+      if (selectedOrderIds.includes(e.id)) {
+        filteredSelectedIds.push(e.id);
+      }
+    });
+    setFilteredSelectedIds(filteredSelectedIds);
     setFilteredPackingQueue(filtered);
   }
 
@@ -104,6 +113,7 @@ const PackingQueue = () => {
         queueData={filteredPackingQueue}
         onQueueRowClick={onQueueRowClick}
         selectedOrderNumber={selectedOrderNumber}
+        selectionOrderIds={filteredSelectedIds}
       />
     </Box>
   );

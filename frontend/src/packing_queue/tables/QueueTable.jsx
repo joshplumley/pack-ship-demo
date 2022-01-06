@@ -29,7 +29,12 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const QueueTable = ({ tableData, onRowClick, selectedOrderNumber }) => {
+const QueueTable = ({
+  tableData,
+  onRowClick,
+  selectedOrderNumber,
+  selectionOrderIds,
+}) => {
   const classes = useStyle();
 
   const columns = [
@@ -102,6 +107,7 @@ const QueueTable = ({ tableData, onRowClick, selectedOrderNumber }) => {
         onSelectionModelChange={(selectionModel, _) => {
           onRowClick(selectionModel, tableData);
         }}
+        selectionModel={selectionOrderIds}
         rows={tableData}
         columns={columns}
         pageSize={10}
