@@ -7,6 +7,7 @@ import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
 import HistoryTable from "./tables/HistoryTable";
 import QueueTable from "./tables/QueueTable";
+import { Box } from "@mui/material";
 // import { API } from '../services/server';
 
 const blue = {
@@ -24,21 +25,18 @@ const blue = {
 
 const Tab = styled(TabUnstyled)`
   font-family: IBM Plex Sans, sans-serif;
-  color: white;
+  color: grey;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  background-color: transparent;
   width: 100%;
   padding: 12px 16px;
-  margin: 6px 6px;
   border: none;
-  border-radius: 5px;
   display: flex;
   justify-content: center;
 
   &:hover {
-    background-color: ${blue[400]};
+    background-color: #9e9e9e};
   }
 
   &.${buttonUnstyledClasses.focusVisible} {
@@ -48,12 +46,14 @@ const Tab = styled(TabUnstyled)`
   }
 
   &.${tabUnstyledClasses.selected} {
-    background-color: ${blue[50]};
-    color: ${blue[600]};
+    background-color: white;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    color: black;
   }
 
   &.${buttonUnstyledClasses.disabled} {
-    opacity: 0.5;
+    // opacity: 0.5;
     cursor: not-allowed;
   }
 `;
@@ -66,9 +66,8 @@ const TabPanel = styled(TabPanelUnstyled)`
 
 const TabsList = styled(TabsListUnstyled)`
   min-width: 320px;
-  background-color: ${blue[500]};
   border-radius: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,21 +80,23 @@ export default function PackingQueueTabs({
   selectedOrderNumber,
 }) {
   return (
-    <TabsUnstyled defaultValue={0}>
-      <TabsList>
-        <Tab>Queue ({queueData.length})</Tab>
-        <Tab>History</Tab>
-      </TabsList>
-      <TabPanel value={0}>
-        <QueueTable
-          onRowClick={onQueueRowClick}
-          tableData={queueData}
-          selectedOrderNumber={selectedOrderNumber}
-        />
-      </TabPanel>
-      <TabPanel value={1}>
-        <HistoryTable />
-      </TabPanel>
-    </TabsUnstyled>
+    <Box borderRadius="16px" p={2} backgroundColor="grey.200">
+      <TabsUnstyled defaultValue={0}>
+        <TabsList>
+          <Tab>Queue ({queueData.length})</Tab>
+          <Tab>History</Tab>
+        </TabsList>
+        <TabPanel value={0}>
+          <QueueTable
+            onRowClick={onQueueRowClick}
+            tableData={queueData}
+            selectedOrderNumber={selectedOrderNumber}
+          />
+        </TabPanel>
+        <TabPanel value={1}>
+          <HistoryTable />
+        </TabPanel>
+      </TabsUnstyled>
+    </Box>
   );
 }

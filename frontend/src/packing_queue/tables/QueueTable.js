@@ -6,8 +6,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 const useStyle = makeStyles((theme) => ({
   root: {
-    height: 800,
-    width: "95%",
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
@@ -20,17 +19,29 @@ const useStyle = makeStyles((theme) => ({
   help: {
     paddingLeft: "10px",
   },
+  table: {
+    backgroundColor: "white",
+    "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer":
+      {
+        display: "none",
+        // "&:after": { content: "Select" },
+      },
+  },
 }));
 
 const QueueTable = ({ tableData, onRowClick, selectedOrderNumber }) => {
   const classes = useStyle();
 
   const columns = [
-    { field: "orderNumber", headerName: "Order", width: 200 },
+    {
+      field: "orderNumber",
+      flex: 1,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+      },
+    },
     {
       field: "part",
-      headerName: "Part",
-      width: 250,
       renderCell: (params) => (
         <div>
           <Typography>{params.row.part}</Typography>
@@ -39,29 +50,42 @@ const QueueTable = ({ tableData, onRowClick, selectedOrderNumber }) => {
           </Typography>
         </div>
       ),
+      flex: 1,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+      },
     },
-    { field: "batchQty", headerName: "Batch Qty", width: 250, type: "number" },
+    {
+      field: "batchQty",
+      type: "number",
+      flex: 1,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+      },
+    },
     {
       field: "fulfilledQty",
-      headerName: "Fulfilled Qty",
-      width: 250,
       type: "number",
       renderHeader: (params) => {
         return (
           <div className={classes.fulfilledQtyHeader}>
-            <Typography>Fulfilled Qty</Typography>
+            <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
             <Tooltip title="This includes number of items that have been packed as well as number of items that have shipped.">
               <HelpOutlineIcon className={classes.help} />
             </Tooltip>
           </div>
         );
       },
+      flex: 1,
     },
   ];
 
   return (
     <div className={classes.root}>
       <DataGrid
+        sx={{ border: "none" }}
+        className={classes.table}
+        autoHeight
         disableSelectionOnClick={false}
         isRowSelectable={(params) => {
           // If orders are selected, disable selecting of

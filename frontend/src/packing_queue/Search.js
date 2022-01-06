@@ -17,7 +17,7 @@ const Search = ({ onSearch }) => {
           </InputAdornment>
         ),
       }}
-      variant="standard"
+      variant="outlined"
     />
   );
 };
