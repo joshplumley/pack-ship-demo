@@ -71,7 +71,6 @@ async function resetData(_req, res) {
 
       promises.push(newWorkOrder.save());
       if (i == 0) {
-        console.log(`${c.customerTag}${1001 + i}`);
         const newWorkOrder = new WorkOrder({
           customer: c._id,
           orderNumber: `${c.customerTag}${1001 + i}`,
