@@ -4,8 +4,18 @@ import Search from "./Search";
 import PackingQueueTabs from "./Tabs";
 import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
+import { Box, Grid } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+
+const useStyle = makeStyles((theme) => ({
+  topBarGrid: {
+    paddingBottom: "20px",
+  },
+}));
 
 const PackingQueue = () => {
+  const classes = useStyle();
+
   const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -67,19 +77,33 @@ const PackingQueue = () => {
   }
 
   return (
-    <>
-      <MakePackingSlipButton disabled={selectedOrderIds.length === 0} />
-      <Search onSearch={onSearch} />
-      <UnfinishedBatchesCheckbox
-        onChange={onUnfinishedBatchesClick}
-        checked={isShowUnfinishedBatches}
-      />
+    <Box p="40px">
+      <Grid
+        className={classes.topBarGrid}
+        container
+        justifyContent="start"
+        spacing={2}
+      >
+        <Grid container item xs={"auto"}>
+          <MakePackingSlipButton disabled={selectedOrderIds.length === 0} />
+        </Grid>
+        <Grid container justifyContent="start" item xs={6}>
+          <Search onSearch={onSearch} />
+        </Grid>
+        <Grid container item xs justifyContent="flex-end">
+          <UnfinishedBatchesCheckbox
+            onChange={onUnfinishedBatchesClick}
+            checked={isShowUnfinishedBatches}
+          />
+        </Grid>
+      </Grid>
+
       <PackingQueueTabs
         queueData={filteredPackingQueue}
         onQueueRowClick={onQueueRowClick}
         selectedOrderNumber={selectedOrderNumber}
       />
-    </>
+    </Box>
   );
 };
 
