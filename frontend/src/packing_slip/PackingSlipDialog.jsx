@@ -14,8 +14,6 @@ import { API } from "../services/server";
 
 const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
   const [filledForm, setFilledForm] = useState([]);
-  console.log("YO");
-  console.log(parts);
 
   useEffect(() => {
     setFilledForm(parts);
