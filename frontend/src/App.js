@@ -1,9 +1,9 @@
-import PackingQueue from './packing_queue/PackingQueue';
+import React from "react";
+
+import PackingQueue from "./packing_queue/PackingQueue";
 
 function App() {
-  return (
-    <PackingQueue />
-  );
+  return <PackingQueue />;
 }
 
 export default App;

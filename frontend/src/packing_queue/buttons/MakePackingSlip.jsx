@@ -8,10 +8,10 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const MakePackingSlipButton = ({ disabled = false }) => {
+const MakePackingSlipButton = ({ onClick, disabled = false }) => {
   const classes = useStyle();
   return (
-    <Button className={classes.text} disabled={disabled} variant="contained">
+    <Button className={classes.text} disabled={disabled} onClick={onClick} variant="contained">
       Make Packing Slip
     </Button>
   );
