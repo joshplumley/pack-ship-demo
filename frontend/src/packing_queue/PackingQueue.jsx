@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import MakePackingSlipButton from "./buttons/MakePackingSlip";
 import Search from "./Search";
 import PackingQueueTabs from "./Tabs";
 import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
 import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import CommonButton from "../common/Button";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -96,7 +96,10 @@ const PackingQueue = () => {
         spacing={2}
       >
         <Grid container item xs={"auto"}>
-          <MakePackingSlipButton disabled={selectedOrderIds.length === 0} />
+          <CommonButton
+            label="Make Packing Slip"
+            disabled={selectedOrderIds.length === 0}
+          />
         </Grid>
         <Grid container justifyContent="start" item xs={6}>
           <Search onSearch={onSearch} />

@@ -1,8 +1,12 @@
-import PackingQueue from './packing_queue/PackingQueue';
+import { ThemeProvider } from "@emotion/react";
+import PackingQueue from "./packing_queue/PackingQueue";
+import theme from "./theme";
 
 function App() {
   return (
-    <PackingQueue />
+    <ThemeProvider theme={theme}>
+      <PackingQueue />
+    </ThemeProvider>
   );
 }
 

@@ -8,20 +8,13 @@ import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
 import HistoryTable from "./tables/HistoryTable";
 import QueueTable from "./tables/QueueTable";
 import { Box } from "@mui/material";
-// import { API } from '../services/server';
+import makeStyles from "@mui/styles/makeStyles";
 
-const blue = {
-  50: "#F0F7FF",
-  100: "#C2E0FF",
-  200: "#80BFFF",
-  300: "#66B2FF",
-  400: "#3399FF",
-  500: "#007FFF",
-  600: "#0072E5",
-  700: "#0059B2",
-  800: "#004C99",
-  900: "#003A75",
-};
+const useStyle = makeStyles((theme) => ({
+  tab: {
+    backgroundColor: "black", // theme.palette.primary.main, TODO
+  },
+}));
 
 const Tab = styled(TabUnstyled)`
   font-family: IBM Plex Sans, sans-serif;
@@ -42,7 +35,6 @@ const Tab = styled(TabUnstyled)`
   &.${buttonUnstyledClasses.focusVisible} {
     color: #fff;
     outline: none;
-    background-color: ${blue[200]};
   }
 
   &.${tabUnstyledClasses.selected} {
@@ -53,7 +45,6 @@ const Tab = styled(TabUnstyled)`
   }
 
   &.${buttonUnstyledClasses.disabled} {
-    // opacity: 0.5;
     cursor: not-allowed;
   }
 `;
@@ -80,8 +71,9 @@ export default function PackingQueueTabs({
   selectedOrderNumber,
   selectionOrderIds,
 }) {
+  const classes = useStyle();
   return (
-    <Box borderRadius="16px" p={2} backgroundColor="grey.200">
+    <Box className={classes.tab} borderRadius="16px" p={2}>
       <TabsUnstyled defaultValue={0}>
         <TabsList>
           <Tab>Queue ({queueData.length})</Tab>
