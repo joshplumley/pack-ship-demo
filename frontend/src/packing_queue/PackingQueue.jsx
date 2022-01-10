@@ -4,12 +4,17 @@ import Search from "./Search";
 import PackingQueueTabs from "./Tabs";
 import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
-import { Box, Grid } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import { Link } from "react-router-dom";
+import { ROUTE_SHIPMENTS } from "../router/router";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
     paddingBottom: "20px",
+  },
+  navButton: {
+    paddingTop: "20px",
   },
 }));
 
@@ -115,6 +120,17 @@ const PackingQueue = () => {
         selectedOrderNumber={selectedOrderNumber}
         selectionOrderIds={filteredSelectedIds}
       />
+      <Grid
+        className={classes.navButton}
+        container
+        item
+        xs
+        justifyContent="flex-end"
+      >
+        <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
+          Shipments
+        </Button>
+      </Grid>
     </Box>
   );
 };
