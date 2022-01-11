@@ -6,6 +6,7 @@ import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
 import { Box, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -22,6 +23,7 @@ const PackingQueue = () => {
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
+  const [packingSlipOpen, setPackingSlipOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -48,6 +50,14 @@ const PackingQueue = () => {
       setFilteredPackingQueue(tableData);
     });
   }, [isShowUnfinishedBatches]);
+
+  function onPackingSlipClick() {
+    setPackingSlipOpen(true);
+  }
+
+  function onPackingSlipClose() {
+    setPackingSlipOpen(false);
+  }
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
@@ -96,7 +106,10 @@ const PackingQueue = () => {
         spacing={2}
       >
         <Grid container item xs={"auto"}>
-          <MakePackingSlipButton disabled={selectedOrderIds.length === 0} />
+          <MakePackingSlipButton
+            disabled={selectedOrderIds.length === 0}
+            onClick={onPackingSlipClick}
+          />
         </Grid>
         <Grid container justifyContent="start" item xs={6}>
           <Search onSearch={onSearch} />
@@ -114,6 +127,12 @@ const PackingQueue = () => {
         onQueueRowClick={onQueueRowClick}
         selectedOrderNumber={selectedOrderNumber}
         selectionOrderIds={filteredSelectedIds}
+      />
+      <PackingSlipDialog
+        open={packingSlipOpen}
+        onClose={onPackingSlipClose}
+        orderNum={selectedOrderNumber}
+        parts={packingQueue.filter((e) => selectedOrderIds.includes(e.id))}
       />
     </Box>
   );
