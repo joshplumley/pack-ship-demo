@@ -8,22 +8,16 @@ import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
 import HistoryTable from "./tables/HistoryTable";
 import QueueTable from "./tables/QueueTable";
 import { Box } from "@mui/material";
-// import { API } from '../services/server';
+import makeStyles from "@mui/styles/makeStyles";
 
-const blue = {
-  50: "#F0F7FF",
-  100: "#C2E0FF",
-  200: "#80BFFF",
-  300: "#66B2FF",
-  400: "#3399FF",
-  500: "#007FFF",
-  600: "#0072E5",
-  700: "#0059B2",
-  800: "#004C99",
-  900: "#003A75",
-};
+const useStyle = makeStyles((theme) => ({
+  tab: {
+    backgroundColor: theme.palette.secondary.light,
+  },
+}));
 
-const Tab = styled(TabUnstyled)`
+const Tab = styled(TabUnstyled)(({ theme }) => {
+  return `
   font-family: IBM Plex Sans, sans-serif;
   color: grey;
   cursor: pointer;
@@ -34,15 +28,19 @@ const Tab = styled(TabUnstyled)`
   border: none;
   display: flex;
   justify-content: center;
+  // background-color: ${theme.palette.primary.light}};
 
   &:hover {
-    background-color: #9e9e9e};
+    background-color: ${theme.palette.primary.light}};
   }
 
+  // &:focus{
+  //   background-color: ${theme.palette.primary.light}};
+  // }
+
   &.${buttonUnstyledClasses.focusVisible} {
-    color: #fff;
+    // color: #fff;
     outline: none;
-    background-color: ${blue[200]};
   }
 
   &.${tabUnstyledClasses.selected} {
@@ -53,10 +51,10 @@ const Tab = styled(TabUnstyled)`
   }
 
   &.${buttonUnstyledClasses.disabled} {
-    // opacity: 0.5;
     cursor: not-allowed;
   }
 `;
+});
 
 const TabPanel = styled(TabPanelUnstyled)`
   width: 100%;
@@ -72,6 +70,7 @@ const TabsList = styled(TabsListUnstyled)`
   align-items: center;
   justify-content: center;
   align-content: space-between;
+  // background-color: black;
 `;
 
 export default function PackingQueueTabs({
@@ -80,8 +79,9 @@ export default function PackingQueueTabs({
   selectedOrderNumber,
   selectionOrderIds,
 }) {
+  const classes = useStyle();
   return (
-    <Box borderRadius="16px" p={2} backgroundColor="grey.200">
+    <Box className={classes.tab} borderRadius="16px" p={2}>
       <TabsUnstyled defaultValue={0}>
         <TabsList>
           <Tab>Queue ({queueData.length})</Tab>
