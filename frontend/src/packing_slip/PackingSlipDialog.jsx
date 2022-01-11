@@ -31,8 +31,6 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
   }
 
   function isSubmittable() {
-    console.log("TEST");
-    console.log(filledForm.every((e) => e.packQty && e.packQty >= 0));
     return filledForm.every((e) => e.packQty && e.packQty >= 0);
   }
 
