@@ -1,4 +1,4 @@
-const PackingDialog = ({
+const PopupDialog = ({
   titleText,
   onClose,
   submitPackingSlip,
@@ -39,4 +39,4 @@ const PackingDialog = ({
   );
 };
 
-export default PackingDialog;
+export default PopupDialog;

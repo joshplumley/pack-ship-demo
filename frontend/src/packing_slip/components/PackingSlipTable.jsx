@@ -64,7 +64,7 @@ const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
   ];
 
   return (
-    <ErrorDataGrid
+    <PackShipDataGrid
       rowData={rowData}
       columns={columns}
       validateError={(params) => {

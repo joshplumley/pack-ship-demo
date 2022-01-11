@@ -1,7 +1,7 @@
-import { Typography, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
-const ErrorDataGrid = ({ validateError, rowData, columns }) => {
+const PackShipDataGrid = ({ validateError, rowData, columns }) => {
   return (
     <Box
       sx={{
@@ -29,4 +29,4 @@ const ErrorDataGrid = ({ validateError, rowData, columns }) => {
   );
 };
 
-export default ErrorDataGrid;
+export default PackShipDataGrid;
