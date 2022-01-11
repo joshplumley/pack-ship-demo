@@ -24,7 +24,6 @@ const useStyle = makeStyles((theme) => ({
     "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer":
       {
         display: "none",
-        // "&:after": { content: "Select" },
       },
   },
 }));
