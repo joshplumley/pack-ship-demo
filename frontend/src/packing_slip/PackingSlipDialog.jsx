@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { API } from "../services/server";
+import PackingDialog from "../components/PackingDialog";
 
 const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
   const [filledForm, setFilledForm] = useState([]);
@@ -31,44 +32,18 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
   }
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth="xl"
-      open={open}
+    <PackingDialog
+      titleText={`Create Packing Slip for Order #${orderNum}`}
       onClose={onClose}
-      onBackdropClick={onClose}
+      submitPackingSlip={submitPackingSlip}
+      open={open}
     >
-      <DialogTitle sx={{ m: 0, p: 2 }}>
-        <Typography align="center">
-          Create Packing Slip for Order #{orderNum}
-        </Typography>
-        <IconButton
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-          }}
-          onClick={onClose}
-        >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent>
-        <PackingSlipTable
-          rowData={parts}
-          filledForm={filledForm}
-          setFilledForm={setFilledForm}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button variant="contained" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" autoFocus onClick={submitPackingSlip}>
-          Ok
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <PackingSlipTable
+        rowData={parts}
+        filledForm={filledForm}
+        setFilledForm={setFilledForm}
+      />
+    </PackingDialog>
   );
 };
 

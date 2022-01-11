@@ -1,20 +1,56 @@
-import { Typography } from "@mui/material";
-import HelpTooltip from "../../components/HelpTooltip";
-import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
+import {
+  Typography,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+} from "@mui/material";
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 
-const useStyle = makeStyles((theme) => ({
-  fulfilledQtyHeader: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-}));
-
-const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
-  const classes = useStyle();
+const EditPackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
+  const [dialogOpen, setDialogOpen] = useState();
 
   const columns = [
+    {
+      field: "actions",
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Actions</Typography>;
+      },
+      flex: 1,
+      renderCell: (params) => {
+        const onClick = (e) => {
+          e.stopPropagation(); // don't select this row after clicking
+
+          setDialogOpen(true);
+        };
+
+        return (
+          <div>
+            <IconButton onClick={onClick}>
+              <DeleteForeverRoundedIcon />
+            </IconButton>
+            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Do You Want To Delete This?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setDialogOpen(false)}>Disagree</Button>
+                <Button
+                  onClick={() =>
+                    setFilledForm(filledForm.filter((e) => e.id !== params.id))
+                  }
+                  autoFocus
+                >
+                  Agree
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
+        );
+      },
+    },
     {
       field: "part",
       renderHeader: (params) => {
@@ -81,4 +117,4 @@ const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
   );
 };
 
-export default PackingSlipTable;
+export default EditPackingSlipTable;
