@@ -12,11 +12,12 @@ import makeStyles from "@mui/styles/makeStyles";
 
 const useStyle = makeStyles((theme) => ({
   tab: {
-    backgroundColor: "black", // theme.palette.primary.main, TODO
+    backgroundColor: theme.palette.secondary.light,
   },
 }));
 
-const Tab = styled(TabUnstyled)`
+const Tab = styled(TabUnstyled)(({ theme }) => {
+  return `
   font-family: IBM Plex Sans, sans-serif;
   color: grey;
   cursor: pointer;
@@ -27,13 +28,18 @@ const Tab = styled(TabUnstyled)`
   border: none;
   display: flex;
   justify-content: center;
+  // background-color: ${theme.palette.primary.light}};
 
   &:hover {
-    background-color: #9e9e9e};
+    background-color: ${theme.palette.primary.light}};
   }
 
+  // &:focus{
+  //   background-color: ${theme.palette.primary.light}};
+  // }
+
   &.${buttonUnstyledClasses.focusVisible} {
-    color: #fff;
+    // color: #fff;
     outline: none;
   }
 
@@ -48,6 +54,7 @@ const Tab = styled(TabUnstyled)`
     cursor: not-allowed;
   }
 `;
+});
 
 const TabPanel = styled(TabPanelUnstyled)`
   width: 100%;
@@ -63,6 +70,7 @@ const TabsList = styled(TabsListUnstyled)`
   align-items: center;
   justify-content: center;
   align-content: space-between;
+  // background-color: black;
 `;
 
 export default function PackingQueueTabs({

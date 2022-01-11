@@ -13,27 +13,16 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      light: "#c9c5c5",
-      main: "#9e9e9e",
-      dark: "#757575",
+      contrastText: "#808080",
+      light: "#ffd78f",
+      main: "#ffbc43",
+      dark: "#f69e00",
     },
     secondary: {
-      light: "#ffd78f",
-      main: "#fac157",
-      dark: "#FFA500",
+      light: "#F4F4F4",
+      main: "#ffbc43",
+      dark: "#757575",
     },
-    error: {
-      light: "#FF7070",
-      main: "#CD0000",
-      dark: "#A30000",
-    },
-    default: palette.augmentColor({
-      color: {
-        light: "#939393",
-        main: "#e0e0e0",
-        dark: "#d5d5d5",
-      },
-    }),
   },
 });
 
