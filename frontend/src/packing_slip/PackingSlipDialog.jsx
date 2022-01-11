@@ -30,6 +30,12 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
       });
   }
 
+  function isSubmittable() {
+    console.log("TEST");
+    console.log(filledForm.every((e) => e.packQty && e.packQty >= 0));
+    return filledForm.every((e) => e.packQty && e.packQty >= 0);
+  }
+
   return (
     <Dialog
       fullWidth
@@ -64,7 +70,12 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
         <Button variant="contained" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="contained" autoFocus onClick={submitPackingSlip}>
+        <Button
+          variant="contained"
+          disabled={!isSubmittable()}
+          autoFocus
+          onClick={submitPackingSlip}
+        >
           Ok
         </Button>
       </DialogActions>

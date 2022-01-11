@@ -88,6 +88,7 @@ const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
         autoHeight
         rows={rowData}
         columns={columns}
+        disableSelectionOnClick
         onCellEditCommit={(params) => {
           setFilledForm(
             filledForm.map((e) => {
