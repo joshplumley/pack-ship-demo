@@ -5,8 +5,6 @@ import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
-import HistoryTable from "./tables/HistoryTable";
-import QueueTable from "./tables/QueueTable";
 import { Box } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 
@@ -73,31 +71,17 @@ const TabsList = styled(TabsListUnstyled)`
   // background-color: black;
 `;
 
-export default function PackingQueueTabs({
-  queueData,
-  onQueueRowClick,
-  selectedOrderNumber,
-  selectionOrderIds,
-}) {
+export default function PackShipTabs({ queueData, queueTab, historyTab }) {
   const classes = useStyle();
   return (
-    <Box className={classes.tab} borderRadius="16px" p={2}>
+    <Box className={classes.tab} borderRadius="16px" p={2} height="fit-content">
       <TabsUnstyled defaultValue={0}>
         <TabsList>
           <Tab>Queue ({queueData.length})</Tab>
           <Tab>History</Tab>
         </TabsList>
-        <TabPanel value={0}>
-          <QueueTable
-            onRowClick={onQueueRowClick}
-            tableData={queueData}
-            selectedOrderNumber={selectedOrderNumber}
-            selectionOrderIds={selectionOrderIds}
-          />
-        </TabPanel>
-        <TabPanel value={1}>
-          <HistoryTable />
-        </TabPanel>
+        <TabPanel value={0}>{queueTab}</TabPanel>
+        <TabPanel value={1}>{historyTab}</TabPanel>
       </TabsUnstyled>
     </Box>
   );

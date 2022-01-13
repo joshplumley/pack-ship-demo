@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
-import UnfinishedBatchesCheckbox from "../components/UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
 import { Box, Button, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
-import { ROUTE_SHIPMENTS } from "../router/router";
+import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
-import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
-import PackingQueueTable from "./tables/PackingQueueTable";
-import HistoryTable from "./tables/HistoryTable";
+import ShippingQueueTable from "./tables/ShippingQueueTable";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -21,64 +18,49 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const PackingQueue = () => {
+const ShippingQueue = () => {
   const classes = useStyle();
 
   const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
-  const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
-  const [packingQueue, setPackingQueue] = useState([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
-  const [packingSlipOpen, setPackingSlipOpen] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      if (isShowUnfinishedBatches) {
-        return await API.getAllWorkOrders();
-      } else {
-        return await API.getPackingQueue();
-      }
+      return await API.getShippingQueue();
     }
 
     fetchData().then((data) => {
       let tableData = [];
-      data?.forEach((e) => {
+      data?.packingSlips.forEach((e) => {
         tableData.push({
           id: e._id,
           orderNumber: e.orderNumber,
-          part: `${e.partNumber} - ${e.partRev}`,
-          partDescription: e.partDescription,
-          batchQty: e.batchQty,
-          fulfilledQty: e.packedQty,
+          packingSlipId: e.packingSlipId,
+          items: e.items,
         });
       });
-      setPackingQueue(tableData);
+      setShippingQueue(tableData);
       setFilteredPackingQueue(tableData);
     });
   }, [isShowUnfinishedBatches]);
-
-  function onPackingSlipClick() {
-    setPackingSlipOpen(true);
-  }
-
-  function onPackingSlipClose() {
-    setPackingSlipOpen(false);
-  }
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
     for (const item of tableData) {
-      // All selected items will have the same order number
+      // All selected items will have the same customer id
       // so we just take the first one
       if (selectionModel.length > 0 && item.id === selectionModel[0]) {
-        setSelectedOrderNumber(item.orderNumber);
+        setSelectedCustomerId(item.customerId);
         break;
       }
       // If nothing selected set it to null
       if (selectionModel.length === 0) {
-        setSelectedOrderNumber(null);
+        setSelectedCustomerId(null);
       }
     }
   }
@@ -88,7 +70,7 @@ const PackingQueue = () => {
   }
 
   function onSearch(value) {
-    const filtered = packingQueue.filter(
+    const filtered = shippingQueue.filter(
       (order) =>
         order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
         order.part.toLowerCase().includes(value.toLowerCase())
@@ -114,40 +96,25 @@ const PackingQueue = () => {
       >
         <Grid container item xs={"auto"}>
           <CommonButton
-            label="Make Packing Slip"
+            label="Create Shipment"
             disabled={selectedOrderIds.length === 0}
-            onClick={onPackingSlipClick}
           />
         </Grid>
         <Grid container justifyContent="start" item xs={6}>
           <Search onSearch={onSearch} />
-        </Grid>
-        <Grid container item xs justifyContent="flex-end">
-          <UnfinishedBatchesCheckbox
-            onChange={onUnfinishedBatchesClick}
-            checked={isShowUnfinishedBatches}
-          />
         </Grid>
       </Grid>
 
       <PackShipTabs
         queueData={filteredPackingQueue}
         queueTab={
-          <PackingQueueTable
+          <ShippingQueueTable
             onRowClick={onQueueRowClick}
             tableData={filteredPackingQueue}
-            selectedOrderNumber={selectedOrderNumber}
+            selectedCustomerId={selectedCustomerId}
             selectionOrderIds={filteredSelectedIds}
           />
         }
-        historyTab={<HistoryTable />}
-      />
-
-      <PackingSlipDialog
-        open={packingSlipOpen}
-        onClose={onPackingSlipClose}
-        orderNum={selectedOrderNumber}
-        parts={packingQueue.filter((e) => selectedOrderIds.includes(e.id))}
       />
 
       <Grid
@@ -157,12 +124,12 @@ const PackingQueue = () => {
         xs
         justifyContent="flex-end"
       >
-        <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
-          Shipments
+        <Button component={Link} to={ROUTE_PACKING_SLIP} variant="contained">
+          Packing
         </Button>
       </Grid>
     </Box>
   );
 };
 
-export default PackingQueue;
+export default ShippingQueue;
