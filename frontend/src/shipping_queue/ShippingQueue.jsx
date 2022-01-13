@@ -111,6 +111,7 @@ const ShippingQueue = () => {
           <ShippingQueueTable
             onRowClick={onQueueRowClick}
             tableData={filteredPackingQueue}
+            setTableData={setFilteredPackingQueue}
             selectedCustomerId={selectedCustomerId}
             selectionOrderIds={filteredSelectedIds}
           />

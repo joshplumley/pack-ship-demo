@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -8,7 +8,6 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
-  ListItemIcon,
 } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -76,20 +75,14 @@ const ThisDataGrid = styled(DataGrid)`
 `;
 
 const PackingSlipDrowdown = ({ params }) => {
-  const [open, setOpen] = useState(false);
   return (
     <div style={{ width: "100%" }}>
       <List>
-        <ListItemButton
-          fullWidth
-          onClick={() => {
-            setOpen(!open);
-          }}
-        >
-          {open ? <ExpandLess /> : <ExpandMore />}
+        <ListItemButton fullWidth>
+          {params.row.open ? <ExpandLess /> : <ExpandMore />}
           <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
         </ListItemButton>
-        <Collapse in={open} timeout="auto" unmountOnExit>
+        <Collapse in={params.row.open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {params.row.items.map((e) => (
               <ListItem key={e.customerId} divider>
@@ -107,6 +100,7 @@ const PackingSlipDrowdown = ({ params }) => {
 
 const ShippingQueueTable = ({
   tableData,
+  setTableData,
   onRowClick,
   selectedCustomerId,
   selectionOrderIds,
@@ -167,7 +161,14 @@ const ShippingQueueTable = ({
         onSelectionModelChange={(selectionModel, _) => {
           onRowClick(selectionModel, tableData);
         }}
-        onRowClick={(params, event, details) => {}}
+        onRowClick={(params) => {
+          let tmpData = [...tableData];
+          const tmpIndex = tmpData.findIndex((e) => {
+            return e.id === params.id;
+          });
+          tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
+          setTableData(tmpData);
+        }}
         selectionModel={selectionOrderIds}
         rows={tableData}
         rowHeight={65}
@@ -175,6 +176,7 @@ const ShippingQueueTable = ({
         pageSize={10}
         rowsPerPageOptions={[10]}
         checkboxSelection
+        editMode="row"
       />
     </div>
   );
