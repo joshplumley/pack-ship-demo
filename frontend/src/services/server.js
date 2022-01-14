@@ -41,4 +41,13 @@ export const API = {
       console.error("getShippingQueue", error);
     }
   },
+
+  async getShippingHistory() {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/shipments`);
+      return response.data;
+    } catch (error) {
+      console.error("getShippingHistory", error);
+    }
+  },
 };

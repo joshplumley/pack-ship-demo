@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
+import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -27,24 +28,44 @@ const ShippingQueue = () => {
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
+  const [shippingHistory, setShippingHistory] = useState([]);
+  const [filteredShippingHist, setFilteredShippingHist] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
-      return await API.getShippingQueue();
+      const data = await Promise.all([
+        API.getShippingQueue(),
+        API.getShippingHistory(),
+      ]);
+      return { queue: data[0], history: data[1] };
     }
 
     fetchData().then((data) => {
-      let tableData = [];
-      data?.packingSlips.forEach((e) => {
-        tableData.push({
+      // Gather the queue data for the table
+      let queueTableData = [];
+      data?.queue?.packingSlips.forEach((e) => {
+        queueTableData.push({
           id: e._id,
           orderNumber: e.orderNumber,
           packingSlipId: e.packingSlipId,
           items: e.items,
         });
       });
-      setShippingQueue(tableData);
-      setFilteredPackingQueue(tableData);
+      setShippingQueue(queueTableData);
+      setFilteredPackingQueue(queueTableData);
+
+      // Gather the history data for the table
+      let historyTableData = [];
+      data?.history?.shipments.forEach((e) => {
+        historyTableData.push({
+          id: e._id,
+          customer: e.customer.customerTag,
+          shipmentNum: e.trackingNumber,
+          dateCreated: null, // TODO e.dateCreated,
+        });
+      });
+      setShippingHistory(historyTableData);
+      setFilteredShippingHist(historyTableData);
     });
   }, [isShowUnfinishedBatches]);
 
@@ -69,21 +90,12 @@ const ShippingQueue = () => {
     setIsShowUnfinishedBatches(!isShowUnfinishedBatches);
   }
 
-  function onSearch(value) {
-    const filtered = shippingQueue.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
-        order.part.toLowerCase().includes(value.toLowerCase())
+  // TODO Replace when deep search endpoint is complete
+  function onHistorySearch(value) {
+    const filtered = shippingHistory.filter((shipment) =>
+      shipment.shipmentNum.includes(value)
     );
-
-    let filteredSelectedIds = [];
-    filtered.forEach((e) => {
-      if (selectedOrderIds.includes(e.id)) {
-        filteredSelectedIds.push(e.id);
-      }
-    });
-    setFilteredSelectedIds(filteredSelectedIds);
-    setFilteredPackingQueue(filtered);
+    setFilteredShippingHist(filtered);
   }
 
   return (
@@ -101,7 +113,7 @@ const ShippingQueue = () => {
           />
         </Grid>
         <Grid container justifyContent="start" item xs={6}>
-          <Search onSearch={onSearch} />
+          <Search onSearch={onHistorySearch} />
         </Grid>
       </Grid>
 
@@ -116,6 +128,7 @@ const ShippingQueue = () => {
             selectionOrderIds={filteredSelectedIds}
           />
         }
+        historyTab={<ShippingHistoryTable tableData={filteredShippingHist} />}
       />
 
       <Grid
