@@ -1,33 +1,33 @@
 const { Router } = require("express");
 const router = Router();
-const Shipment = require('./model');
-const PackingSlip = require('../packingSlip/model');
-const Customer = require('../customer/model');
+const Shipment = require("./model");
+const PackingSlip = require("../packingSlip/model");
+const Customer = require("../customer/model");
+const mongoose = require("mongoose");
 
 module.exports = router;
 
-router.get('/', getAll);
-router.put('/', createOne);
+router.get("/", getAll);
+router.put("/", createOne);
 
-router.get('/queue', getQueue);
+router.get("/queue", getQueue);
 
-router.get('/:sid', getOne);
-router.patch('/:sid', editOne);
-router.delete('/:sid', deleteOne);
+router.get("/:sid", getOne);
+router.patch("/:sid", editOne);
+router.delete("/:sid", deleteOne);
 
 /**
  * Generic handler for shipment functions
- * @param {Function} f 
- * @param {String} msg 
- * @returns 
+ * @param {Function} f
+ * @param {String} msg
+ * @returns
  */
 const handler = async (f, msg, res) => {
   try {
     const [error, data] = await f();
-    if (error) res.status( error.status ).send( error.message );
-    else res.send( data );
-  }
-  catch (e) {
+    if (error) res.status(error.status).send(error.message);
+    else res.send(data);
+  } catch (e) {
     console.error(e);
     return [{ status: 500, message: `Unespected error ${msg}.` }];
   }
@@ -35,14 +35,14 @@ const handler = async (f, msg, res) => {
 
 async function getQueue(_req, res) {
   handler(
-    async() => {
+    async () => {
       const packingSlips = await PackingSlip.find({ shipment: null })
         .lean()
         .exec();
 
       return [null, { packingSlips }];
     },
-    'fetching shipping queue',
+    "fetching shipping queue",
     res
   );
 }
@@ -53,13 +53,11 @@ async function getQueue(_req, res) {
 async function getAll(_req, res) {
   handler(
     async () => {
-      const shipments = await Shipment.find()
-        .lean()
-        .exec();
+      const shipments = await Shipment.find().lean().exec();
 
       return [null, { shipments }];
     },
-    'fetching shipments',
+    "fetching shipments",
     res
   );
 }
@@ -75,7 +73,10 @@ async function createOne(req, res) {
       const p_numShipments = Shipment.countDocuments({ customer });
       const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
 
-      const [numShipments, customerDoc] = [await p_numShipments, await p_customerDoc];
+      const [numShipments, customerDoc] = [
+        await p_numShipments,
+        await p_customerDoc,
+      ];
       const { customerTag } = customerDoc;
 
       const shipmentId = `${customerTag}-SH${numShipments + 1}`;
@@ -85,20 +86,20 @@ async function createOne(req, res) {
         shipmentId,
         manifest,
         trackingNumber,
-        cost
+        cost,
       });
 
       await shipment.save();
 
       // update all packing slips in manifest w/ this shipment's id
-      const promises = manifest.map(x =>
-        PackingSlip.updateOne({ _id: x }, { $set: { 'shipment': shipment._id } })
+      const promises = manifest.map((x) =>
+        PackingSlip.updateOne({ _id: x }, { $set: { shipment: shipment._id } })
       );
       await Promise.all(promises);
 
       return [null, { shipment }];
     },
-    'creating shipment',
+    "creating shipment",
     res
   );
 }
@@ -110,14 +111,15 @@ async function getOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-
       const shipment = await Shipment.findById(sid)
+        .populate("customer")
+        .populate("manifest")
         .lean()
         .exec();
 
       return [null, { shipment }];
     },
-    'fetching shipment',
+    "fetching shipment",
     res
   );
 }
@@ -133,14 +135,16 @@ async function editOne(req, res) {
 
       await Shipment.updateOne(
         { _id: sid },
-        { $set: {
-          manifest
-        } }
+        {
+          $set: {
+            manifest,
+          },
+        }
       );
 
-      return [null, ];
+      return [null];
     },
-    'editing shipment',
+    "editing shipment",
     res
   );
 }
@@ -154,9 +158,9 @@ async function deleteOne(req, res) {
       const { sid } = req.params;
 
       await Shipment.deleteOne({ _id: sid });
-      return [null, ];
+      return [null];
     },
-    'deleting shipment',
+    "deleting shipment",
     res
   );
 }
