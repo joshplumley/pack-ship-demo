@@ -96,7 +96,10 @@ async function getOne(req, res) {
       const { sid } = req.params;
       const shipment = await Shipment.findById(sid)
         .populate("customer")
-        .populate("manifest")
+        .populate({
+          path: 'manifest',
+          populate: 'items.item'
+        })
         .lean()
         .exec();
 
