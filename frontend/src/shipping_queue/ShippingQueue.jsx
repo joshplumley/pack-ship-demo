@@ -21,7 +21,6 @@ const useStyle = makeStyles((theme) => ({
 const ShippingQueue = () => {
   const classes = useStyle();
 
-  const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [shippingQueue, setShippingQueue] = useState([]);
@@ -46,7 +45,7 @@ const ShippingQueue = () => {
       setShippingQueue(tableData);
       setFilteredPackingQueue(tableData);
     });
-  }, [isShowUnfinishedBatches]);
+  }, []);
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
@@ -65,15 +64,9 @@ const ShippingQueue = () => {
     }
   }
 
-  function onUnfinishedBatchesClick() {
-    setIsShowUnfinishedBatches(!isShowUnfinishedBatches);
-  }
-
   function onSearch(value) {
-    const filtered = shippingQueue.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
-        order.part.toLowerCase().includes(value.toLowerCase())
+    const filtered = shippingQueue.filter((order) =>
+      order.orderNumber.toLowerCase().includes(value.toLowerCase())
     );
 
     let filteredSelectedIds = [];
