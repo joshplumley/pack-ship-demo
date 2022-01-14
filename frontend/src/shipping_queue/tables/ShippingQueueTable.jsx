@@ -10,7 +10,7 @@ import {
   ListItemButton,
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/system";
 
 const useStyle = makeStyles((theme) => ({
@@ -55,7 +55,11 @@ const PackingSlipDrowdown = ({ params }) => {
     <div style={{ width: "100%" }}>
       <List>
         <ListItemButton fullWidth>
-          {params.row.open ? <ExpandLess /> : <ExpandMore />}
+          {params.row.open && params.row.open !== undefined ? (
+            <ExpandLess />
+          ) : (
+            <ExpandMore />
+          )}
           <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
         </ListItemButton>
         <Collapse in={params.row.open} timeout="auto" unmountOnExit>
