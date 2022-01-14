@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import Search from "./Search";
-import PackingQueueTabs from "./Tabs";
-import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
+import Search from "../components/Search";
+import PackShipTabs from "../components/Tabs";
+import UnfinishedBatchesCheckbox from "../components/UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
 import { Box, Button, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_SHIPMENTS } from "../router/router";
 import CommonButton from "../common/Button";
-import PackingSlipDialog from '../packing_slip/PackingSlipDialog';
+import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
+import PackingQueueTable from "./tables/PackingQueueTable";
+import HistoryTable from "./tables/HistoryTable";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -128,18 +130,24 @@ const PackingQueue = () => {
         </Grid>
       </Grid>
 
-      <PackingQueueTabs
+      <PackShipTabs
         queueData={filteredPackingQueue}
-        onQueueRowClick={onQueueRowClick}
-        selectedOrderNumber={selectedOrderNumber}
-        selectionOrderIds={filteredSelectedIds}
+        queueTab={
+          <PackingQueueTable
+            onRowClick={onQueueRowClick}
+            tableData={filteredPackingQueue}
+            selectedOrderNumber={selectedOrderNumber}
+            selectionOrderIds={filteredSelectedIds}
+          />
+        }
+        historyTab={<HistoryTable />}
       />
 
       <PackingSlipDialog
         open={packingSlipOpen}
         onClose={onPackingSlipClose}
         orderNum={selectedOrderNumber}
-        parts={packingQueue.filter( e => selectedOrderIds.includes(e.id) )}
+        parts={packingQueue.filter((e) => selectedOrderIds.includes(e.id))}
       />
 
       <Grid

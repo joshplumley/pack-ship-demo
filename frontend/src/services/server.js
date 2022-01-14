@@ -32,4 +32,13 @@ export const API = {
 
     return response.data;
   },
+
+  async getShippingQueue() {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/shipments/queue`);
+      return response.data;
+    } catch (error) {
+      console.error("getShippingQueue", error);
+    }
+  },
 };
