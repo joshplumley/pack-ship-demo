@@ -24,7 +24,7 @@ const ShippingQueue = () => {
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [shippingQueue, setShippingQueue] = useState([]);
-  const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
+  const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const ShippingQueue = () => {
         });
       });
       setShippingQueue(tableData);
-      setFilteredPackingQueue(tableData);
+      setFilteredShippingQueue(tableData);
     });
   }, []);
 
@@ -76,7 +76,7 @@ const ShippingQueue = () => {
       }
     });
     setFilteredSelectedIds(filteredSelectedIds);
-    setFilteredPackingQueue(filtered);
+    setFilteredShippingQueue(filtered);
   }
 
   return (
@@ -99,12 +99,12 @@ const ShippingQueue = () => {
       </Grid>
 
       <PackShipTabs
-        queueData={filteredPackingQueue}
+        queueData={filteredShippingQueue}
         queueTab={
           <ShippingQueueTable
             onRowClick={onQueueRowClick}
-            tableData={filteredPackingQueue}
-            setTableData={setFilteredPackingQueue}
+            tableData={filteredShippingQueue}
+            setTableData={setFilteredShippingQueue}
             selectedCustomerId={selectedCustomerId}
             selectionOrderIds={filteredSelectedIds}
           />
