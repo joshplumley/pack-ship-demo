@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 const PackingSlip = require('./model.js');
+const handler = require('../handler');
 
 module.exports = router;
 
@@ -12,24 +13,6 @@ router.post('/merge', mergePackingSlips);
 router.get('/:pid', getPackingSlip);
 router.patch('/:pid', editPackingSlip);
 router.delete('/:pid', deletePackingSlip);
-
-/**
- * Generic handler for packing slip functions
- * @param {Function} f 
- * @param {String} msg 
- * @returns 
- */
-const handler = async (f, msg, res) => {
-  try {
-    const [error, data] = await f();
-    if (error) res.status( error.status ).send( error.message );
-    else res.send( data );
-  }
-  catch (e) {
-    console.error(e);
-    return [{ status: 500, message: `Unespected error ${msg}.` }];
-  }
-};
 
 /**
  * Get a list of all packing slips
