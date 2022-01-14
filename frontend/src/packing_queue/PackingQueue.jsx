@@ -8,6 +8,7 @@ import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_SHIPMENTS } from "../router/router";
 import CommonButton from "../common/Button";
+import PackingSlipDialog from '../packing_slip/PackingSlipDialog';
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -113,6 +114,7 @@ const PackingQueue = () => {
           <CommonButton
             label="Make Packing Slip"
             disabled={selectedOrderIds.length === 0}
+            onClick={onPackingSlipClick}
           />
         </Grid>
         <Grid container justifyContent="start" item xs={6}>
@@ -132,6 +134,14 @@ const PackingQueue = () => {
         selectedOrderNumber={selectedOrderNumber}
         selectionOrderIds={filteredSelectedIds}
       />
+
+      <PackingSlipDialog
+        open={packingSlipOpen}
+        onClose={onPackingSlipClose}
+        orderNum={selectedOrderNumber}
+        parts={packingQueue.filter( e => selectedOrderIds.includes(e.id) )}
+      />
+
       <Grid
         className={classes.navButton}
         container
