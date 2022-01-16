@@ -22,14 +22,18 @@ const useStyle = makeStyles((theme) => ({
 const ShippingQueue = () => {
   const classes = useStyle();
 
-  const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [shippingQueue, setShippingQueue] = useState([]);
-  const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
+  const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
   const [shippingHistory, setShippingHistory] = useState([]);
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
+
+  function getFormattedDate(dateString) {
+    const dt = new Date(dateString);
+    return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -52,7 +56,7 @@ const ShippingQueue = () => {
         });
       });
       setShippingQueue(queueTableData);
-      setFilteredPackingQueue(queueTableData);
+      setFilteredShippingQueue(queueTableData);
 
       // Gather the history data for the table
       let historyTableData = [];
@@ -61,13 +65,13 @@ const ShippingQueue = () => {
           id: e._id,
           customer: e.customer.customerTag,
           shipmentNum: e.trackingNumber,
-          dateCreated: null, // TODO e.dateCreated,
+          dateCreated: getFormattedDate(e.dateCreated),
         });
       });
       setShippingHistory(historyTableData);
       setFilteredShippingHist(historyTableData);
     });
-  }, [isShowUnfinishedBatches]);
+  }, []);
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
@@ -85,11 +89,6 @@ const ShippingQueue = () => {
       }
     }
   }
-
-  function onUnfinishedBatchesClick() {
-    setIsShowUnfinishedBatches(!isShowUnfinishedBatches);
-  }
-
   // TODO Replace when deep search endpoint is complete
   function onHistorySearch(value) {
     const filtered = shippingHistory.filter((shipment) =>
@@ -118,12 +117,12 @@ const ShippingQueue = () => {
       </Grid>
 
       <PackShipTabs
-        queueData={filteredPackingQueue}
+        queueData={filteredShippingQueue}
         queueTab={
           <ShippingQueueTable
             onRowClick={onQueueRowClick}
-            tableData={filteredPackingQueue}
-            setTableData={setFilteredPackingQueue}
+            tableData={filteredShippingQueue}
+            setTableData={setFilteredShippingQueue}
             selectedCustomerId={selectedCustomerId}
             selectionOrderIds={filteredSelectedIds}
           />

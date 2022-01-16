@@ -9,9 +9,8 @@ import {
   ListItemText,
   ListItemButton,
 } from "@mui/material";
-import HelpTooltip from "../../components/HelpTooltip";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/system";
 
 const useStyle = makeStyles((theme) => ({
@@ -22,14 +21,6 @@ const useStyle = makeStyles((theme) => ({
     justifyContent: "center",
     display: "flex",
   },
-  fulfilledQtyHeader: {
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-  help: {
-    paddingLeft: "10px",
-  },
   table: {
     backgroundColor: "white",
     "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer":
@@ -39,14 +30,8 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const ThisDataGrid = styled(DataGrid)`
-  // .MuiDataGrid-viewport,
-  .MuiDataGrid-row
-  // .MuiDataGrid-root
-  // .MuiDataGrid-renderingZone,
-  // .MuiDataGrid-virtualScroller,
-  // .MuiDataGrid-virtualScrollerContent
-  {
+const ShippingQueueDataGrid = styled(DataGrid)`
+  .MuiDataGrid-row {
     max-height: fit-content !important;
   }
 
@@ -54,20 +39,11 @@ const ThisDataGrid = styled(DataGrid)`
     max-height: none !important;
   }
 
-  // .MuiDataGrid-virtualScrollerRenderZone {
-  //   max-height: fit-content !important;
-  // }
-
   .MuiDataGrid-cell {
-    // lineHeight: 'unset !important',
-    // maxHeight: 'none !important',
-    // whiteSpace: 'normal',
     max-height: fit-content !important;
     overflow: auto;
     height: auto;
-    // white-space: initial !important;
     line-height: none !important;
-    // display: flex !important;
     align-items: center;
     padding-top: 0px !important;
     padding-bottom: 0px !important;
@@ -79,7 +55,11 @@ const PackingSlipDrowdown = ({ params }) => {
     <div style={{ width: "100%" }}>
       <List>
         <ListItemButton fullWidth>
-          {params.row.open ? <ExpandLess /> : <ExpandMore />}
+          {params.row.open && params.row.open !== undefined ? (
+            <ExpandLess />
+          ) : (
+            <ExpandMore />
+          )}
           <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
         </ListItemButton>
         <Collapse in={params.row.open} timeout="auto" unmountOnExit>
@@ -125,23 +105,11 @@ const ShippingQueueTable = ({
         return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
       },
     },
-    {
-      field: "dueDate",
-      flex: 1,
-      renderHeader: (params) => {
-        return (
-          <div className={classes.fulfilledQtyHeader}>
-            <Typography sx={{ fontWeight: 900 }}>Due Date</Typography>
-            <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
-          </div>
-        );
-      },
-    },
   ];
 
   return (
     <div className={classes.root}>
-      <ThisDataGrid
+      <ShippingQueueDataGrid
         sx={{ border: "none" }}
         className={classes.table}
         autoHeight

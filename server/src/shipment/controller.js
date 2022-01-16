@@ -97,8 +97,14 @@ async function getOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-
-      const shipment = await Shipment.findById(sid).lean().exec();
+      const shipment = await Shipment.findById(sid)
+        .populate("customer")
+        .populate({
+          path: "manifest",
+          populate: "items.item",
+        })
+        .lean()
+        .exec();
 
       return [null, { shipment }];
     },
