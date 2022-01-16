@@ -1,7 +1,7 @@
 import React from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import { Tooltip, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 
 const useStyle = makeStyles((theme) => ({
