@@ -9,6 +9,7 @@ import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
+import TextInput from "../components/TextInput";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -18,6 +19,11 @@ const useStyle = makeStyles((theme) => ({
     paddingTop: "20px",
   },
 }));
+
+export const TabNames = {
+  Queue: "Queue",
+  History: "History",
+};
 
 const ShippingQueue = () => {
   const classes = useStyle();
@@ -29,6 +35,9 @@ const ShippingQueue = () => {
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
   const [shippingHistory, setShippingHistory] = useState([]);
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
+  const [currentTab, setCurrentTab] = useState(TabNames.Queue);
+  const [orderNumber, setOrderNumber] = useState("");
+  const [partNumber, setPartNumber] = useState("");
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -89,34 +98,83 @@ const ShippingQueue = () => {
       }
     }
   }
-  // TODO Replace when deep search endpoint is complete
-  function onHistorySearch(value) {
-    const filtered = shippingHistory.filter((shipment) =>
-      shipment.shipmentNum.includes(value)
-    );
-    setFilteredShippingHist(filtered);
+
+  function onQueueSearch(value) {
+    return; // TODO
+  }
+
+  function onTabChange(event, newValue) {
+    setCurrentTab(Object.keys(TabNames)[newValue]);
+  }
+
+  function onOrderInputChange(value) {
+    setOrderNumber(value);
+  }
+
+  function onPartInputChange(value) {
+    setPartNumber(value);
+  }
+
+  function onSearchClick() {
+    API.searchShippingHistory(orderNumber, partNumber).then((data) => {
+      // TODO finish this off when data is known
+      let historyTableData = [];
+      data?.history?.shipments.forEach((e) => {
+        historyTableData.push({
+          id: e._id,
+          customer: e.customer.customerTag,
+          shipmentNum: e.trackingNumber,
+          dateCreated: getFormattedDate(e.dateCreated),
+        });
+      });
+      setFilteredShippingHist(historyTableData);
+    });
   }
 
   return (
     <Box p="40px">
-      <Grid
-        className={classes.topBarGrid}
-        container
-        justifyContent="start"
-        spacing={2}
-      >
-        <Grid container item xs={"auto"}>
-          <CommonButton
-            label="Create Shipment"
-            disabled={selectedOrderIds.length === 0}
-          />
+      {currentTab === TabNames.Queue ? (
+        <Grid
+          className={classes.topBarGrid}
+          container
+          justifyContent="start"
+          spacing={2}
+        >
+          <Grid container item xs={"auto"}>
+            <CommonButton
+              label="Create Shipment"
+              disabled={selectedOrderIds.length === 0}
+            />
+          </Grid>
+          <Grid container item xs justifyContent="start" item xs={6}>
+            <Search onSearch={onQueueSearch} />
+          </Grid>
         </Grid>
-        <Grid container justifyContent="start" item xs={6}>
-          <Search onSearch={onHistorySearch} />
+      ) : (
+        <Grid
+          className={classes.topBarGrid}
+          container
+          justifyContent="start"
+          spacing={2}
+        >
+          <Grid container item xs={"auto"}>
+            <TextInput onChange={onOrderInputChange} placeholder="Order" />
+          </Grid>
+          <Grid container item xs={6}>
+            <TextInput onChange={onPartInputChange} placeholder="Part" />
+          </Grid>
+          <Grid container item xs justifyContent="flex-end">
+            <CommonButton
+              label="Search"
+              onClick={onSearchClick}
+              disabled={!orderNumber && !partNumber}
+            />
+          </Grid>
         </Grid>
-      </Grid>
+      )}
 
       <PackShipTabs
+        onTabChange={onTabChange}
         queueData={filteredShippingQueue}
         queueTab={
           <ShippingQueueTable

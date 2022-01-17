@@ -50,4 +50,14 @@ export const API = {
       console.error("getShippingHistory", error);
     }
   },
+
+  async searchShippingHistory(orderNumber, partNumber) {
+    //TODO finish this when this endpoint is complete
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/shipments/search`);
+      return response.data;
+    } catch (error) {
+      console.error("searchShippingHistory", error);
+    }
+  },
 };
