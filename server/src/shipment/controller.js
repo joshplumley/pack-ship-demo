@@ -81,6 +81,10 @@ async function searchShipments(req, res) {
   )
 }
 
+/**
+ * Get a list of packing slips that are ready to be shipped.
+ * This essentially means we just want packing slips that have not yet been assigned to a shipment.
+ */
 async function getQueue(_req, res) {
   handler(
     async () => {
