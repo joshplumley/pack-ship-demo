@@ -10,11 +10,76 @@ module.exports = router;
 router.get("/", getAll);
 router.put("/", createOne);
 
+router.get('/search', searchShipments);
+
 router.get("/queue", getQueue);
 
 router.get("/:sid", getOne);
 router.patch("/:sid", editOne);
 router.delete("/:sid", deleteOne);
+
+/**
+ * Compute a search of shipment documents that match either a given order or a given part.
+ * Further, results should be paginated according to the parameters
+ * - resultsPerPage
+ * - pageNumber
+ * 
+ * TODO: this query should really be using a more sophisticated aggregation pipeline,
+ *    but for testing, we're just pulling all docs and having the server truncate.
+ */
+async function searchShipments(req, res) {
+  handler(
+    async () => {
+      let { sortBy, sortOrder, matchOrder, matchPart, resultsPerPage, pageNumber } = req.body;
+
+      if (!matchOrder && !matchPart) return [{ status: 400, data: 'At least one of matchOrder or matchPart must be non-empty.' }];
+      if (isNaN(+resultsPerPage) || resultsPerPage <= 0) return [{ status: 400, data: 'resultsPerPage must be a positive integer.' }];
+
+      if (sortBy !== 'CUSTOMER' || sortBy !== 'DATE') sortBy = 'DATE';
+      if (sortOrder !== -1 || sortOrder !== 1) sortOrder = 1;
+      if (isNaN(+pageNumber) || pageNumber < 1) pageNumber = 1;
+
+      const allShipments = await Shipment.find()
+        .populate('customer')
+        .populate({
+          path: 'manifest',
+          populate: 'items.item'
+        })
+        .lean()
+        .exec();
+
+      const matchShipments = allShipments.filter(x =>
+        (x.manifest).some(y =>
+          (matchOrder && new RegExp(matchOrder).test(y.orderNumber)) ||
+          (matchPart && (y.items).some(z =>
+            new RegExp(matchPart).test(z.item.partNumber) ||
+            new RegExp(matchPart).test(z.item.partDescription)
+          ))
+        )
+      );
+
+      const sortFunc = (a,b) => {
+        let testVal;
+        if (sortBy === 'CUSTOMER') testVal = a.customer.customerTag - b.customer.customerTag;
+        else testVal = a.dateCreated.getTime() - b.dateCreated.getTime();
+
+        if (testVal * sortOrder < 1) return -1;
+        else return 1;
+      };
+
+      matchShipments.sort( sortFunc );
+
+      const start = ( resultsPerPage*(pageNumber - 1) );
+      const end = resultsPerPage * pageNumber;
+
+      const shipments = matchShipments.slice(start, end);
+
+      return [null, { data: shipments }];
+    },
+    'searching shipments',
+    res
+  )
+}
 
 async function getQueue(_req, res) {
   handler(
