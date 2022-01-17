@@ -89,6 +89,7 @@ async function getQueue(_req, res) {
   handler(
     async () => {
       const packingSlips = await PackingSlip.find({ shipment: null })
+        .populate('customer items.item')
         .lean()
         .exec();
 
