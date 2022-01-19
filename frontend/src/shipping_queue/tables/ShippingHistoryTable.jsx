@@ -59,46 +59,27 @@ const ThisDataGrid = styled(DataGrid)`
   }
 `;
 
-const PackingSlipDrowdown = ({ params }) => {
-  return (
-    <div style={{ width: "100%" }}>
-      <List>
-        <ListItemButton fullWidth>
-          {params.row.open ? <ExpandLess /> : <ExpandMore />}
-          <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
-        </ListItemButton>
-        <Collapse in={params.row.open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {params.row.items.map((e) => (
-              <ListItem key={e.customerId} divider>
-                <ListItemText
-                  primary={`${e.item} (${e.qty !== undefined ? e.qty : "-"})`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Collapse>
-      </List>
-    </div>
-  );
-};
-
-const ShippingHistoryTable = ({ tableData }) => {
+const ShippingHistoryTable = ({
+  tableData,
+  onPageChange,
+  rowCount,
+  perPageCount,
+}) => {
   const classes = useStyle();
 
   const columns = [
     {
-      field: "customer",
+      field: "shipmentId",
       flex: 1,
       renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Customer</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Shipping ID</Typography>;
       },
     },
     {
-      field: "shipmentNum",
+      field: "trackingNumber",
       flex: 2,
       renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Shipment #</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Tracking #</Typography>;
       },
     },
     {
@@ -113,6 +94,9 @@ const ShippingHistoryTable = ({ tableData }) => {
   return (
     <div className={classes.root}>
       <ThisDataGrid
+        paginationMode="server"
+        onPageChange={(page, _) => onPageChange(page)}
+        rowCount={rowCount}
         sx={{ border: "none" }}
         className={classes.table}
         autoHeight
@@ -120,7 +104,7 @@ const ShippingHistoryTable = ({ tableData }) => {
         rows={tableData}
         rowHeight={65}
         columns={columns}
-        pageSize={10}
+        pageSize={perPageCount}
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"

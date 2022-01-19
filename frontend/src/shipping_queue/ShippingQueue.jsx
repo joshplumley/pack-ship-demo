@@ -33,11 +33,12 @@ const ShippingQueue = () => {
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
-  const [shippingHistory, setShippingHistory] = useState([]);
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
   const [currentTab, setCurrentTab] = useState(TabNames.Queue);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
+  const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
+  const histResultsPerPage = 10;
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -72,13 +73,13 @@ const ShippingQueue = () => {
       data?.history?.shipments.forEach((e) => {
         historyTableData.push({
           id: e._id,
-          customer: e.customer.customerTag,
-          shipmentNum: e.trackingNumber,
+          shipmentId: e.shipmentId,
+          trackingNumber: e.trackingNumber,
           dateCreated: getFormattedDate(e.dateCreated),
         });
       });
-      setShippingHistory(historyTableData);
       setFilteredShippingHist(historyTableData);
+      setHistSearchTotalCount(historyTableData.length);
     });
   }, []);
 
@@ -115,20 +116,36 @@ const ShippingQueue = () => {
     setPartNumber(value);
   }
 
-  function onSearchClick() {
-    API.searchShippingHistory(orderNumber, partNumber).then((data) => {
-      // TODO finish this off when data is known
+  function fetchSearch(pageNumber) {
+    API.searchShippingHistory(
+      orderNumber,
+      partNumber,
+      histResultsPerPage,
+      pageNumber
+    ).then((data) => {
       let historyTableData = [];
-      data?.history?.shipments.forEach((e) => {
+      data?.data?.shipments.forEach((e) => {
         historyTableData.push({
           id: e._id,
-          customer: e.customer.customerTag,
-          shipmentNum: e.trackingNumber,
+          shipmentId: e.shipmentId,
+          trackingNumber: e.trackingNumber,
           dateCreated: getFormattedDate(e.dateCreated),
         });
       });
-      setFilteredShippingHist(historyTableData);
+      if (data) {
+        setFilteredShippingHist(historyTableData);
+        setHistSearchTotalCount(data?.data?.totalCount);
+      }
     });
+  }
+
+  function onHistorySearchClick() {
+    fetchSearch(0);
+  }
+
+  function onPageChange(pageNumber) {
+    // API Pages are 1 based. MUI pages are 0 based.
+    fetchSearch(pageNumber + 1);
   }
 
   return (
@@ -146,7 +163,7 @@ const ShippingQueue = () => {
               disabled={selectedOrderIds.length === 0}
             />
           </Grid>
-          <Grid container item xs justifyContent="start" item xs={6}>
+          <Grid container item justifyContent="start" xs={6}>
             <Search onSearch={onQueueSearch} />
           </Grid>
         </Grid>
@@ -166,7 +183,7 @@ const ShippingQueue = () => {
           <Grid container item xs justifyContent="flex-end">
             <CommonButton
               label="Search"
-              onClick={onSearchClick}
+              onClick={onHistorySearchClick}
               disabled={!orderNumber && !partNumber}
             />
           </Grid>
@@ -185,7 +202,14 @@ const ShippingQueue = () => {
             selectionOrderIds={filteredSelectedIds}
           />
         }
-        historyTab={<ShippingHistoryTable tableData={filteredShippingHist} />}
+        historyTab={
+          <ShippingHistoryTable
+            tableData={filteredShippingHist}
+            onPageChange={onPageChange}
+            rowCount={histSearchTotalCount}
+            perPageCount={histResultsPerPage}
+          />
+        }
       />
 
       <Grid
