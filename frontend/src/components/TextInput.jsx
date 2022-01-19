@@ -1,8 +1,7 @@
 import React from "react";
-import { InputAdornment, TextField } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { TextField } from "@mui/material";
 
-const TextInput = ({ onChange, placeholder }) => {
+const TextInput = ({ onChange, placeholder, value }) => {
   return (
     <TextField
       id="text-field-input"
@@ -10,6 +9,7 @@ const TextInput = ({ onChange, placeholder }) => {
         onChange(e.target.value);
       }}
       placeholder={placeholder}
+      value={value}
       variant="outlined"
     />
   );

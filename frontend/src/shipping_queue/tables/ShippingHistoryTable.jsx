@@ -1,17 +1,7 @@
 import React from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Typography,
-  Collapse,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-} from "@mui/material";
-import HelpTooltip from "../../components/HelpTooltip";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandLess";
+import { Typography } from "@mui/material";
 import { styled } from "@mui/system";
 
 const useStyle = makeStyles((theme) => ({

@@ -28,13 +28,19 @@ export const TabNames = {
 const ShippingQueue = () => {
   const classes = useStyle();
 
+  // Common tab states
+  const [currentTab, setCurrentTab] = useState(TabNames.Queue);
+
+  // Shipping Queue States
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
+
+  // Shipping History States
+  const [shippingHistory, setShippingHistory] = useState([]);
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
-  const [currentTab, setCurrentTab] = useState(TabNames.Queue);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
@@ -69,19 +75,25 @@ const ShippingQueue = () => {
       setFilteredShippingQueue(queueTableData);
 
       // Gather the history data for the table
-      let historyTableData = [];
-      data?.history?.shipments.forEach((e) => {
-        historyTableData.push({
-          id: e._id,
-          shipmentId: e.shipmentId,
-          trackingNumber: e.trackingNumber,
-          dateCreated: getFormattedDate(e.dateCreated),
-        });
-      });
+      let historyTableData = extractHistoryDetails(data?.history?.shipments);
       setFilteredShippingHist(historyTableData);
+      setShippingHistory(historyTableData);
       setHistSearchTotalCount(historyTableData.length);
     });
   }, []);
+
+  function extractHistoryDetails(history) {
+    let historyTableData = [];
+    history.forEach((e) => {
+      historyTableData.push({
+        id: e._id,
+        shipmentId: e.shipmentId,
+        trackingNumber: e.trackingNumber,
+        dateCreated: getFormattedDate(e.dateCreated),
+      });
+    });
+    return historyTableData;
+  }
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
@@ -106,6 +118,7 @@ const ShippingQueue = () => {
 
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
+    setFilteredShippingHist(shippingHistory);
   }
 
   function onOrderInputChange(value) {
@@ -123,16 +136,8 @@ const ShippingQueue = () => {
       histResultsPerPage,
       pageNumber
     ).then((data) => {
-      let historyTableData = [];
-      data?.data?.shipments.forEach((e) => {
-        historyTableData.push({
-          id: e._id,
-          shipmentId: e.shipmentId,
-          trackingNumber: e.trackingNumber,
-          dateCreated: getFormattedDate(e.dateCreated),
-        });
-      });
       if (data) {
+        let historyTableData = extractHistoryDetails(data?.data?.shipments);
         setFilteredShippingHist(historyTableData);
         setHistSearchTotalCount(data?.data?.totalCount);
       }
@@ -141,6 +146,12 @@ const ShippingQueue = () => {
 
   function onHistorySearchClick() {
     fetchSearch(0);
+  }
+
+  function onHistoryClearClick() {
+    setFilteredShippingHist(shippingHistory);
+    setOrderNumber("");
+    setPartNumber("");
   }
 
   function onPageChange(pageNumber) {
@@ -175,10 +186,25 @@ const ShippingQueue = () => {
           spacing={2}
         >
           <Grid container item xs={"auto"}>
-            <TextInput onChange={onOrderInputChange} placeholder="Order" />
+            <TextInput
+              onChange={onOrderInputChange}
+              placeholder="Order"
+              value={orderNumber}
+            />
           </Grid>
-          <Grid container item xs={6}>
-            <TextInput onChange={onPartInputChange} placeholder="Part" />
+          <Grid container item xs={2}>
+            <TextInput
+              onChange={onPartInputChange}
+              placeholder="Part"
+              value={partNumber}
+            />
+          </Grid>
+          <Grid container item xs={2}>
+            <CommonButton
+              label="Clear"
+              onClick={onHistoryClearClick}
+              disabled={!orderNumber && !partNumber}
+            />
           </Grid>
           <Grid container item xs justifyContent="flex-end">
             <CommonButton

@@ -2,7 +2,6 @@ import React from "react";
 import { styled } from "@mui/system";
 import TabsUnstyled from "@mui/base/TabsUnstyled";
 import Tabs from "@mui/material/Tabs";
-import TabsListUnstyled from "@mui/base/TabsListUnstyled";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
@@ -59,17 +58,6 @@ const TabPanel = styled(TabPanelUnstyled)`
   width: 100%;
   font-family: IBM Plex Sans, sans-serif;
   font-size: 0.875rem;
-`;
-
-const TabsList = styled(TabsListUnstyled)`
-  min-width: 320px;
-  border-radius: 8px;
-  margin-bottom: 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-content: space-between;
-  // background-color: black;
 `;
 
 export default function PackShipTabs({
