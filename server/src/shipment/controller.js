@@ -37,15 +37,8 @@ async function searchShipments(req, res) {
         matchPart,
         resultsPerPage,
         pageNumber,
-      } = Object.keys(req.body).length > 0 ? req.body : req.query;
+      } = req.query;
 
-      if (!matchOrder && !matchPart)
-        return [
-          {
-            status: 400,
-            data: "At least one of matchOrder or matchPart must be non-empty.",
-          },
-        ];
       if (isNaN(+resultsPerPage) || resultsPerPage <= 0)
         return [
           { status: 400, data: "resultsPerPage must be a positive integer." },
@@ -64,18 +57,24 @@ async function searchShipments(req, res) {
         .lean()
         .exec();
 
-      const matchShipments = allShipments.filter((x) =>
-        x.manifest.some(
-          (y) =>
-            (matchOrder && new RegExp(matchOrder).test(y.orderNumber)) ||
-            (matchPart &&
-              y.items.some(
-                (z) =>
-                  new RegExp(matchPart).test(z.item.partNumber) ||
-                  new RegExp(matchPart).test(z.item.partDescription)
-              ))
-        )
-      );
+      let matchShipments;
+      if (!matchOrder && !matchPart) {
+        matchShipments = allShipments;
+      }
+      else {
+        matchShipments = allShipments.filter((x) =>
+          x.manifest.some(
+            (y) =>
+              (matchOrder && new RegExp(matchOrder).test(y.orderNumber)) ||
+              (matchPart &&
+                y.items.some(
+                  (z) =>
+                    new RegExp(matchPart).test(z.item.partNumber) ||
+                    new RegExp(matchPart).test(z.item.partDescription)
+                ))
+          )
+        );
+      }
 
       const sortFunc = (a, b) => {
         let testVal;
