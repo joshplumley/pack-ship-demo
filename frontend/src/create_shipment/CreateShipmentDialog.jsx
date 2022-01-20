@@ -158,7 +158,11 @@ const CreateShipmentDialog = ({
               </Grid>
               <Grid container item xs justifyContent="flex-end" spacing={1}>
                 <Grid item>
-                  <CommonButton onClick={onClose} label="Cancel" />
+                  <CommonButton
+                    onClick={onClose}
+                    label="Cancel"
+                    color="secondary"
+                  />
                 </Grid>
                 <Grid item>
                   <CommonButton
@@ -175,7 +179,11 @@ const CreateShipmentDialog = ({
       case ShippingDialogStates.PickupDropOffPage:
         return (
           <DialogActions>
-            <CommonButton onClick={onBackClick} label="Back" />
+            <CommonButton
+              onClick={onBackClick}
+              label="Back"
+              color="secondary"
+            />
             <CommonButton autoFocus onClick={onSubmit} label={"Ok"} />
           </DialogActions>
         );
@@ -183,7 +191,7 @@ const CreateShipmentDialog = ({
       default:
         return (
           <DialogActions>
-            <CommonButton onClick={onClose} label="Cancel" />
+            <CommonButton onClick={onClose} label="Cancel" color="secondary" />
             <CommonButton autoFocus onClick={onNextClick} label={"Next"} />
           </DialogActions>
         );
