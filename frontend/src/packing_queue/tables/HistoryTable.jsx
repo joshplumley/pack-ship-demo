@@ -1,5 +1,6 @@
-import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
+import HistoryRowContextMenu from "./HistoryContextMenu";
+import React, { useState } from "react";
 
 const columns = [
   { field: "id", headerName: "ID", width: 70 },
@@ -24,6 +25,8 @@ const rows = [
 ];
 
 const HistoryTable = () => {
+  const [menuPosition, setMenuPosition] = useState(null);
+
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
@@ -32,7 +35,11 @@ const HistoryTable = () => {
         pageSize={5}
         rowsPerPageOptions={[5]}
         checkboxSelection={false}
+        onRowClick={(params, event, details) => {
+          setMenuPosition({left: event.pageX, top: event.pageY})
+        }}
       />
+      <HistoryRowContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}/>
     </div>
   );
 };
