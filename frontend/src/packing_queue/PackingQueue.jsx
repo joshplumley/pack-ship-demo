@@ -29,7 +29,6 @@ const PackingQueue = () => {
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
-  const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
 
   useEffect(() => {
@@ -68,7 +67,6 @@ const PackingQueue = () => {
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
-    setFilteredSelectedIds(selectionModel);
     for (const item of tableData) {
       // All selected items will have the same order number
       // so we just take the first one
@@ -91,16 +89,10 @@ const PackingQueue = () => {
     const filtered = packingQueue.filter(
       (order) =>
         order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
-        order.part.toLowerCase().includes(value.toLowerCase())
+        order.part.toLowerCase().includes(value.toLowerCase()) ||
+        selectedOrderIds.includes(order.id) // Ensure selected rows are included
     );
 
-    let filteredSelectedIds = [];
-    filtered.forEach((e) => {
-      if (selectedOrderIds.includes(e.id)) {
-        filteredSelectedIds.push(e.id);
-      }
-    });
-    setFilteredSelectedIds(filteredSelectedIds);
     setFilteredPackingQueue(filtered);
   }
 
@@ -137,7 +129,7 @@ const PackingQueue = () => {
             onRowClick={onQueueRowClick}
             tableData={filteredPackingQueue}
             selectedOrderNumber={selectedOrderNumber}
-            selectionOrderIds={filteredSelectedIds}
+            selectionOrderIds={selectedOrderIds}
           />
         }
         historyTab={<HistoryTable />}

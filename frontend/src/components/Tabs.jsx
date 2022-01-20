@@ -70,7 +70,7 @@ export default function PackShipTabs({
   return (
     <Box className={classes.tab} borderRadius="16px" p={2} height="fit-content">
       <TabsUnstyled defaultValue={0}>
-        <Tabs onChange={onTabChange}>
+        <Tabs value={false} onChange={onTabChange}>
           <Tab value={0}>Queue ({queueData.length})</Tab>
           <Tab value={1}>History</Tab>
         </Tabs>
