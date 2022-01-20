@@ -1,6 +1,8 @@
 import { DataGrid } from "@mui/x-data-grid";
-import HistoryRowContextMenu from "./HistoryContextMenu";
 import React, { useState } from "react";
+import ContextMenu from "./GenericContextMenu"
+import MenuItem from '@mui/material/MenuItem';
+import DeleteAlert from "./DeleteMenu"
 
 const columns = [
   { field: "id", headerName: "ID", width: 70 },
@@ -26,6 +28,18 @@ const rows = [
 
 const HistoryTable = () => {
   const [menuPosition, setMenuPosition] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+
+  const openDeleteDialog = (event) => {
+      setDeleteDialog(true)
+  }
+
+  const historyRowMenuOptions = [
+    <MenuItem>View</MenuItem>,
+    <MenuItem>Download</MenuItem>,
+    <MenuItem>Edit</MenuItem>,
+    <MenuItem onClick={openDeleteDialog}>Delete</MenuItem>
+  ];
 
   return (
     <div style={{ height: 400, width: "100%" }}>
@@ -39,7 +53,10 @@ const HistoryTable = () => {
           setMenuPosition({left: event.pageX, top: event.pageY})
         }}
       />
-      <HistoryRowContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}/>
+      <ContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}>
+        {historyRowMenuOptions}
+      </ContextMenu>
+      <DeleteAlert deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} setMenuPosition={setMenuPosition}/>
     </div>
   );
 };
