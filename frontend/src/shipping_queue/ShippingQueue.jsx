@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
+import CreateShipmentDialog from "../create_shipment/CreateShipmentDialog";
+import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -26,6 +28,15 @@ const ShippingQueue = () => {
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
+  const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
+  const [currentDialogState, setCurrentDialogState] = useState(
+    ShippingDialogStates.CreateShipmentTable
+  );
+  const [shippingInfo, setShippingInfo] = useState({
+    manifest: [],
+    customer: "",
+    deliveryMethod: "",
+  });
 
   useEffect(() => {
     async function fetchData() {
@@ -42,6 +53,7 @@ const ShippingQueue = () => {
           items: e.items,
         });
       });
+      console.log(tableData);
       setShippingQueue(tableData);
       setFilteredShippingQueue(tableData);
     });
@@ -62,6 +74,15 @@ const ShippingQueue = () => {
         setSelectedCustomerId(null);
       }
     }
+  }
+
+  function onCreateShipmentClick() {
+    setCreateShipmentOpen(true);
+  }
+
+  function onCreateShipmentClose() {
+    setCreateShipmentOpen(false);
+    setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
   }
 
   function onSearch(value) {
@@ -91,6 +112,7 @@ const ShippingQueue = () => {
           <CommonButton
             label="Create Shipment"
             disabled={selectedOrderIds.length === 0}
+            onClick={onCreateShipmentClick}
           />
         </Grid>
         <Grid container justifyContent="start" item xs={6}>
@@ -109,6 +131,26 @@ const ShippingQueue = () => {
             selectionOrderIds={filteredSelectedIds}
           />
         }
+      />
+
+      <CreateShipmentDialog
+        open={createShipmentOpen}
+        onClose={onCreateShipmentClose}
+        currentState={currentDialogState}
+        setCurrentState={setCurrentDialogState}
+        shippingInfo={shippingInfo}
+        setShippingInfo={setShippingInfo}
+        parts={shippingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .reduce(
+            (result, current) =>
+              result.concat(
+                current.items.map((e) => {
+                  return { ...e, id: e._id };
+                })
+              ),
+            []
+          )}
       />
 
       <Grid

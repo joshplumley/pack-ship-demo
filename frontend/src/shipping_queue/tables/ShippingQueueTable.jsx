@@ -54,7 +54,7 @@ const PackingSlipDrowdown = ({ params }) => {
   return (
     <div style={{ width: "100%" }}>
       <List>
-        <ListItemButton fullWidth>
+        <ListItemButton>
           {params.row.open && params.row.open !== undefined ? (
             <ExpandLess />
           ) : (
@@ -65,7 +65,7 @@ const PackingSlipDrowdown = ({ params }) => {
         <Collapse in={params.row.open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {params.row.items.map((e) => (
-              <ListItem key={e.customerId} divider>
+              <ListItem key={e._id} divider>
                 <ListItemText
                   primary={`${e.item} (${e.qty !== undefined ? e.qty : "-"})`}
                 />
