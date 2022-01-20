@@ -8,6 +8,7 @@ import {
   MenuItem,
   FormControl,
   FormHelperText,
+  InputAdornment,
 } from "@mui/material";
 import { checkCostError } from "../../utils/NumberValidators";
 
@@ -141,10 +142,14 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
         <Grid item xs>
           <TextField
             required
-            type="number"
             error={checkCostError(localShippingInfo)}
             helperText={checkCostError(localShippingInfo)}
             value={localShippingInfo.cost}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">{"$"}</InputAdornment>
+              ),
+            }}
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
