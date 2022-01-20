@@ -1,12 +1,10 @@
 import React from "react";
 import { styled } from "@mui/system";
 import TabsUnstyled from "@mui/base/TabsUnstyled";
-import TabsListUnstyled from "@mui/base/TabsListUnstyled";
+import Tabs from "@mui/material/Tabs";
 import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
-import HistoryTable from "./tables/HistoryTable";
-import QueueTable from "./tables/QueueTable";
 import { Box } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 
@@ -62,42 +60,22 @@ const TabPanel = styled(TabPanelUnstyled)`
   font-size: 0.875rem;
 `;
 
-const TabsList = styled(TabsListUnstyled)`
-  min-width: 320px;
-  border-radius: 8px;
-  margin-bottom: 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-content: space-between;
-  // background-color: black;
-`;
-
-export default function PackingQueueTabs({
+export default function PackShipTabs({
+  onTabChange,
   queueData,
-  onQueueRowClick,
-  selectedOrderNumber,
-  selectionOrderIds,
+  queueTab,
+  historyTab,
 }) {
   const classes = useStyle();
   return (
-    <Box className={classes.tab} borderRadius="16px" p={2}>
+    <Box className={classes.tab} borderRadius="16px" p={2} height="fit-content">
       <TabsUnstyled defaultValue={0}>
-        <TabsList>
-          <Tab>Queue ({queueData.length})</Tab>
-          <Tab>History</Tab>
-        </TabsList>
-        <TabPanel value={0}>
-          <QueueTable
-            onRowClick={onQueueRowClick}
-            tableData={queueData}
-            selectedOrderNumber={selectedOrderNumber}
-            selectionOrderIds={selectionOrderIds}
-          />
-        </TabPanel>
-        <TabPanel value={1}>
-          <HistoryTable />
-        </TabPanel>
+        <Tabs onChange={onTabChange}>
+          <Tab value={0}>Queue ({queueData.length})</Tab>
+          <Tab value={1}>History</Tab>
+        </Tabs>
+        <TabPanel value={0}>{queueTab}</TabPanel>
+        <TabPanel value={1}>{historyTab}</TabPanel>
       </TabsUnstyled>
     </Box>
   );

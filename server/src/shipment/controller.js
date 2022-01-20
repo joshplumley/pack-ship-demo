@@ -1,48 +1,120 @@
 const { Router } = require("express");
 const router = Router();
-const Shipment = require('./model');
-const PackingSlip = require('../packingSlip/model');
-const Customer = require('../customer/model');
+const Shipment = require("./model");
+const PackingSlip = require("../packingSlip/model");
+const Customer = require("../customer/model");
+const handler = require("../handler");
 
 module.exports = router;
 
-router.get('/', getAll);
-router.put('/', createOne);
+router.get("/", getAll);
+router.put("/", createOne);
 
-router.get('/queue', getQueue);
+router.get("/search", searchShipments);
 
-router.get('/:sid', getOne);
-router.patch('/:sid', editOne);
-router.delete('/:sid', deleteOne);
+router.get("/queue", getQueue);
+
+router.get("/:sid", getOne);
+router.patch("/:sid", editOne);
+router.delete("/:sid", deleteOne);
 
 /**
- * Generic handler for shipment functions
- * @param {Function} f 
- * @param {String} msg 
- * @returns 
+ * Compute a search of shipment documents that match either a given order or a given part.
+ * Further, results should be paginated according to the parameters
+ * - resultsPerPage
+ * - pageNumber
+ *
+ * TODO: this query should really be using a more sophisticated aggregation pipeline,
+ *    but for testing, we're just pulling all docs and having the server truncate.
  */
-const handler = async (f, msg, res) => {
-  try {
-    const [error, data] = await f();
-    if (error) res.status( error.status ).send( error.message );
-    else res.send( data );
-  }
-  catch (e) {
-    console.error(e);
-    return [{ status: 500, message: `Unespected error ${msg}.` }];
-  }
-};
+async function searchShipments(req, res) {
+  handler(
+    async () => {
+      let {
+        sortBy,
+        sortOrder,
+        matchOrder,
+        matchPart,
+        resultsPerPage,
+        pageNumber,
+      } = req.query;
 
+      if (isNaN(+resultsPerPage) || resultsPerPage <= 0)
+        return [
+          { status: 400, data: "resultsPerPage must be a positive integer." },
+        ];
+
+      if (sortBy !== "CUSTOMER" || sortBy !== "DATE") sortBy = "DATE";
+      if (sortOrder !== -1 || sortOrder !== 1) sortOrder = 1;
+      if (isNaN(+pageNumber) || pageNumber < 1) pageNumber = 1;
+
+      const allShipments = await Shipment.find()
+        .populate("customer")
+        .populate({
+          path: "manifest",
+          populate: "items.item",
+        })
+        .lean()
+        .exec();
+
+      let matchShipments;
+      if (!matchOrder && !matchPart) {
+        matchShipments = allShipments;
+      }
+      else {
+        matchShipments = allShipments.filter((x) =>
+          x.manifest.some(
+            (y) =>
+              (matchOrder && new RegExp(matchOrder).test(y.orderNumber)) ||
+              (matchPart &&
+                y.items.some(
+                  (z) =>
+                    new RegExp(matchPart).test(z.item.partNumber) ||
+                    new RegExp(matchPart).test(z.item.partDescription)
+                ))
+          )
+        );
+      }
+
+      const sortFunc = (a, b) => {
+        let testVal;
+        if (sortBy === "CUSTOMER")
+          testVal = a.customer.customerTag - b.customer.customerTag;
+        else testVal = a.dateCreated.getTime() - b.dateCreated.getTime();
+
+        if (testVal * sortOrder < 1) return -1;
+        else return 1;
+      };
+
+      matchShipments.sort(sortFunc);
+
+      const start = resultsPerPage * (pageNumber - 1);
+      const end = resultsPerPage * pageNumber;
+
+      const shipments = matchShipments.slice(start, end);
+
+      return [null, { data: { shipments, totalCount: matchShipments.length } }];
+    },
+    "searching shipments",
+    res
+  );
+}
+
+/**
+ * Get a list of packing slips that are ready to be shipped.
+ * This essentially means we just want packing slips that have not yet been assigned to a shipment.
+ */
 async function getQueue(_req, res) {
   handler(
-    async() => {
+    async () => {
       const packingSlips = await PackingSlip.find({ shipment: null })
+        .populate("customer items.item")
         .lean()
         .exec();
 
       return [null, { packingSlips }];
     },
-    'fetching shipping queue',
+    "fetching shipping queue",
     res
   );
 }
@@ -54,12 +126,13 @@ async function getAll(_req, res) {
   handler(
     async () => {
       const shipments = await Shipment.find()
+        .populate("customer")
         .lean()
         .exec();
 
       return [null, { shipments }];
     },
-    'fetching shipments',
+    "fetching shipments",
     res
   );
 }
@@ -75,7 +148,10 @@ async function createOne(req, res) {
       const p_numShipments = Shipment.countDocuments({ customer });
       const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
 
-      const [numShipments, customerDoc] = [await p_numShipments, await p_customerDoc];
+      const [numShipments, customerDoc] = [
+        await p_numShipments,
+        await p_customerDoc,
+      ];
       const { customerTag } = customerDoc;
 
       const shipmentId = `${customerTag}-SH${numShipments + 1}`;
@@ -85,20 +161,20 @@ async function createOne(req, res) {
         shipmentId,
         manifest,
         trackingNumber,
-        cost
+        cost,
       });
 
       await shipment.save();
 
       // update all packing slips in manifest w/ this shipment's id
-      const promises = manifest.map(x =>
-        PackingSlip.updateOne({ _id: x }, { $set: { 'shipment': shipment._id } })
+      const promises = manifest.map((x) =>
+        PackingSlip.updateOne({ _id: x }, { $set: { shipment: shipment._id } })
       );
       await Promise.all(promises);
 
       return [null, { shipment }];
     },
-    'creating shipment',
+    "creating shipment",
     res
   );
 }
@@ -110,14 +186,18 @@ async function getOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-
       const shipment = await Shipment.findById(sid)
+        .populate("customer")
+        .populate({
+          path: "manifest",
+          populate: "items.item",
+        })
         .lean()
         .exec();
 
       return [null, { shipment }];
     },
-    'fetching shipment',
+    "fetching shipment",
     res
   );
 }
@@ -133,14 +213,16 @@ async function editOne(req, res) {
 
       await Shipment.updateOne(
         { _id: sid },
-        { $set: {
-          manifest
-        } }
+        {
+          $set: {
+            manifest,
+          },
+        }
       );
 
-      return [null, ];
+      return [null];
     },
-    'editing shipment',
+    "editing shipment",
     res
   );
 }
@@ -154,9 +236,9 @@ async function deleteOne(req, res) {
       const { sid } = req.params;
 
       await Shipment.deleteOne({ _id: sid });
-      return [null, ];
+      return [null];
     },
-    'deleting shipment',
+    "deleting shipment",
     res
   );
 }

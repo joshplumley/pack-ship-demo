@@ -35,6 +35,11 @@ const schema = new Schema({
   customerAccount: String,
   trackingNumber: String,
   cost: Number,
+
+  dateCreated: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const Model = model('shipment', schema, 'shipments');
