@@ -6,8 +6,15 @@ const PickupDropOffForm = ({ customerName, setCustomerName }) => {
     <Box component="form">
       <Grid container item alignItems="center" spacing={4}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <HelpTooltip tooltipText="Enter the name of the person you are handing off this delivery to." />
-          <Typography sx={{ fontWeight: 900 }}>Customer Name</Typography>
+          <div style={{ display: "flex" }}>
+            <Typography
+              sx={{ fontWeight: 900, paddingRight: "5px", paddingLeft: "10px" }}
+              noWrap
+            >
+              Customer Name
+            </Typography>
+            <HelpTooltip tooltipText="Enter the name of the person you are handing off this delivery to." />
+          </div>
         </Grid>
         <Grid item xs>
           <TextField
@@ -16,6 +23,7 @@ const PickupDropOffForm = ({ customerName, setCustomerName }) => {
             onChange={(event) => {
               setCustomerName(event.target.value);
             }}
+            placeholder="Enter your name"
           />
         </Grid>
       </Grid>

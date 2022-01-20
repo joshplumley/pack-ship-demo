@@ -6,19 +6,31 @@ import CreateCarrierShipmentInfoForm from "./components/CreateShipmentInfoForm";
 import PickupDropOffForm from "./components/PickupDropOffForm";
 import CommonButton from "../common/Button";
 import { DialogActions, Grid } from "@mui/material";
+import { API } from "../services/server";
+import { useEffect } from "react";
 
 const CreateShipmentDialog = ({
+  customer,
   onClose,
   open,
   currentState,
   setCurrentState,
-  shippingInfo,
-  setShippingInfo,
   parts,
 }) => {
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] = useState(undefined);
+  const [shippingInfo, setShippingInfo] = useState({
+    manifest: [],
+    customer: "",
+    deliveryMethod: "",
+  });
 
-  // console.log(parts);
+  useEffect(() => {
+    setShippingInfo({
+      ...shippingInfo,
+      customer: customer?._id,
+      manifest: parts.map((e) => e.id),
+    });
+  }, [customer, parts]);
 
   const onPickupClick = () => {
     setCurrentState(ShippingDialogStates.PickupDropOffPage);
@@ -49,11 +61,34 @@ const CreateShipmentDialog = ({
 
   const onBackClick = () => {
     setCurrentState(ShippingDialogStates.SelectMethodPage);
+    setCustomerName(undefined);
     onResetClick();
   };
 
-  const onSubmit = () => {
-    console.log(shippingInfo);
+  const onSubmit = async () => {
+    API.createShipment(
+      shippingInfo.manifest,
+      shippingInfo.customer,
+      shippingInfo.deliveryMethod,
+      shippingInfo.trackingNumber,
+      shippingInfo.cost,
+      shippingInfo.carrier,
+      shippingInfo.deliverySpeed,
+      shippingInfo.customerAccount,
+      customerName
+    )
+      .then(() => {
+        setCustomerName(undefined);
+        setShippingInfo({
+          manifest: [],
+          customer: "",
+          deliveryMethod: "",
+        });
+        onClose();
+      })
+      .catch(() => {
+        alert("An error occurred submitting packing slip");
+      });
   };
 
   const renderContents = () => {
@@ -104,7 +139,6 @@ const CreateShipmentDialog = ({
           </DialogActions>
         );
       case ShippingDialogStates.CarrierPage:
-        //TODO: Implement third state
         return (
           <DialogActions sx={{ justifyContent: "normal" }}>
             <Grid container>
@@ -143,7 +177,7 @@ const CreateShipmentDialog = ({
   return (
     <PackingDialog
       fullWidth={currentState === ShippingDialogStates.CreateShipmentTable}
-      titleText={`Create Shipment / ${parts[0]?.item.customer}`}
+      titleText={`Create Shipment / ${customer?.customerTag}`}
       open={open}
       onClose={onClose}
       actions={renderDialogActions()}

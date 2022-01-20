@@ -43,11 +43,6 @@ const ShippingQueue = () => {
   const [currentDialogState, setCurrentDialogState] = useState(
     ShippingDialogStates.CreateShipmentTable
   );
-  const [shippingInfo, setShippingInfo] = useState({
-    manifest: [],
-    customer: "",
-    deliveryMethod: "",
-  });
 
   // Shipping History States
   const [shippingHistory, setShippingHistory] = useState([]);
@@ -75,16 +70,15 @@ const ShippingQueue = () => {
       // Gather the queue data for the table
       let queueTableData = [];
       data?.queue?.packingSlips.forEach((e) => {
-        console.log(e);
         queueTableData.push({
           id: e._id,
           orderNumber: e.orderNumber,
           packingSlipId: e.packingSlipId,
+          customer: e.customer,
           items: e.items,
         });
       });
 
-      console.log(queueTableData);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
 
@@ -133,12 +127,6 @@ const ShippingQueue = () => {
   function onCreateShipmentClose() {
     setCreateShipmentOpen(false);
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
-  }
-
-  function onSearch(value) {
-    const filtered = shippingQueue.filter((order) =>
-      order.orderNumber.toLowerCase().includes(value.toLowerCase())
-    );
   }
 
   function onQueueSearch(value) {
@@ -269,12 +257,14 @@ const ShippingQueue = () => {
       />
 
       <CreateShipmentDialog
+        customer={
+          shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
+            ?.customer
+        }
         open={createShipmentOpen}
         onClose={onCreateShipmentClose}
         currentState={currentDialogState}
         setCurrentState={setCurrentDialogState}
-        shippingInfo={shippingInfo}
-        setShippingInfo={setShippingInfo}
         parts={shippingQueue
           .filter((e) => selectedOrderIds.includes(e.id))
           .reduce(

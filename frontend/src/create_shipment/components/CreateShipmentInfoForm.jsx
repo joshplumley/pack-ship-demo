@@ -52,12 +52,12 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
             value={localShippingInfo.deliverySpeed}
             onChange={(event) => {
               setLocalShippingInfo({
-                ...shippingInfo,
+                ...localShippingInfo,
                 deliverySpeed: event.target.value,
               });
             }}
             onBlur={() => {
-              setShippingInfo(localShippingInfo);
+              setShippingInfo({ ...localShippingInfo });
             }}
           />
         </Grid>
@@ -97,9 +97,9 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
             required
             value={localShippingInfo.tracking}
             onChange={(event) => {
-              localShippingInfo.tracking = event.target.value;
               setLocalShippingInfo({
-                localShippingInfo,
+                ...localShippingInfo,
+                tracking: event.target.value,
               });
             }}
             onBlur={() => {

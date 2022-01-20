@@ -2,7 +2,6 @@ import { Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 const CreateShipmentTable = ({ rowData }) => {
-  console.log(rowData);
   const columns = [
     {
       field: "part",
