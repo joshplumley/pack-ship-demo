@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   TextField,
   Grid,
@@ -7,11 +6,18 @@ import {
   Box,
   Select,
   MenuItem,
+  FormControl,
+  FormHelperText,
 } from "@mui/material";
+import { checkCostError } from "../../utils/NumberValidators";
 
 const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
-  const carriers = ["----", "UPS", "FedEx", "Freight", "Other"];
-  const [localShippingInfo, setLocalShippingInfo] = useState(shippingInfo);
+  const carriers = ["-----", "UPS", "FedEx", "Freight", "Other"];
+  const [localShippingInfo, setLocalShippingInfo] = useState({
+    ...shippingInfo,
+    carrier: carriers[0],
+  });
+  const [hasSelectError, setHasSelectError] = useState(true);
 
   return (
     <Box component="form">
@@ -20,26 +26,36 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
           <Typography>Carrier Service:</Typography>
         </Grid>
         <Grid item xs>
-          <Select
-            required
-            sx={{ width: "100%" }}
-            value={localShippingInfo.carrier}
-            onChange={(event) => {
-              setLocalShippingInfo({
-                ...localShippingInfo,
-                carrier: event.target.value,
-              });
-            }}
-            onBlur={() => {
-              setShippingInfo(localShippingInfo);
-            }}
-          >
-            {carriers.map((carrier) => (
-              <MenuItem key={carrier} value={carrier}>
-                {carrier}
-              </MenuItem>
-            ))}
-          </Select>
+          <FormControl sx={{ width: "100%" }} error={hasSelectError}>
+            <Select
+              required
+              error={hasSelectError}
+              sx={{ width: "100%" }}
+              value={localShippingInfo.carrier}
+              onChange={(event) => {
+                setHasSelectError(event.target.value === carriers[0]);
+                setLocalShippingInfo({
+                  ...localShippingInfo,
+                  carrier: event.target.value,
+                });
+              }}
+              onBlur={() => {
+                setShippingInfo(localShippingInfo);
+              }}
+            >
+              {carriers.map((carrier) => (
+                <MenuItem key={carrier} value={carrier}>
+                  {carrier}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText
+              error={hasSelectError}
+              sx={{ display: hasSelectError ? "block" : "none" }}
+            >
+              {hasSelectError ? "Must select non-default carrier" : undefined}
+            </FormHelperText>
+          </FormControl>
         </Grid>
       </Grid>
       <Grid container item alignItems="center" spacing={4}>
@@ -50,6 +66,16 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
           <TextField
             required
             value={localShippingInfo.deliverySpeed}
+            error={
+              localShippingInfo.deliverySpeed === undefined ||
+              localShippingInfo.deliverySpeed === ""
+            }
+            helperText={
+              localShippingInfo.deliverySpeed &&
+              localShippingInfo.deliverySpeed !== ""
+                ? undefined
+                : "Value must not be blank"
+            }
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
@@ -115,6 +141,9 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
         <Grid item xs>
           <TextField
             required
+            type="number"
+            error={checkCostError(localShippingInfo)}
+            helperText={checkCostError(localShippingInfo)}
             value={localShippingInfo.cost}
             onChange={(event) => {
               setLocalShippingInfo({

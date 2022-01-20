@@ -86,7 +86,6 @@ export const API = {
     customerAccount = undefined,
     customerHandoffName = undefined
   ) {
-    console.log(customerHandoffName);
     const response = await axios.put(`${REACT_APP_API_URL}/shipments`, {
       manifest,
       customer,

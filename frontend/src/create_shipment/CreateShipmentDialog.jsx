@@ -8,6 +8,7 @@ import CommonButton from "../common/Button";
 import { DialogActions, Grid } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
+import { checkCostError } from "../utils/NumberValidators";
 
 const CreateShipmentDialog = ({
   customer,
@@ -63,6 +64,16 @@ const CreateShipmentDialog = ({
     setCurrentState(ShippingDialogStates.SelectMethodPage);
     setCustomerName(undefined);
     onResetClick();
+  };
+
+  const isValidShippingInfo = () => {
+    return (
+      !checkCostError(shippingInfo) &&
+      shippingInfo.carrier &&
+      shippingInfo.carrier !== "-----" &&
+      shippingInfo.deliverySpeed &&
+      shippingInfo.deliverySpeed !== ""
+    );
   };
 
   const onSubmit = async () => {
@@ -150,7 +161,12 @@ const CreateShipmentDialog = ({
                   <CommonButton onClick={onClose} label="Cancel" />
                 </Grid>
                 <Grid item>
-                  <CommonButton autoFocus onClick={onSubmit} label={"OK"} />
+                  <CommonButton
+                    autoFocus
+                    onClick={onSubmit}
+                    label={"OK"}
+                    disabled={!isValidShippingInfo()}
+                  />
                 </Grid>
               </Grid>
             </Grid>
