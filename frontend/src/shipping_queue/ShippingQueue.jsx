@@ -12,6 +12,7 @@ import CreateShipmentDialog from "../create_shipment/CreateShipmentDialog";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
+import EditShipmentTableDialog from "./EditShipmentDialog";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -51,6 +52,9 @@ const ShippingQueue = () => {
   const [partNumber, setPartNumber] = useState("");
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
   const histResultsPerPage = 10;
+
+  // Edit Shipment Dialog
+  const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -121,12 +125,17 @@ const ShippingQueue = () => {
   }
 
   function onCreateShipmentClick() {
-    setCreateShipmentOpen(true);
+    // setCreateShipmentOpen(true); TODO BRING THESE LINES BACK
+    setIsEditShipmentOpen(true);
   }
 
   function onCreateShipmentClose() {
     setCreateShipmentOpen(false);
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
+  }
+
+  function onEditShipmentClose() {
+    setIsEditShipmentOpen(false);
   }
 
   function onQueueSearch(value) {
@@ -276,6 +285,13 @@ const ShippingQueue = () => {
               ),
             []
           )}
+      />
+
+      <EditShipmentTableDialog
+        tableData={shippingQueue}
+        isOpen={isEditShipmentOpen}
+        onClose={onEditShipmentClose}
+        selectedOrder={shippingQueue[0]}
       />
 
       <Grid

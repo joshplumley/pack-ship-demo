@@ -28,7 +28,9 @@ const PopupDialog = ({
       onBackdropClick={onClose}
     >
       <DialogTitle sx={{ m: 0, p: 2 }}>
-        <Typography align="center">{titleText}</Typography>
+        <Typography align="center" fontWeight="bold" fontSize={20}>
+          {titleText}
+        </Typography>
         <IconButton
           sx={{
             position: "absolute",
