@@ -54,6 +54,7 @@ const ShippingHistoryTable = ({
   onPageChange,
   rowCount,
   perPageCount,
+  onRowClick,
 }) => {
   const classes = useStyle();
 
@@ -98,6 +99,7 @@ const ShippingHistoryTable = ({
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"
+        onRowClick={onRowClick}
       />
     </div>
   );
