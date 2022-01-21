@@ -55,7 +55,12 @@ const ShippingQueue = () => {
     async function fetchData() {
       const data = await Promise.all([
         API.getShippingQueue(),
-        API.getShippingHistory(),
+        API.searchShippingHistory(
+          orderNumber,
+          partNumber,
+          histResultsPerPage,
+          0
+        ),
       ]);
       return { queue: data[0], history: data[1] };
     }
@@ -75,7 +80,9 @@ const ShippingQueue = () => {
       setFilteredShippingQueue(queueTableData);
 
       // Gather the history data for the table
-      let historyTableData = extractHistoryDetails(data?.history?.shipments);
+      let historyTableData = extractHistoryDetails(
+        data?.history?.data.shipments
+      );
       setFilteredShippingHist(historyTableData);
       setShippingHistory(historyTableData);
       setHistSearchTotalCount(historyTableData.length);
@@ -207,11 +214,7 @@ const ShippingQueue = () => {
             />
           </Grid>
           <Grid container item xs justifyContent="flex-end">
-            <CommonButton
-              label="Search"
-              onClick={onHistorySearchClick}
-              disabled={!orderNumber && !partNumber}
-            />
+            <CommonButton label="Search" onClick={onHistorySearchClick} />
           </Grid>
         </Grid>
       )}
