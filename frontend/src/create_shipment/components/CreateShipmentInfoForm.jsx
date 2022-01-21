@@ -8,10 +8,15 @@ import {
   MenuItem,
   FormControl,
   FormHelperText,
+  InputAdornment,
 } from "@mui/material";
 import { checkCostError } from "../../utils/NumberValidators";
 
-const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
+const CreateCarrierShipmentInfoForm = ({
+  shippingInfo,
+  setShippingInfo,
+  canErrorCheck,
+}) => {
   const carriers = ["-----", "UPS", "FedEx", "Freight", "Other"];
   const [localShippingInfo, setLocalShippingInfo] = useState({
     ...shippingInfo,
@@ -26,10 +31,13 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
           <Typography>Carrier Service:</Typography>
         </Grid>
         <Grid item xs>
-          <FormControl sx={{ width: "100%" }} error={hasSelectError}>
+          <FormControl
+            sx={{ width: "100%" }}
+            error={canErrorCheck && hasSelectError}
+          >
             <Select
               required
-              error={hasSelectError}
+              error={canErrorCheck && hasSelectError}
               sx={{ width: "100%" }}
               value={localShippingInfo.carrier}
               onChange={(event) => {
@@ -50,10 +58,12 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
               ))}
             </Select>
             <FormHelperText
-              error={hasSelectError}
+              error={canErrorCheck && hasSelectError}
               sx={{ display: hasSelectError ? "block" : "none" }}
             >
-              {hasSelectError ? "Must select non-default carrier" : undefined}
+              {canErrorCheck && hasSelectError
+                ? "Must select non-default carrier"
+                : undefined}
             </FormHelperText>
           </FormControl>
         </Grid>
@@ -67,12 +77,15 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
             required
             value={localShippingInfo.deliverySpeed}
             error={
-              localShippingInfo.deliverySpeed === undefined ||
-              localShippingInfo.deliverySpeed === ""
+              canErrorCheck &&
+              (localShippingInfo.deliverySpeed === undefined ||
+                localShippingInfo.deliverySpeed === "")
             }
             helperText={
-              localShippingInfo.deliverySpeed &&
-              localShippingInfo.deliverySpeed !== ""
+              !canErrorCheck
+                ? undefined
+                : localShippingInfo.deliverySpeed &&
+                  localShippingInfo.deliverySpeed !== ""
                 ? undefined
                 : "Value must not be blank"
             }
@@ -141,10 +154,14 @@ const CreateCarrierShipmentInfoForm = ({ shippingInfo, setShippingInfo }) => {
         <Grid item xs>
           <TextField
             required
-            type="number"
-            error={checkCostError(localShippingInfo)}
-            helperText={checkCostError(localShippingInfo)}
+            error={canErrorCheck && checkCostError(localShippingInfo)}
+            helperText={canErrorCheck && checkCostError(localShippingInfo)}
             value={localShippingInfo.cost}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">{"$"}</InputAdornment>
+              ),
+            }}
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,

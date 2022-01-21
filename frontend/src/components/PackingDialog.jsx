@@ -9,7 +9,7 @@ import {
 import CommonButton from "../common/Button";
 import CloseIcon from "@mui/icons-material/Close";
 
-const PopupDialog = ({
+const PackingDialog = ({
   titleText,
   onClose,
   onSubmit,
@@ -55,4 +55,4 @@ const PopupDialog = ({
   );
 };
 
-export default PopupDialog;
+export default PackingDialog;
