@@ -67,7 +67,10 @@ const PackingSlipDrowdown = ({ params }) => {
             {params.row.items.map((e) => (
               <ListItem key={e._id} divider>
                 <ListItemText
-                  primary={`${e.item} (${e.qty !== undefined ? e.qty : "-"})`}
+                  primary={`${e.item.partNumber} (${
+                    e.item.quantity !== undefined ? e.item.quantity : "-"
+                  })`}
+                  secondary={`${e.item.partDescription}`}
                 />
               </ListItem>
             ))}
@@ -120,7 +123,7 @@ const ShippingQueueTable = ({
           // that if the selected order
           if (
             selectedCustomerId !== null &&
-            selectedCustomerId !== params.row.customerId
+            selectedCustomerId !== params.row.customer?._id
           ) {
             return false;
           }
