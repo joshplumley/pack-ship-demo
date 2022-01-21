@@ -58,6 +58,7 @@ const ShippingQueue = () => {
 
   // Edit Shipment Dialog
   const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
+  const [isEditShipmentViewOnly, setIsEditShipmentViewOnly] = useState(false);
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -212,9 +213,23 @@ const ShippingQueue = () => {
   }
 
   const historyRowMenuOptions = [
-    <MenuItem>View</MenuItem>,
+    <MenuItem
+      onClick={() => {
+        setIsEditShipmentOpen(true);
+        setIsEditShipmentViewOnly(true);
+      }}
+    >
+      View
+    </MenuItem>,
     <MenuItem>Download</MenuItem>,
-    <MenuItem onClick={() => setIsEditShipmentOpen(true)}>Edit</MenuItem>,
+    <MenuItem
+      onClick={() => {
+        setIsEditShipmentOpen(true);
+        setIsEditShipmentViewOnly(false);
+      }}
+    >
+      Edit
+    </MenuItem>,
     <MenuItem>Delete</MenuItem>,
   ];
 
@@ -328,7 +343,7 @@ const ShippingQueue = () => {
         shipment={clickedHistShipment}
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
-        viewOnly={false}
+        viewOnly={isEditShipmentViewOnly}
       />
 
       <ContextMenu
