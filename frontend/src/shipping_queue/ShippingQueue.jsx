@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, MenuItem } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
@@ -12,6 +12,7 @@ import CreateShipmentDialog from "../create_shipment/CreateShipmentDialog";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
+import ContextMenu from "../components/GenericContextMenu";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -51,6 +52,7 @@ const ShippingQueue = () => {
   const [partNumber, setPartNumber] = useState("");
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
   const histResultsPerPage = 10;
+  const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -176,6 +178,17 @@ const ShippingQueue = () => {
     fetchSearch(pageNumber + 1);
   }
 
+  function onHistoryRowClick(_, event, __) {
+    setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
+  }
+
+  const historyRowMenuOptions = [
+    <MenuItem>View</MenuItem>,
+    <MenuItem>Download</MenuItem>,
+    <MenuItem>Edit</MenuItem>,
+    <MenuItem>Delete</MenuItem>,
+  ];
+
   return (
     <Box p="40px">
       {currentTab === TabNames.Queue ? (
@@ -252,6 +265,7 @@ const ShippingQueue = () => {
             onPageChange={onPageChange}
             rowCount={histSearchTotalCount}
             perPageCount={histResultsPerPage}
+            onRowClick={onHistoryRowClick}
           />
         }
       />
@@ -281,6 +295,12 @@ const ShippingQueue = () => {
           )}
       />
 
+      <ContextMenu
+        menuPosition={historyMenuPosition}
+        setMenuPosition={setHistoryMenuPosition}
+      >
+        {historyRowMenuOptions}
+      </ContextMenu>
       <Grid
         className={classes.navButton}
         container
