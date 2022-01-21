@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
+import CreateShipmentDialog from "../create_shipment/CreateShipmentDialog";
+import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
 
@@ -37,6 +39,10 @@ const ShippingQueue = () => {
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
+  const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
+  const [currentDialogState, setCurrentDialogState] = useState(
+    ShippingDialogStates.CreateShipmentTable
+  );
 
   // Shipping History States
   const [shippingHistory, setShippingHistory] = useState([]);
@@ -50,6 +56,19 @@ const ShippingQueue = () => {
     const dt = new Date(dateString);
     return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
   }
+
+  const extractHistoryDetails = useCallback((history) => {
+    let historyTableData = [];
+    history.forEach((e) => {
+      historyTableData.push({
+        id: e._id,
+        shipmentId: e.shipmentId,
+        trackingNumber: e.trackingNumber,
+        dateCreated: getFormattedDate(e.dateCreated),
+      });
+    });
+    return historyTableData;
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -68,9 +87,11 @@ const ShippingQueue = () => {
           id: e._id,
           orderNumber: e.orderNumber,
           packingSlipId: e.packingSlipId,
+          customer: e.customer,
           items: e.items,
         });
       });
+
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
 
@@ -80,20 +101,7 @@ const ShippingQueue = () => {
       setShippingHistory(historyTableData);
       setHistSearchTotalCount(historyTableData.length);
     });
-  }, []);
-
-  function extractHistoryDetails(history) {
-    let historyTableData = [];
-    history.forEach((e) => {
-      historyTableData.push({
-        id: e._id,
-        shipmentId: e.shipmentId,
-        trackingNumber: e.trackingNumber,
-        dateCreated: getFormattedDate(e.dateCreated),
-      });
-    });
-    return historyTableData;
-  }
+  }, [extractHistoryDetails]);
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
@@ -110,6 +118,15 @@ const ShippingQueue = () => {
         setSelectedCustomerId(null);
       }
     }
+  }
+
+  function onCreateShipmentClick() {
+    setCreateShipmentOpen(true);
+  }
+
+  function onCreateShipmentClose() {
+    setCreateShipmentOpen(false);
+    setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
   }
 
   function onQueueSearch(value) {
@@ -172,6 +189,7 @@ const ShippingQueue = () => {
             <CommonButton
               label="Create Shipment"
               disabled={selectedOrderIds.length === 0}
+              onClick={onCreateShipmentClick}
             />
           </Grid>
           <Grid container item justifyContent="start" xs={6}>
@@ -236,6 +254,31 @@ const ShippingQueue = () => {
             perPageCount={histResultsPerPage}
           />
         }
+      />
+
+      <CreateShipmentDialog
+        customer={
+          shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
+            ?.customer
+        }
+        packingSlipIds={shippingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .map((e) => e.id)}
+        open={createShipmentOpen}
+        onClose={onCreateShipmentClose}
+        currentState={currentDialogState}
+        setCurrentState={setCurrentDialogState}
+        parts={shippingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .reduce(
+            (result, current) =>
+              result.concat(
+                current.items.map((e) => {
+                  return { ...e, id: e._id };
+                })
+              ),
+            []
+          )}
       />
 
       <Grid

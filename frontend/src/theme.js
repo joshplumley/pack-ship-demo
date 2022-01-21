@@ -1,7 +1,5 @@
 import { createTheme } from "@mui/material/styles";
 
-const { palette } = createTheme();
-
 const theme = createTheme({
   typography: {
     fontFamily: "Arial",
@@ -19,8 +17,9 @@ const theme = createTheme({
       dark: "#f69e00",
     },
     secondary: {
+      contrastText: "#808080",
       light: "#F4F4F4",
-      main: "#ffbc43",
+      main: "#ffd78f",
       dark: "#757575",
     },
   },
