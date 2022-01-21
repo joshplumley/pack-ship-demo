@@ -110,9 +110,8 @@ const ShippingQueueTable = ({
   return (
     <div className={classes.root}>
       <ShippingQueueDataGrid
-        sx={{ border: "none" }}
+        sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        autoHeight
         disableSelectionOnClick={true}
         isRowSelectable={(params) => {
           // If orders are selected, disable selecting of
