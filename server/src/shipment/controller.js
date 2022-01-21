@@ -144,7 +144,19 @@ async function getAll(_req, res) {
 async function createOne(req, res) {
   handler(
     async () => {
-      const { manifest, customer, trackingNumber, cost } = req.body;
+      const {
+        manifest,
+        customer,
+        trackingNumber,
+        cost,
+        deliveryMethod,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        customerHandoffName
+      } = req.body;
+
+
       const p_numShipments = Shipment.countDocuments({ customer });
       const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
 
@@ -160,6 +172,12 @@ async function createOne(req, res) {
         customer,
         shipmentId,
         manifest,
+
+        deliveryMethod,
+        customerHandoffName,
+        carrier,
+        deliverySpeed,
+        customerAccount,
         trackingNumber,
         cost,
       });
