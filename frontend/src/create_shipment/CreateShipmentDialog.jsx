@@ -12,6 +12,7 @@ import { checkCostError } from "../utils/NumberValidators";
 
 const CreateShipmentDialog = ({
   customer,
+  packingSlipIds,
   onClose,
   open,
   currentState,
@@ -24,14 +25,15 @@ const CreateShipmentDialog = ({
     customer: "",
     deliveryMethod: "",
   });
+  const [canErrorCheck, setCanErrorCheck] = useState(false);
 
   useEffect(() => {
     setShippingInfo({
       ...shippingInfo,
       customer: customer?._id,
-      manifest: parts.map((e) => e.id),
+      manifest: packingSlipIds,
     });
-  }, [customer, parts]);
+  }, [customer, packingSlipIds]);
 
   const onPickupClick = () => {
     setCurrentState(ShippingDialogStates.PickupDropOffPage);
@@ -77,29 +79,32 @@ const CreateShipmentDialog = ({
   };
 
   const onSubmit = async () => {
-    API.createShipment(
-      shippingInfo.manifest,
-      shippingInfo.customer,
-      shippingInfo.deliveryMethod,
-      shippingInfo.trackingNumber,
-      shippingInfo.cost,
-      shippingInfo.carrier,
-      shippingInfo.deliverySpeed,
-      shippingInfo.customerAccount,
-      customerName
-    )
-      .then(() => {
-        setCustomerName(undefined);
-        setShippingInfo({
-          manifest: [],
-          customer: "",
-          deliveryMethod: "",
+    setCanErrorCheck(true);
+    if (isValidShippingInfo()) {
+      API.createShipment(
+        shippingInfo.manifest,
+        shippingInfo.customer,
+        shippingInfo.deliveryMethod,
+        shippingInfo.trackingNumber,
+        shippingInfo.cost,
+        shippingInfo.carrier,
+        shippingInfo.deliverySpeed,
+        shippingInfo.customerAccount,
+        customerName
+      )
+        .then(() => {
+          setCustomerName(undefined);
+          setShippingInfo({
+            manifest: [],
+            customer: "",
+            deliveryMethod: "",
+          });
+          onClose();
+        })
+        .catch(() => {
+          alert("An error occurred submitting packing slip");
         });
-        onClose();
-      })
-      .catch(() => {
-        alert("An error occurred submitting packing slip");
-      });
+    }
   };
 
   const renderContents = () => {
@@ -111,6 +116,7 @@ const CreateShipmentDialog = ({
           <CreateCarrierShipmentInfoForm
             shippingInfo={shippingInfo}
             setShippingInfo={setShippingInfo}
+            canErrorCheck={canErrorCheck}
           />
         );
       case ShippingDialogStates.PickupDropOffPage:
@@ -165,12 +171,7 @@ const CreateShipmentDialog = ({
                   />
                 </Grid>
                 <Grid item>
-                  <CommonButton
-                    autoFocus
-                    onClick={onSubmit}
-                    label={"OK"}
-                    disabled={!isValidShippingInfo()}
-                  />
+                  <CommonButton autoFocus onClick={onSubmit} label={"OK"} />
                 </Grid>
               </Grid>
             </Grid>

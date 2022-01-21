@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
@@ -57,6 +57,19 @@ const ShippingQueue = () => {
     return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
   }
 
+  const extractHistoryDetails = useCallback((history) => {
+    let historyTableData = [];
+    history.forEach((e) => {
+      historyTableData.push({
+        id: e._id,
+        shipmentId: e.shipmentId,
+        trackingNumber: e.trackingNumber,
+        dateCreated: getFormattedDate(e.dateCreated),
+      });
+    });
+    return historyTableData;
+  }, []);
+
   useEffect(() => {
     async function fetchData() {
       const data = await Promise.all([
@@ -88,20 +101,7 @@ const ShippingQueue = () => {
       setShippingHistory(historyTableData);
       setHistSearchTotalCount(historyTableData.length);
     });
-  }, []);
-
-  function extractHistoryDetails(history) {
-    let historyTableData = [];
-    history.forEach((e) => {
-      historyTableData.push({
-        id: e._id,
-        shipmentId: e.shipmentId,
-        trackingNumber: e.trackingNumber,
-        dateCreated: getFormattedDate(e.dateCreated),
-      });
-    });
-    return historyTableData;
-  }
+  }, [extractHistoryDetails]);
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
@@ -261,6 +261,9 @@ const ShippingQueue = () => {
           shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
             ?.customer
         }
+        packingSlipIds={shippingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .map((e) => e.id)}
         open={createShipmentOpen}
         onClose={onCreateShipmentClose}
         currentState={currentDialogState}
