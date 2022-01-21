@@ -85,9 +85,8 @@ const PackingQueueTable = ({
   return (
     <div className={classes.root}>
       <DataGrid
-        sx={{ border: "none" }}
+        sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        autoHeight
         disableSelectionOnClick={false}
         isRowSelectable={(params) => {
           // If orders are selected, disable selecting of

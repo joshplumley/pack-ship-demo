@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, MenuItem } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
@@ -13,6 +13,7 @@ import ShippingDialogStates from "../create_shipment/constants/ShippingDialogCon
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
 import EditShipmentTableDialog from "./EditShipmentDialog";
+import ContextMenu from "../components/GenericContextMenu";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -53,6 +54,7 @@ const ShippingQueue = () => {
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
   const histResultsPerPage = 10;
   const [clickedHistShipment, setClickedHistShipment] = useState();
+  const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
 
   // Edit Shipment Dialog
   const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
@@ -111,11 +113,16 @@ const ShippingQueue = () => {
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
+    const customerId =
+      selectionModel.length > 0
+        ? tableData.find((element) => element.id === selectionModel[0]).customer
+            ?._id
+        : undefined;
     for (const item of tableData) {
       // All selected items will have the same customer id
       // so we just take the first one
-      if (selectionModel.length > 0 && item.id === selectionModel[0]) {
-        setSelectedCustomerId(item.customerId);
+      if (selectionModel.length > 0 && item.customer?._id === customerId) {
+        setSelectedCustomerId(item.customer._id);
         break;
       }
       // If nothing selected set it to null
@@ -139,7 +146,16 @@ const ShippingQueue = () => {
   }
 
   function onQueueSearch(value) {
-    return; // TODO
+    const filtered = shippingQueue.filter(
+      (order) =>
+        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
+        order.items.filter((e) =>
+          e.item.partNumber.toLowerCase().includes(value.toLowerCase())
+        ).length > 0 ||
+        selectedOrderIds.includes(order.id) // Ensure selected rows are included
+    );
+
+    setFilteredShippingQueue(filtered);
   }
 
   function onTabChange(event, newValue) {
@@ -185,16 +201,27 @@ const ShippingQueue = () => {
     fetchSearch(pageNumber + 1);
   }
 
-  function onHistoryRowClick(params) {
-    API.getShipment(params.id).then((data) => {
-      if (data) {
-        setClickedHistShipment(data.shipment);
-      }
-      console.log(data.shipment);
-    });
+  // TODO bring this back
+  // function onHistoryRowClick(params) {
+  //   API.getShipment(params.id).then((data) => {
+  //     if (data) {
+  //       setClickedHistShipment(data.shipment);
+  //     }
+  //     console.log(data.shipment);
+  //   });
 
-    setIsEditShipmentOpen(true);
+  //   setIsEditShipmentOpen(true);
+  // }
+  function onHistoryRowClick(_, event, __) {
+    setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
   }
+
+  const historyRowMenuOptions = [
+    <MenuItem>View</MenuItem>,
+    <MenuItem>Download</MenuItem>,
+    <MenuItem>Edit</MenuItem>,
+    <MenuItem>Delete</MenuItem>,
+  ];
 
   return (
     <Box p="40px">
@@ -302,12 +329,19 @@ const ShippingQueue = () => {
           )}
       />
 
-      <EditShipmentTableDialog
+      {/* <EditShipmentTableDialog
         shipment={clickedHistShipment}
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
         viewOnly={false}
-      />
+      /> */}
+
+      <ContextMenu
+        menuPosition={historyMenuPosition}
+        setMenuPosition={setHistoryMenuPosition}
+      >
+        {historyRowMenuOptions}
+      </ContextMenu>
 
       <Grid
         className={classes.navButton}
