@@ -58,10 +58,7 @@ const PackShipEditableTable = ({
   tableData,
   onDelete,
   onAdd,
-  setTableData,
   onRowClick,
-  selectedCustomerId,
-  selectionOrderIds,
   viewOnly,
   pageSize = 10,
 }) => {
@@ -96,7 +93,7 @@ const PackShipEditableTable = ({
 
     // Add row for the ability to add a new row
     newRows = [];
-    tableData.forEach((e, i) => {
+    tableData?.forEach((e, i) => {
       newRows.push(e);
       // make sure the add Row is at the end of the page and at the end of the
       // last page
@@ -104,6 +101,10 @@ const PackShipEditableTable = ({
         newRows.push({ id: addRowId });
       }
     });
+    // no data add the add row
+    if (tableData.length === 0) {
+      newRows.push({ id: addRowId });
+    }
   }
 
   return (
@@ -113,30 +114,7 @@ const PackShipEditableTable = ({
         className={classes.table}
         autoHeight
         disableSelectionOnClick={true}
-        isRowSelectable={(params) => {
-          // If orders are selected, disable selecting of
-          // other orders if the order number does not match
-          // that if the selected order
-          if (
-            selectedCustomerId !== null &&
-            selectedCustomerId !== params.row.customerId
-          ) {
-            return false;
-          }
-          return true;
-        }}
-        onSelectionModelChange={(selectionModel, _) => {
-          onRowClick(selectionModel, tableData);
-        }}
-        onRowClick={(params) => {
-          let tmpData = [...tableData];
-          const tmpIndex = tmpData.findIndex((e) => {
-            return e.id === params.id;
-          });
-          tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
-          setTableData(tmpData);
-        }}
-        selectionModel={selectionOrderIds}
+        onRowClick={onRowClick}
         rows={newRows}
         rowHeight={65}
         columns={newColumns}

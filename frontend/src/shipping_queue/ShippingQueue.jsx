@@ -52,6 +52,7 @@ const ShippingQueue = () => {
   const [partNumber, setPartNumber] = useState("");
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
   const histResultsPerPage = 10;
+  const [clickedHistShipment, setClickedHistShipment] = useState();
 
   // Edit Shipment Dialog
   const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
@@ -125,8 +126,7 @@ const ShippingQueue = () => {
   }
 
   function onCreateShipmentClick() {
-    // setCreateShipmentOpen(true); TODO BRING THESE LINES BACK
-    setIsEditShipmentOpen(true);
+    setCreateShipmentOpen(true);
   }
 
   function onCreateShipmentClose() {
@@ -183,6 +183,17 @@ const ShippingQueue = () => {
   function onPageChange(pageNumber) {
     // API Pages are 1 based. MUI pages are 0 based.
     fetchSearch(pageNumber + 1);
+  }
+
+  function onHistoryRowClick(params) {
+    API.getShipment(params.id).then((data) => {
+      if (data) {
+        setClickedHistShipment(data.shipment);
+      }
+      console.log(data.shipment);
+    });
+
+    setIsEditShipmentOpen(true);
   }
 
   return (
@@ -261,6 +272,7 @@ const ShippingQueue = () => {
             onPageChange={onPageChange}
             rowCount={histSearchTotalCount}
             perPageCount={histResultsPerPage}
+            onRowClick={onHistoryRowClick}
           />
         }
       />
@@ -291,10 +303,9 @@ const ShippingQueue = () => {
       />
 
       <EditShipmentTableDialog
-        tableData={shippingQueue}
+        shipment={clickedHistShipment}
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
-        selectedOrder={shippingQueue[0]}
         viewOnly={false}
       />
 

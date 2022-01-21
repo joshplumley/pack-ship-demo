@@ -54,10 +54,9 @@ const PackingSlipDrowdown = ({ params }) => {
 };
 
 const EditShipmentTableDialog = ({
-  tableData,
+  shipment,
   isOpen,
   onClose,
-  selectedOrder,
   viewOnly = true,
 }) => {
   const classes = useStyle();
@@ -101,27 +100,34 @@ const EditShipmentTableDialog = ({
     },
   ];
 
-  function onDelete() {
-    console.log("Deleted"); // TODO
-  }
-
   function onAdd() {
     console.log("Added"); // TODO
+  }
+
+  function onPackingSlipDelete() {
+    console.log("onPackingSlipDelete");
+  }
+
+  function onPackingSlipClick() {
+    console.log("onPackingSlipClick");
   }
 
   return (
     <div className={classes.root}>
       <PopupDialog
         open={isOpen}
-        titleText={`Edit Shipment / ${selectedOrder.packingSlipId}`}
+        titleText={`Edit Shipment / ${shipment?.shipmentId}`}
         onClose={onClose}
       >
         <PackShipEditableTable
-          tableData={tableData}
+          tableData={shipment?.manifest.map((e) => {
+            return { id: e._id, packingSlipId: e.packingSlipId };
+          })}
           columns={columns}
-          onDelete={onDelete}
+          onDelete={onPackingSlipDelete}
           onAdd={onAdd}
           viewOnly={viewOnly}
+          onRowClick={onPackingSlipClick}
         />
         <Grid container direction="row" alignItems="flex-start">
           <Grid item container xs={6} direction="column">

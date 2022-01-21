@@ -51,6 +51,15 @@ export const API = {
     }
   },
 
+  async getShipment(id) {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/shipments/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("getShipment", error);
+    }
+  },
+
   async searchShippingHistory(
     matchOrder,
     matchPart,
