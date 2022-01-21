@@ -74,4 +74,30 @@ export const API = {
       console.error("searchShippingHistory", error);
     }
   },
+
+  async createShipment(
+    manifest,
+    customer,
+    deliveryMethod,
+    trackingNumber = undefined,
+    cost = undefined,
+    carrier = undefined,
+    deliverySpeed = undefined,
+    customerAccount = undefined,
+    customerHandoffName = undefined
+  ) {
+    const response = await axios.put(`${REACT_APP_API_URL}/shipments`, {
+      manifest,
+      customer,
+      deliveryMethod,
+      trackingNumber,
+      cost,
+      carrier,
+      deliverySpeed,
+      customerAccount,
+      customerHandoffName,
+    });
+
+    return response.data;
+  },
 };

@@ -14,7 +14,13 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const Tab = styled(TabUnstyled)(({ theme }) => {
+const Tab = styled(TabUnstyled, {
+  shouldForwardProp: (props) =>
+    props !== "fullWidth" &&
+    props !== "indicator" &&
+    props !== "selectionFollowsFocus" &&
+    props !== "textColor",
+})(({ theme }) => {
   return `
   font-family: IBM Plex Sans, sans-serif;
   color: grey;
