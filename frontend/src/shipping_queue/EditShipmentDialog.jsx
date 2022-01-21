@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import {
   Typography,
@@ -8,6 +8,8 @@ import {
   ListItemText,
   ListItemButton,
   IconButton,
+  Grid,
+  TextField,
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -16,21 +18,26 @@ import PackShipEditableTable from "../components/EdittableTable";
 import PopupDialog from "../components/PackingDialog";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+import TextInput from "../components/TextInput";
+import TitleTextInput from "../components/TitleTextInput";
+
 const useStyle = makeStyles((theme) => ({}));
 
 const PackingSlipDrowdown = ({ params }) => {
   return (
     <div style={{ width: "100%" }}>
       <List>
-        <ListItemButton>
-          {params.row.open && params.row.open !== undefined ? (
-            <ExpandLess />
-          ) : (
-            <ExpandMore />
-          )}
-          <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
-        </ListItemButton>
-        <Collapse in={params.row.open} timeout="auto" unmountOnExit>
+        {params.id !== "add-row-id" && ( //Skip the row with the add row button
+          <ListItemButton>
+            {params.row.open && params.row.open !== undefined ? (
+              <ExpandLess />
+            ) : (
+              <ExpandMore />
+            )}
+            <ListItemText primary={params.row.packingSlipId} />
+          </ListItemButton>
+        )}
+        {/* <Collapse in={params.row.open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {params.row.items.map((e) => (
               <ListItem key={e._id} divider>
@@ -40,7 +47,7 @@ const PackingSlipDrowdown = ({ params }) => {
               </ListItem>
             ))}
           </List>
-        </Collapse>
+        </Collapse> */}
       </List>
     </div>
   );
@@ -51,59 +58,47 @@ const EditShipmentTableDialog = ({
   isOpen,
   onClose,
   selectedOrder,
+  viewOnly = true,
 }) => {
   const classes = useStyle();
+  const [carrierInput, setCarrierInputChange] = useState();
+  const [deliverySpeed, setDeliverySpeed] = useState();
+  const [customerAccount, setCustomerAccount] = useState();
+  const [tracking, setTracking] = useState();
+  const [cost, setCost] = useState();
 
   const columns = [
-    // {
-    //   field: "actions",
-    //   flex: 1,
-    //   renderCell: (params) => {
-    //     return (
-    //       <IconButton
-    //         onClick={() => {
-    //           console.log("DELETED");
-    //         }}
-    //       >
-    //         <DeleteIcon />
-    //       </IconButton>
-    //     );
-    //   },
-    //   renderHeader: (params) => {
-    //     return <Typography sx={{ fontWeight: 900 }}>Actions</Typography>;
-    //   },
-    // },
     {
       field: "packingSlipId",
-      // renderCell: (params) => {
-      //   return <PackingSlipDrowdown params={params} />;
-      // },
+      renderCell: (params) => {
+        return <PackingSlipDrowdown params={params} />;
+      },
       flex: 2,
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
       },
     },
-    // {
-    //   field: "part",
-    //   flex: 2,
-    //   renderHeader: (params) => {
-    //     return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
-    //   },
-    // },
-    // {
-    //   field: "batchQty",
-    //   flex: 2,
-    //   renderHeader: (params) => {
-    //     return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
-    //   },
-    // },
-    // {
-    //   field: "shipQty",
-    //   flex: 2,
-    //   renderHeader: (params) => {
-    //     return <Typography sx={{ fontWeight: 900 }}>Ship Qty</Typography>;
-    //   },
-    // },
+    {
+      field: "part",
+      flex: 2,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+      },
+    },
+    {
+      field: "batchQty",
+      flex: 2,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+      },
+    },
+    {
+      field: "shipQty",
+      flex: 2,
+      renderHeader: (params) => {
+        return <Typography sx={{ fontWeight: 900 }}>Ship Qty</Typography>;
+      },
+    },
   ];
 
   function onDelete() {
@@ -122,36 +117,48 @@ const EditShipmentTableDialog = ({
         onClose={onClose}
       >
         <PackShipEditableTable
-          // isRowSelectable={(params) => {
-          //   // If orders are selected, disable selecting of
-          //   // other orders if the order number does not match
-          //   // that if the selected order
-          //   if (
-          //     selectedCustomerId !== null &&
-          //     selectedCustomerId !== params.row.customerId
-          //   ) {
-          //     return false;
-          //   }
-          //   return true;
-          // }}
-          // onSelectionModelChange={(selectionModel, _) => {
-          //   onRowClick(selectionModel, tableData);
-          // }}
-          // onRowClick={(params) => {
-          //   let tmpData = [...tableData];
-          //   const tmpIndex = tmpData.findIndex((e) => {
-          //     return e.id === params.id;
-          //   });
-          //   tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
-          //   setTableData(tmpData);
-          // }}
-          // selectionModel={selectionOrderIds}
           tableData={tableData}
-          // rowHeight={65}
           columns={columns}
           onDelete={onDelete}
           onAdd={onAdd}
+          viewOnly={viewOnly}
         />
+        <Grid container direction="row" alignItems="flex-start">
+          <Grid item container xs={6} direction="column">
+            <TitleTextInput
+              title="Carrier Service:"
+              value={carrierInput}
+              viewOnly={viewOnly}
+              onChange={setCarrierInputChange}
+            />
+            <TitleTextInput
+              title="Delivery Speed:"
+              value={deliverySpeed}
+              viewOnly={viewOnly}
+              onChange={setDeliverySpeed}
+            />
+            <TitleTextInput
+              title="Customer Account:"
+              value={customerAccount}
+              viewOnly={viewOnly}
+              onChange={setCustomerAccount}
+            />
+          </Grid>
+          <Grid item container xs={6} direction="column">
+            <TitleTextInput
+              title="Tracking:"
+              value={tracking}
+              viewOnly={viewOnly}
+              onChange={setTracking}
+            />
+            <TitleTextInput
+              title="Cost:"
+              value={cost}
+              viewOnly={viewOnly}
+              onChange={setCost}
+            />
+          </Grid>
+        </Grid>
       </PopupDialog>
     </div>
   );

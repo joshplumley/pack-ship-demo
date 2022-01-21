@@ -292,6 +292,7 @@ const ShippingQueue = () => {
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
         selectedOrder={shippingQueue[0]}
+        viewOnly={false}
       />
 
       <Grid
