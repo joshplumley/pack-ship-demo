@@ -106,11 +106,16 @@ const ShippingQueue = () => {
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
+    const customerId =
+      selectionModel.length > 0
+        ? tableData.find((element) => element.id === selectionModel[0]).customer
+            ?._id
+        : undefined;
     for (const item of tableData) {
       // All selected items will have the same customer id
       // so we just take the first one
-      if (selectionModel.length > 0 && item.id === selectionModel[0]) {
-        setSelectedCustomerId(item.customerId);
+      if (selectionModel.length > 0 && item.customer?._id === customerId) {
+        setSelectedCustomerId(item.customer._id);
         break;
       }
       // If nothing selected set it to null
@@ -130,7 +135,16 @@ const ShippingQueue = () => {
   }
 
   function onQueueSearch(value) {
-    return; // TODO
+    const filtered = shippingQueue.filter(
+      (order) =>
+        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
+        order.items.filter((e) =>
+          e.item.partNumber.toLowerCase().includes(value.toLowerCase())
+        ).length > 0 ||
+        selectedOrderIds.includes(order.id) // Ensure selected rows are included
+    );
+
+    setFilteredShippingQueue(filtered);
   }
 
   function onTabChange(event, newValue) {
