@@ -214,7 +214,11 @@ const ShippingQueue = () => {
             />
           </Grid>
           <Grid container item xs justifyContent="flex-end">
-            <CommonButton label="Search" onClick={onHistorySearchClick} />
+            <CommonButton
+              label="Search"
+              onClick={onHistorySearchClick}
+              disabled={!orderNumber && !partNumber}
+            />
           </Grid>
         </Grid>
       )}
