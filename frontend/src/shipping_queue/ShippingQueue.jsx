@@ -201,25 +201,20 @@ const ShippingQueue = () => {
     fetchSearch(pageNumber + 1);
   }
 
-  // TODO bring this back
-  // function onHistoryRowClick(params) {
-  //   API.getShipment(params.id).then((data) => {
-  //     if (data) {
-  //       setClickedHistShipment(data.shipment);
-  //     }
-  //     console.log(data.shipment);
-  //   });
+  function onHistoryRowClick(params, event, __) {
+    API.getShipment(params.id).then((data) => {
+      if (data) {
+        setClickedHistShipment(data.shipment);
+      }
+    });
 
-  //   setIsEditShipmentOpen(true);
-  // }
-  function onHistoryRowClick(_, event, __) {
     setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
   }
 
   const historyRowMenuOptions = [
     <MenuItem>View</MenuItem>,
     <MenuItem>Download</MenuItem>,
-    <MenuItem>Edit</MenuItem>,
+    <MenuItem onClick={() => setIsEditShipmentOpen(true)}>Edit</MenuItem>,
     <MenuItem>Delete</MenuItem>,
   ];
 
@@ -329,12 +324,12 @@ const ShippingQueue = () => {
           )}
       />
 
-      {/* <EditShipmentTableDialog
+      <EditShipmentTableDialog
         shipment={clickedHistShipment}
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
         viewOnly={false}
-      /> */}
+      />
 
       <ContextMenu
         menuPosition={historyMenuPosition}
