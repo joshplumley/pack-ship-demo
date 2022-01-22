@@ -108,7 +108,7 @@ const ShippingQueue = () => {
       );
       setFilteredShippingHist(historyTableData);
       setShippingHistory(historyTableData);
-      setHistSearchTotalCount(historyTableData.length);
+      setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
   }, [extractHistoryDetails]);
 
