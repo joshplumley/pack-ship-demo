@@ -54,7 +54,7 @@ const PackingSlipDrowdown = ({ params }) => {
   return (
     <div style={{ width: "100%" }}>
       <List>
-        <ListItemButton fullWidth>
+        <ListItemButton>
           {params.row.open && params.row.open !== undefined ? (
             <ExpandLess />
           ) : (
@@ -65,9 +65,12 @@ const PackingSlipDrowdown = ({ params }) => {
         <Collapse in={params.row.open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {params.row.items.map((e) => (
-              <ListItem key={e.customerId} divider>
+              <ListItem key={e._id} divider>
                 <ListItemText
-                  primary={`${e.item} (${e.qty !== undefined ? e.qty : "-"})`}
+                  primary={`${e.item.partNumber} (${
+                    e.item.quantity !== undefined ? e.item.quantity : "-"
+                  })`}
+                  secondary={`${e.item.partDescription}`}
                 />
               </ListItem>
             ))}
@@ -110,9 +113,8 @@ const ShippingQueueTable = ({
   return (
     <div className={classes.root}>
       <ShippingQueueDataGrid
-        sx={{ border: "none" }}
+        sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        autoHeight
         disableSelectionOnClick={true}
         isRowSelectable={(params) => {
           // If orders are selected, disable selecting of
@@ -120,7 +122,7 @@ const ShippingQueueTable = ({
           // that if the selected order
           if (
             selectedCustomerId !== null &&
-            selectedCustomerId !== params.row.customerId
+            selectedCustomerId !== params.row.customer?._id
           ) {
             return false;
           }

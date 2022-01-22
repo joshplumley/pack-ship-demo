@@ -50,6 +50,7 @@ const PackingQueue = () => {
           partDescription: e.partDescription,
           batchQty: e.batchQty,
           fulfilledQty: e.packedQty,
+          customer: e.customer,
         });
       });
       setPackingQueue(tableData);
