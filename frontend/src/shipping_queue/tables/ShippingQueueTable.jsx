@@ -68,7 +68,7 @@ const PackingSlipDrowdown = ({ params }) => {
               <ListItem key={e._id} divider>
                 <ListItemText
                   primary={`${e.item.partNumber} (${
-                    e.item.quantity !== undefined ? e.item.quantity : "-"
+                    e.qty !== undefined ? e.qty : "-"
                   })`}
                   secondary={`${e.item.partDescription}`}
                 />

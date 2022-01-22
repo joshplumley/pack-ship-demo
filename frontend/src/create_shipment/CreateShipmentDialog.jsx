@@ -8,8 +8,6 @@ import CommonButton from "../common/Button";
 import { DialogActions, Grid } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
-import { checkCostError } from "../utils/NumberValidators";
-
 const CreateShipmentDialog = ({
   customer,
   packingSlipIds,
@@ -26,6 +24,7 @@ const CreateShipmentDialog = ({
     deliveryMethod: "",
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
+  const [reset, setReset] = useState(false);
 
   useEffect(() => {
     setShippingInfo({
@@ -34,6 +33,16 @@ const CreateShipmentDialog = ({
       manifest: packingSlipIds,
     });
   }, [customer, packingSlipIds]);
+
+  useEffect(() => {
+    setCustomerName(undefined);
+    setShippingInfo({
+      manifest: packingSlipIds,
+      customer: customer?._id,
+      deliveryMethod: "",
+    });
+    setCanErrorCheck(false);
+  }, [open]);
 
   const onPickupClick = () => {
     setCurrentState(ShippingDialogStates.PickupDropOffPage);
@@ -55,11 +64,7 @@ const CreateShipmentDialog = ({
   };
 
   const onResetClick = () => {
-    setShippingInfo({
-      manifest: shippingInfo.manifest,
-      customer: shippingInfo.customer,
-      deliveryMethod: shippingInfo.deliveryMethod,
-    });
+    setReset(true);
   };
 
   const onBackClick = () => {
@@ -70,7 +75,6 @@ const CreateShipmentDialog = ({
 
   const isValidShippingInfo = () => {
     return (
-      !checkCostError(shippingInfo) &&
       shippingInfo.carrier &&
       shippingInfo.carrier !== "-----" &&
       shippingInfo.deliverySpeed &&
@@ -80,7 +84,11 @@ const CreateShipmentDialog = ({
 
   const onSubmit = async () => {
     setCanErrorCheck(true);
-    if (isValidShippingInfo()) {
+    if (
+      isValidShippingInfo() ||
+      shippingInfo.deliveryMethod === "PICKUP" ||
+      shippingInfo.deliveryMethod === "DROPOFF"
+    ) {
       API.createShipment(
         shippingInfo.manifest,
         shippingInfo.customer,
@@ -117,6 +125,8 @@ const CreateShipmentDialog = ({
             shippingInfo={shippingInfo}
             setShippingInfo={setShippingInfo}
             canErrorCheck={canErrorCheck}
+            reset={reset}
+            setReset={setReset}
           />
         );
       case ShippingDialogStates.PickupDropOffPage:
@@ -138,6 +148,7 @@ const CreateShipmentDialog = ({
                   header: `${e.partNumber} - Rev${e.partRev}`,
                   description: e.partDescription,
                 },
+                qty: e.qty,
               };
             })}
           />

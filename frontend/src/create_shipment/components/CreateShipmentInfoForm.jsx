@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextField,
   Grid,
@@ -10,12 +10,13 @@ import {
   FormHelperText,
   InputAdornment,
 } from "@mui/material";
-import { checkCostError } from "../../utils/NumberValidators";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
   setShippingInfo,
   canErrorCheck,
+  reset,
+  setReset,
 }) => {
   const carriers = ["-----", "UPS", "FedEx", "Freight", "Other"];
   const [localShippingInfo, setLocalShippingInfo] = useState({
@@ -24,11 +25,27 @@ const CreateCarrierShipmentInfoForm = ({
   });
   const [hasSelectError, setHasSelectError] = useState(true);
 
+  const defaultInfo = {
+    manifest: shippingInfo.manifest,
+    customer: shippingInfo.customer,
+    deliveryMethod: shippingInfo.deliveryMethod,
+    carrier: carriers[0],
+  };
+
+  useEffect(() => {
+    if (reset) {
+      setShippingInfo(defaultInfo);
+      setLocalShippingInfo(defaultInfo);
+      setReset(false);
+      setHasSelectError(true);
+    }
+  }, [reset, setReset, defaultInfo]);
+
   return (
     <Box component="form">
-      <Grid container item alignItems="center" spacing={4}>
+      <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography>Carrier Service:</Typography>
+          <Typography sx={{ fontWeight: 700 }}>Carrier Service*:</Typography>
         </Grid>
         <Grid item xs>
           <FormControl
@@ -59,7 +76,9 @@ const CreateCarrierShipmentInfoForm = ({
             </Select>
             <FormHelperText
               error={canErrorCheck && hasSelectError}
-              sx={{ display: hasSelectError ? "block" : "none" }}
+              sx={{
+                display: canErrorCheck && hasSelectError ? "block" : "none",
+              }}
             >
               {canErrorCheck && hasSelectError
                 ? "Must select non-default carrier"
@@ -68,14 +87,14 @@ const CreateCarrierShipmentInfoForm = ({
           </FormControl>
         </Grid>
       </Grid>
-      <Grid container item alignItems="center" spacing={4}>
+      <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography>Delivery Speed:</Typography>
+          <Typography sx={{ fontWeight: 700 }}>Delivery Speed*:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
             required
-            value={localShippingInfo.deliverySpeed}
+            value={localShippingInfo.deliverySpeed ?? ""}
             error={
               canErrorCheck &&
               (localShippingInfo.deliverySpeed === undefined ||
@@ -105,16 +124,16 @@ const CreateCarrierShipmentInfoForm = ({
         container
         item
         alignItems="center"
-        spacing={4}
+        spacing={2}
         sx={{ paddingBottom: "20px" }}
       >
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography>Customer Account:</Typography>
+          <Typography sx={{ fontWeight: 700 }}>Customer Account:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
             required
-            value={localShippingInfo.customerAccount}
+            value={localShippingInfo.customerAccount ?? ""}
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
@@ -127,14 +146,14 @@ const CreateCarrierShipmentInfoForm = ({
           />
         </Grid>
       </Grid>
-      <Grid container item alignItems="center" spacing={4}>
+      <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
           <Typography sx={{ fontWeight: 700 }}>Tracking:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
             required
-            value={localShippingInfo.tracking}
+            value={localShippingInfo.tracking ?? ""}
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
@@ -147,16 +166,14 @@ const CreateCarrierShipmentInfoForm = ({
           />
         </Grid>
       </Grid>
-      <Grid container item alignItems="center" spacing={4}>
+      <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
           <Typography sx={{ fontWeight: 700 }}>Cost:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
             required
-            error={canErrorCheck && checkCostError(localShippingInfo)}
-            helperText={canErrorCheck && checkCostError(localShippingInfo)}
-            value={localShippingInfo.cost}
+            value={localShippingInfo.cost ?? ""}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">{"$"}</InputAdornment>
