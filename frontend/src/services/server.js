@@ -51,6 +51,17 @@ export const API = {
     }
   },
 
+  async deleteShipment(id) {
+    try {
+      const response = await axios.delete(
+        `${REACT_APP_API_URL}/shipments/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("deleteShipment", error);
+    }
+  },
+
   async getShipment(id) {
     try {
       const response = await axios.get(`${REACT_APP_API_URL}/shipments/${id}`);

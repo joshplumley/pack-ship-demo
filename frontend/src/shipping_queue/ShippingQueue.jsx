@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid, MenuItem } from "@mui/material";
+import { Box, Button, Grid, MenuItem, Typography } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
@@ -61,6 +61,8 @@ const ShippingQueue = () => {
   const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
   const [isEditShipmentViewOnly, setIsEditShipmentViewOnly] = useState(false);
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [confirmShippingDeleteDialogOpen, setConfirmShippingDeleteDialogOpen] =
+    useState(false);
   const [packingSlipToDelete, setPackingSlipToDelete] = useState();
 
   function getFormattedDate(dateString) {
@@ -289,7 +291,14 @@ const ShippingQueue = () => {
     >
       Edit
     </MenuItem>,
-    <MenuItem>Delete</MenuItem>,
+    <MenuItem
+      onClick={() => {
+        setHistoryMenuPosition(null);
+        setConfirmShippingDeleteDialogOpen(true);
+      }}
+    >
+      Delete
+    </MenuItem>,
   ];
 
   return (
@@ -443,7 +452,23 @@ const ShippingQueue = () => {
         open={confirmDeleteDialogOpen}
         setOpen={setConfirmDeleteDialogOpen}
         onConfirm={onHistoryPackingSlipDelete}
-      ></ConfirmDialog>
+      />
+
+      <ConfirmDialog
+        title={`Are You Sure You Want To Delete`}
+        open={confirmShippingDeleteDialogOpen}
+        setOpen={setConfirmShippingDeleteDialogOpen}
+        onConfirm={() => {
+          API.deleteShipment(clickedHistShipment._id);
+          setFilteredShippingHist(
+            filteredShippingHist.filter((e) => e.id !== clickedHistShipment._id)
+          );
+        }}
+      >
+        <Typography sx={{ fontWeight: 900 }}>
+          {clickedHistShipment.shipmentId}
+        </Typography>
+      </ConfirmDialog>
 
       <ContextMenu
         menuPosition={historyMenuPosition}
