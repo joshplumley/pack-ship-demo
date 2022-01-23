@@ -14,6 +14,7 @@ import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
 import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
+import ConfirmDialog from "../components/ConfrimDialog";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -59,6 +60,8 @@ const ShippingQueue = () => {
   // Edit Shipment Dialog
   const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
   const [isEditShipmentViewOnly, setIsEditShipmentViewOnly] = useState(false);
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [packingSlipToDelete, setPackingSlipToDelete] = useState();
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -207,21 +210,22 @@ const ShippingQueue = () => {
     setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
   }
 
-  //TODO need a delete dialog to confirm
-  function onHistoryPackingSlipDelete(params) {
+  function onHistoryPackingSlipDelete() {
     // remove packing slip id from shipment
-    const newShipmentManifest = clickedHistShipment?.manifest?.filter(
-      (e) => e._id !== params.id
-    );
-    const updatedShipment = {
-      manifest: newShipmentManifest,
-    };
-    API.patchShipment(clickedHistShipment?._id, updatedShipment).then((_) =>
-      setClickedHistShipment({
-        ...clickedHistShipment,
-        ...updatedShipment,
-      })
-    );
+    if (packingSlipToDelete) {
+      const newShipmentManifest = clickedHistShipment?.manifest?.filter(
+        (e) => e._id !== packingSlipToDelete.id
+      );
+      const updatedShipment = {
+        manifest: newShipmentManifest,
+      };
+      API.patchShipment(clickedHistShipment?._id, updatedShipment).then((_) =>
+        setClickedHistShipment({
+          ...clickedHistShipment,
+          ...updatedShipment,
+        })
+      );
+    }
   }
 
   //  TODO need a confirm on this as well
@@ -400,7 +404,10 @@ const ShippingQueue = () => {
         onClose={onEditShipmentClose}
         onSubmit={onEditShipmentSubmit}
         viewOnly={isEditShipmentViewOnly}
-        onDelete={onHistoryPackingSlipDelete}
+        onDelete={(params) => {
+          setConfirmDeleteDialogOpen(true);
+          setPackingSlipToDelete(params.row);
+        }}
         onAdd={onHistoryPackingSlipAdd}
         onCostChange={(value) => {
           setClickedHistShipment({ ...clickedHistShipment, cost: value });
@@ -430,6 +437,13 @@ const ShippingQueue = () => {
           });
         }}
       />
+
+      <ConfirmDialog
+        title="Are You Sure You Want To Delete This?"
+        open={confirmDeleteDialogOpen}
+        setOpen={setConfirmDeleteDialogOpen}
+        onConfirm={onHistoryPackingSlipDelete}
+      ></ConfirmDialog>
 
       <ContextMenu
         menuPosition={historyMenuPosition}
