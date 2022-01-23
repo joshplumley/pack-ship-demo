@@ -60,6 +60,18 @@ export const API = {
     }
   },
 
+  async patchShipment(id, updatedShipment) {
+    try {
+      const response = await axios.patch(
+        `${REACT_APP_API_URL}/shipments/${id}`,
+        updatedShipment
+      );
+      return response.data;
+    } catch (error) {
+      console.error("patchShipment", error);
+    }
+  },
+
   async searchShippingHistory(
     matchOrder,
     matchPart,

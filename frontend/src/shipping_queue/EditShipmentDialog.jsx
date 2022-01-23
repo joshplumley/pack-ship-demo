@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import {
   Typography,
@@ -13,13 +13,10 @@ import {
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { styled } from "@mui/system";
 import PackShipEditableTable from "../components/EdittableTable";
 import PopupDialog from "../components/PackingDialog";
-import DeleteIcon from "@mui/icons-material/Delete";
-
-import TextInput from "../components/TextInput";
 import TitleTextInput from "../components/TitleTextInput";
+import CarrierServiceDropdown from "../components/CarrierServiceDropdown";
 
 const useStyle = makeStyles((theme) => ({}));
 
@@ -57,15 +54,17 @@ const EditShipmentTableDialog = ({
   shipment,
   isOpen,
   onClose,
+  onSubmit,
+  onAdd,
+  onDelete,
+  onCarrierInputChange,
+  onDeliverySpeedChange,
+  onCustomerAccountChange,
+  onTrackingChange,
+  onCostChange,
   viewOnly = true,
 }) => {
   const classes = useStyle();
-  const [carrierInput, setCarrierInputChange] = useState();
-  const [deliverySpeed, setDeliverySpeed] = useState();
-  const [customerAccount, setCustomerAccount] = useState();
-  const [tracking, setTracking] = useState();
-  const [cost, setCost] = useState();
-
   const columns = [
     {
       field: "packingSlipId",
@@ -100,68 +99,72 @@ const EditShipmentTableDialog = ({
     },
   ];
 
-  function onAdd() {
-    console.log("Added"); // TODO
-  }
-
-  function onPackingSlipDelete() {
-    console.log("onPackingSlipDelete");
-  }
-
-  function onPackingSlipClick() {
-    console.log("onPackingSlipClick");
-  }
-
   return (
     <div className={classes.root}>
       <PopupDialog
         open={isOpen}
         titleText={`Edit Shipment / ${shipment?.shipmentId}`}
         onClose={onClose}
+        onSubmit={onSubmit}
       >
         <PackShipEditableTable
           tableData={shipment?.manifest.map((e) => {
             return { id: e._id, packingSlipId: e.packingSlipId };
           })}
           columns={columns}
-          onDelete={onPackingSlipDelete}
+          onDelete={onDelete}
           onAdd={onAdd}
           viewOnly={viewOnly}
-          onRowClick={onPackingSlipClick}
         />
         <Grid container direction="row" alignItems="flex-start">
           <Grid item container xs={6} direction="column">
-            <TitleTextInput
-              title="Carrier Service:"
-              value={carrierInput}
-              viewOnly={viewOnly}
-              onChange={setCarrierInputChange}
-            />
+            <Grid
+              item
+              container
+              direction="row"
+              alignItems="center"
+              spacing={5}
+            >
+              <Grid item container xs={3} justifyContent="flex-end">
+                <Typography sx={{ fontWeight: 900 }}>
+                  {"Carrier Service:"}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <CarrierServiceDropdown
+                  carrier={shipment?.carrier}
+                  setCarrier={onCarrierInputChange}
+                  canErrorCheck={false}
+                  disabled={viewOnly}
+                />
+              </Grid>
+            </Grid>
+
             <TitleTextInput
               title="Delivery Speed:"
-              value={deliverySpeed}
+              value={shipment?.deliverySpeed}
               viewOnly={viewOnly}
-              onChange={setDeliverySpeed}
+              onChange={onDeliverySpeedChange}
             />
             <TitleTextInput
               title="Customer Account:"
-              value={customerAccount}
+              value={shipment?.customerAccount}
               viewOnly={viewOnly}
-              onChange={setCustomerAccount}
+              onChange={onCustomerAccountChange}
             />
           </Grid>
           <Grid item container xs={6} direction="column">
             <TitleTextInput
               title="Tracking:"
-              value={tracking}
+              value={shipment?.trackingNumber}
               viewOnly={viewOnly}
-              onChange={setTracking}
+              onChange={onTrackingChange}
             />
             <TitleTextInput
               title="Cost:"
-              value={cost}
+              value={shipment?.cost}
               viewOnly={viewOnly}
-              onChange={setCost}
+              onChange={onCostChange}
             />
           </Grid>
         </Grid>

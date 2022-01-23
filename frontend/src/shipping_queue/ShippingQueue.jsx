@@ -143,6 +143,9 @@ const ShippingQueue = () => {
   }
 
   function onEditShipmentClose() {
+    // close context menu
+    setHistoryMenuPosition(null);
+    // close edit dialog
     setIsEditShipmentOpen(false);
   }
 
@@ -162,14 +165,6 @@ const ShippingQueue = () => {
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
     setFilteredShippingHist(shippingHistory);
-  }
-
-  function onOrderInputChange(value) {
-    setOrderNumber(value);
-  }
-
-  function onPartInputChange(value) {
-    setPartNumber(value);
   }
 
   function fetchSearch(pageNumber) {
@@ -211,6 +206,66 @@ const ShippingQueue = () => {
 
     setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
   }
+
+  //TODO need a delete dialog to confirm
+  function onHistoryPackingSlipDelete(params) {
+    // remove packing slip id from shipment
+    const newShipmentManifest = clickedHistShipment?.manifest?.filter(
+      (e) => e._id !== params.id
+    );
+    const updatedShipment = {
+      manifest: newShipmentManifest,
+    };
+    API.patchShipment(clickedHistShipment?._id, updatedShipment).then((_) =>
+      setClickedHistShipment({
+        ...clickedHistShipment,
+        ...updatedShipment,
+      })
+    );
+  }
+
+  //  TODO need a confirm on this as well
+  function onEditShipmentSubmit() {
+    API.patchShipment(clickedHistShipment?._id, clickedHistShipment);
+    setIsEditShipmentOpen(false);
+
+    // Update the shippingHistory tracking # for main table as well
+    setFilteredShippingHist(
+      shippingHistory.map((obj) => {
+        if (obj.id === clickedHistShipment?._id) {
+          return {
+            ...obj,
+            trackingNumber: clickedHistShipment?.trackingNumber,
+          };
+        } else {
+          return obj;
+        }
+      })
+    );
+
+    //close context menu
+    setHistoryMenuPosition(null);
+  }
+
+  // function onHistoryPackingSlipAdd(params) {
+  //   let updatedShipment = clickedHistShipment;
+  //   let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
+  //   TEST._id = "TEST";
+  //   updatedShipment?.manifest.push(TEST); // TODOD
+  //   setClickedHistShipment(updatedShipment);
+  // }
+
+  // TODO doest update the dialog
+  const onHistoryPackingSlipAdd = useCallback(
+    (params) => {
+      let updatedShipment = clickedHistShipment;
+      let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
+      TEST._id = "TEST";
+      updatedShipment?.manifest.push(TEST); // TODOD
+      setClickedHistShipment(updatedShipment);
+    },
+    [clickedHistShipment]
+  );
 
   const historyRowMenuOptions = [
     <MenuItem
@@ -262,14 +317,14 @@ const ShippingQueue = () => {
         >
           <Grid container item xs={"auto"}>
             <TextInput
-              onChange={onOrderInputChange}
+              onChange={setOrderNumber}
               placeholder="Order"
               value={orderNumber}
             />
           </Grid>
           <Grid container item xs={2}>
             <TextInput
-              onChange={onPartInputChange}
+              onChange={setPartNumber}
               placeholder="Part"
               value={partNumber}
             />
@@ -343,7 +398,37 @@ const ShippingQueue = () => {
         shipment={clickedHistShipment}
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
+        onSubmit={onEditShipmentSubmit}
         viewOnly={isEditShipmentViewOnly}
+        onDelete={onHistoryPackingSlipDelete}
+        onAdd={onHistoryPackingSlipAdd}
+        onCostChange={(value) => {
+          setClickedHistShipment({ ...clickedHistShipment, cost: value });
+        }}
+        onCarrierInputChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            carrier: value,
+          });
+        }}
+        onDeliverySpeedChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            deliverySpeed: value,
+          });
+        }}
+        onCustomerAccountChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            customerAccount: value,
+          });
+        }}
+        onTrackingChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            trackingNumber: value,
+          });
+        }}
       />
 
       <ContextMenu

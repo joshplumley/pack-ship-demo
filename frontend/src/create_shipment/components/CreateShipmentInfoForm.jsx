@@ -11,6 +11,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { checkCostError } from "../../utils/NumberValidators";
+import CarrierServiceDropdown from "../../components/CarrierServiceDropdown";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
@@ -30,43 +31,16 @@ const CreateCarrierShipmentInfoForm = ({
         <Grid container item xs={5} justifyContent="flex-end">
           <Typography>Carrier Service:</Typography>
         </Grid>
-        <Grid item xs>
-          <FormControl
-            sx={{ width: "100%" }}
-            error={canErrorCheck && hasSelectError}
-          >
-            <Select
-              required
-              error={canErrorCheck && hasSelectError}
-              sx={{ width: "100%" }}
-              value={localShippingInfo.carrier}
-              onChange={(event) => {
-                setHasSelectError(event.target.value === carriers[0]);
-                setLocalShippingInfo({
-                  ...localShippingInfo,
-                  carrier: event.target.value,
-                });
-              }}
-              onBlur={() => {
-                setShippingInfo(localShippingInfo);
-              }}
-            >
-              {carriers.map((carrier) => (
-                <MenuItem key={carrier} value={carrier}>
-                  {carrier}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText
-              error={canErrorCheck && hasSelectError}
-              sx={{ display: hasSelectError ? "block" : "none" }}
-            >
-              {canErrorCheck && hasSelectError
-                ? "Must select non-default carrier"
-                : undefined}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
+        <CarrierServiceDropdown
+          shippingInfo={shippingInfo?.carrier}
+          setCarrier={(value) => {
+            setShippingInfo({
+              ...localShippingInfo,
+              carrier: value,
+            });
+          }}
+          canErrorCheck={canErrorCheck}
+        />
       </Grid>
       <Grid container item alignItems="center" spacing={4}>
         <Grid container item xs={5} justifyContent="flex-end">

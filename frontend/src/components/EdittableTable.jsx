@@ -75,11 +75,11 @@ const PackShipEditableTable = ({
         flex: 1,
         renderCell: (params) => {
           return params.id === addRowId ? (
-            <IconButton onClick={onAdd}>
+            <IconButton onClick={() => onAdd(tableData)}>
               <AddCircleOutlineIcon />
             </IconButton>
           ) : (
-            <IconButton onClick={onDelete}>
+            <IconButton onClick={() => onDelete(params)}>
               <DeleteIcon />
             </IconButton>
           );
@@ -97,12 +97,15 @@ const PackShipEditableTable = ({
       newRows.push(e);
       // make sure the add Row is at the end of the page and at the end of the
       // last page
-      if ((i % (pageSize - 2) === 0 && i !== 0) || i === tableData.length - 1) {
+      if (
+        (i % (pageSize - 2) === 0 && i !== 0) ||
+        i === tableData?.length - 1
+      ) {
         newRows.push({ id: addRowId });
       }
     });
     // no data add the add row
-    if (tableData.length === 0) {
+    if (tableData?.length === 0) {
       newRows.push({ id: addRowId });
     }
   }

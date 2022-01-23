@@ -60,8 +60,7 @@ async function searchShipments(req, res) {
       let matchShipments;
       if (!matchOrder && !matchPart) {
         matchShipments = allShipments;
-      }
-      else {
+      } else {
         matchShipments = allShipments.filter((x) =>
           x.manifest.some(
             (y) =>
@@ -153,9 +152,8 @@ async function createOne(req, res) {
         carrier,
         deliverySpeed,
         customerAccount,
-        customerHandoffName
+        customerHandoffName,
       } = req.body;
-
 
       const p_numShipments = Shipment.countDocuments({ customer });
       const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
@@ -227,13 +225,25 @@ async function editOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-      const { manifest } = req.body;
+      const {
+        manifest,
+        cost,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        trackingNumber,
+      } = req.body;
 
       await Shipment.updateOne(
         { _id: sid },
         {
           $set: {
             manifest,
+            cost,
+            carrier,
+            deliverySpeed,
+            customerAccount,
+            trackingNumber,
           },
         }
       );
