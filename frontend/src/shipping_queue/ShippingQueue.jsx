@@ -253,22 +253,13 @@ const ShippingQueue = () => {
     setHistoryMenuPosition(null);
   }
 
-  // function onHistoryPackingSlipAdd(params) {
-  //   let updatedShipment = clickedHistShipment;
-  //   let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
-  //   TEST._id = "TEST";
-  //   updatedShipment?.manifest.push(TEST); // TODOD
-  //   setClickedHistShipment(updatedShipment);
-  // }
-
-  // TODO doest update the dialog
   const onHistoryPackingSlipAdd = useCallback(
     (params) => {
       let updatedShipment = clickedHistShipment;
       let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
       TEST._id = "TEST";
       updatedShipment?.manifest.push(TEST); // TODOD
-      setClickedHistShipment(updatedShipment);
+      setClickedHistShipment({ ...updatedShipment });
     },
     [clickedHistShipment]
   );
@@ -466,7 +457,7 @@ const ShippingQueue = () => {
         }}
       >
         <Typography sx={{ fontWeight: 900 }}>
-          {clickedHistShipment.shipmentId}
+          {clickedHistShipment?.shipmentId}
         </Typography>
       </ConfirmDialog>
 

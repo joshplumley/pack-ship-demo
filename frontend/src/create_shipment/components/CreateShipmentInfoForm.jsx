@@ -32,9 +32,13 @@ const CreateCarrierShipmentInfoForm = ({
           <Typography>Carrier Service:</Typography>
         </Grid>
         <CarrierServiceDropdown
-          shippingInfo={shippingInfo?.carrier}
+          carrier={localShippingInfo?.carrier}
           setCarrier={(value) => {
             setShippingInfo({
+              ...localShippingInfo,
+              carrier: value,
+            });
+            setLocalShippingInfo({
               ...localShippingInfo,
               carrier: value,
             });
@@ -112,7 +116,7 @@ const CreateCarrierShipmentInfoForm = ({
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
-                tracking: event.target.value,
+                trackingNumber: event.target.value,
               });
             }}
             onBlur={() => {
