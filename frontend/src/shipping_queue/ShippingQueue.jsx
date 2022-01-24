@@ -431,11 +431,10 @@ const ShippingQueue = () => {
           });
         }}
         onCustomerNameChange={(value) => {
-          //TODO is this right? customerTag for customerName
-          // setClickedHistShipment({
-          //   ...clickedHistShipment,
-          //   customerName: value,
-          // });
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            customerHandoffName: value,
+          });
         }}
         onTrackingChange={(value) => {
           setClickedHistShipment({

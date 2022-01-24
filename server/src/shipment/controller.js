@@ -225,28 +225,61 @@ async function editOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-      const {
+      let {
+        deliveryMethod,
         manifest,
         cost,
         carrier,
         deliverySpeed,
         customerAccount,
         trackingNumber,
+        customerHandoffName,
       } = req.body;
 
-      await Shipment.updateOne(
-        { _id: sid },
-        {
-          $set: {
-            manifest,
-            cost,
-            carrier,
-            deliverySpeed,
-            customerAccount,
-            trackingNumber,
-          },
-        }
-      );
+      console.log("herer");
+      switch (deliveryMethod) {
+        case "CARRIEsR":
+          await Shipment.updateOne(
+            { _id: sid },
+            {
+              $set: {
+                deliveryMethod,
+                manifest,
+                cost: cost,
+                carrier,
+                deliverySpeed,
+                customerAccount,
+                trackingNumber,
+              },
+              $unset: {
+                customerHandoffName,
+              },
+            }
+          );
+
+          break;
+        case "PICKUP":
+        case "DROPOFF":
+        default:
+          await Shipment.updateOne(
+            { _id: sid },
+            {
+              $unset: {
+                manifest,
+                cost: cost,
+                carrier,
+                deliverySpeed,
+                customerAccount,
+                trackingNumber,
+              },
+              $set: {
+                deliveryMethod,
+                customerHandoffName,
+              },
+            }
+          );
+          break;
+      }
 
       return [null];
     },

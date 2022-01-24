@@ -54,7 +54,7 @@ const EditShipmentTableDialog = ({
         onSubmit={onSubmit}
       >
         <PackShipEditableTable
-          tableData={shipment?.manifest.map((e) => {
+          tableData={shipment?.manifest?.map((e) => {
             return { id: e._id, packingSlipId: e.packingSlipId };
           })}
           columns={columns}
