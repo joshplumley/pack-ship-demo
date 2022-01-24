@@ -225,20 +225,23 @@ const ShippingQueue = () => {
   }
 
   function onHistoryPackingSlipDelete() {
-    // remove packing slip id from shipment
     if (packingSlipToDelete) {
-      const newShipmentManifest = clickedHistShipment?.manifest?.filter(
-        (e) => e._id !== packingSlipToDelete.id
-      );
-      const updatedShipment = {
-        manifest: newShipmentManifest,
-      };
-      API.patchShipment(clickedHistShipment?._id, updatedShipment).then((_) =>
+      API.patchShipment(clickedHistShipment?._id, {
+        deletedPackingSlips: [packingSlipToDelete.id],
+      }).then((_) => {
+        // remove packing slip id from shipment
+        const newShipmentManifest = clickedHistShipment?.manifest?.filter(
+          (e) => e._id !== packingSlipToDelete.id
+        );
+        const updatedShipment = {
+          manifest: newShipmentManifest,
+        };
+
         setClickedHistShipment({
           ...clickedHistShipment,
           ...updatedShipment,
-        })
-      );
+        });
+      });
 
       //TODO patch packing slip id so that shipment is unset
       // updates the shipping Queue table so that this packing slip is shown

@@ -238,10 +238,11 @@ async function editOne(req, res) {
         newPackingSlips,
       } = req.body;
 
-      const p_deleted = deletedPackingSlips.map((x) =>
+      console.log(req.body);
+      const p_deleted = deletedPackingSlips?.map((x) =>
         unassignPackingSlipFromShipment(x)
       );
-      const p_added = newPackingSlips.map((x) =>
+      const p_added = newPackingSlips?.map((x) =>
         assignPackingSlipToShipment(x, sid)
       );
 
