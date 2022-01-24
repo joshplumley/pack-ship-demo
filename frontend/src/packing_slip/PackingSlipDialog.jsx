@@ -12,7 +12,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { API } from "../services/server";
 
-const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
+const PackingSlipDialog = ({ open, onClose, orderNum, parts, viewOnly=false }) => {
   const [filledForm, setFilledForm] = useState([]);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
     >
       <DialogTitle sx={{ m: 0, p: 2 }}>
         <Typography align="center">
-          Create Packing Slip for Order #{orderNum}
+          {viewOnly ? " " : "Create "}Packing Slip for Order #{orderNum}
         </Typography>
         <IconButton
           sx={{
@@ -62,21 +62,26 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
           rowData={parts}
           filledForm={filledForm}
           setFilledForm={setFilledForm}
+          viewOnly={viewOnly}
         />
       </DialogContent>
-      <DialogActions>
-        <Button variant="contained" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          disabled={!isSubmittable()}
-          autoFocus
-          onClick={submitPackingSlip}
-        >
-          Ok
-        </Button>
-      </DialogActions>
+      {!viewOnly
+        ?
+        <DialogActions>
+          <Button variant="contained" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!isSubmittable()}
+            autoFocus
+            onClick={submitPackingSlip}
+          >
+            Ok
+          </Button> 
+        </DialogActions>
+        : undefined
+      }
     </Dialog>
   );
 };

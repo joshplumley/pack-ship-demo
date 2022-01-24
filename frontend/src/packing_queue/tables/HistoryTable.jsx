@@ -1,8 +1,10 @@
 import { DataGrid } from "@mui/x-data-grid";
 import React, { useState } from "react";
-import ContextMenu from "./GenericContextMenu"
+import ContextMenu from "../../components/GenericContextMenu"
 import MenuItem from '@mui/material/MenuItem';
 import DeleteAlert from "./DeleteMenu"
+import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
+
 
 const columns = [
   { field: "id", headerName: "ID", width: 70 },
@@ -29,13 +31,24 @@ const rows = [
 const HistoryTable = () => {
   const [menuPosition, setMenuPosition] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [viewPackingSlip, setViewPackingSlip] = useState(false)
 
   const openDeleteDialog = (event) => {
       setDeleteDialog(true)
+      setMenuPosition(null)
+  }
+
+  const openViewPackingSlip = () => {
+    setViewPackingSlip(true)
+    setMenuPosition(null)
+  }
+
+  const onPackingSlipClose = () => {
+    setViewPackingSlip(false)
   }
 
   const historyRowMenuOptions = [
-    <MenuItem>View</MenuItem>,
+    <MenuItem onClick={openViewPackingSlip}>View</MenuItem>,
     <MenuItem>Download</MenuItem>,
     <MenuItem>Edit</MenuItem>,
     <MenuItem onClick={openDeleteDialog}>Delete</MenuItem>
@@ -56,7 +69,14 @@ const HistoryTable = () => {
       <ContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}>
         {historyRowMenuOptions}
       </ContextMenu>
-      <DeleteAlert deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} setMenuPosition={setMenuPosition}/>
+      <PackingSlipDialog
+        open={viewPackingSlip}
+        onClose={onPackingSlipClose}
+        orderNum="ABC456"
+        parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
+        viewOnly={true}
+      />
+      <DeleteAlert deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog}/>
     </div>
   );
 };
