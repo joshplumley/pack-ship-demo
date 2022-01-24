@@ -7,17 +7,15 @@ import Box from '@mui/material/Box'
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 
-export default function DeleteAlert({deleteDialog, setDeleteDialog, setMenuPosition}) {
+export default function DeleteAlert({deleteDialog, setDeleteDialog}) {
   const open = Boolean(deleteDialog)
 
   const handleClose = () => {
     setDeleteDialog(false);
-    setMenuPosition(null)
   };
 
   const handleDelete = () => {
     setDeleteDialog(false)
-    setMenuPosition(null)
   }
 
   return (
@@ -31,12 +29,10 @@ export default function DeleteAlert({deleteDialog, setDeleteDialog, setMenuPosit
         <DialogTitle id="alert-dialog-title">
           {"Do You Want To Delete This?"}
         </DialogTitle>
-        {/* <DialogActions> */}
-        <ButtonGroup textAlign='center'>
-            <Button onClick={handleClose}>No</Button>
-            <Button onClick={handleDelete} autoFocus>Yes</Button>
-        </ButtonGroup>
-        {/* </DialogActions> */}
+        <DialogActions>
+          <Button onClick={handleClose}>No</Button>
+          <Button onClick={handleClose} autoFocus>Yes</Button>
+        </DialogActions>
       </Dialog>
     </div>
   );
