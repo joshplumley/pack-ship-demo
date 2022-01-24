@@ -24,13 +24,16 @@ async function searchPackingSlips(req, res) {
   handler(
     async () => {
       let { customer, shipment } = req.query;
-      console.log(customer, shipment);
-      const packingSlips = await PackingSlip.find({
-        customer: ObjectId(customer),
-        shipment: shipment ? ObjectId(shipment) : null,
-      })
-        .lean()
-        .exec();
+
+      let query = {};
+      if ("customer" in req.query) {
+        query = { ...query, customer: customer ? ObjectId(customer) : null };
+      }
+      if ("shipment" in req.query) {
+        query = { ...query, shipment: shipment ? ObjectId(shipment) : null };
+      }
+
+      const packingSlips = await PackingSlip.find(query).lean().exec();
 
       return [null, { packingSlips }];
     },
