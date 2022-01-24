@@ -234,9 +234,9 @@ async function editOne(req, res) {
         customerAccount,
         trackingNumber,
         customerHandoffName,
+        deletedPackingSlips,
+        newPackingSlips,
       } = req.body;
-
-      const { manifest, deletedPackingSlips, newPackingSlips } = req.body;
 
       const p_deleted = deletedPackingSlips.map((x) =>
         unassignPackingSlipFromShipment(x)
