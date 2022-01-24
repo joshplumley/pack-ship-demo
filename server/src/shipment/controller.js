@@ -236,9 +236,19 @@ async function editOne(req, res) {
         customerHandoffName,
       } = req.body;
 
+      const { manifest, deletedPackingSlips, newPackingSlips } = req.body;
+
+      const p_deleted = deletedPackingSlips.map((x) =>
+        unassignPackingSlipFromShipment(x)
+      );
+      const p_added = newPackingSlips.map((x) =>
+        assignPackingSlipToShipment(x, sid)
+      );
+
+      let p_update = null;
       switch (deliveryMethod) {
         case "CARRIER":
-          await Shipment.updateOne(
+          p_update = Shipment.updateOne(
             { _id: sid },
             {
               $set: {
@@ -260,7 +270,7 @@ async function editOne(req, res) {
         case "PICKUP":
         case "DROPOFF":
         default:
-          await Shipment.updateOne(
+          p_update = Shipment.updateOne(
             { _id: sid },
             {
               $unset: {
@@ -279,6 +289,7 @@ async function editOne(req, res) {
           );
           break;
       }
+      await Promise.all(p_deleted, p_added, p_update);
 
       return [null];
     },
@@ -300,5 +311,24 @@ async function deleteOne(req, res) {
     },
     "deleting shipment",
     res
+  );
+}
+
+/**
+ *
+ * @param {any[]} packingSlipId Id of packing slip to assign
+ * @param {string} shipmentId _id of Shipment to assign to packing slip
+ */
+async function assignPackingSlipToShipment(packingSlipId, shipmentId) {
+  await PackingSlip.updateOne(
+    { _id: packingSlipId },
+    { $set: { shipment: shipmentId } }
+  );
+}
+
+async function unassignPackingSlipFromShipment(packingSlipId) {
+  await PackingSlip.updateOne(
+    { _id: packingSlipId },
+    { $unset: { shipment: 1 } }
   );
 }
