@@ -4,10 +4,6 @@ import {
   Grid,
   Typography,
   Box,
-  Select,
-  MenuItem,
-  FormControl,
-  FormHelperText,
   InputAdornment,
 } from "@mui/material";
 import { checkCostError } from "../../utils/NumberValidators";

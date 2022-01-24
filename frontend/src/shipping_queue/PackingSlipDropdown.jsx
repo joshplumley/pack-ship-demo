@@ -1,20 +1,8 @@
 import React, { useState } from "react";
-import makeStyles from "@mui/styles/makeStyles";
-import {
-  Typography,
-  List,
-  ListItemText,
-  ListItemButton,
-  Grid,
-} from "@mui/material";
+import { Typography, List, ListItemText, ListItemButton } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import PackShipEditableTable from "../components/EdittableTable";
-import PopupDialog from "../components/PackingDialog";
-import TitleTextInput from "../components/TitleTextInput";
-import CarrierServiceDropdown from "../components/CarrierServiceDropdown";
 import { DataGrid } from "@mui/x-data-grid";
-import { styled } from "@mui/system";
 
 const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
   const [isOpen, setIsOpen] = useState(false);
