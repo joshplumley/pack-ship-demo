@@ -227,6 +227,9 @@ const ShippingQueue = () => {
           ...updatedShipment,
         })
       );
+
+      //TODO patch packing slip id so that shipment is unset
+      // updates the shipping Queue table so that this packing slip is shown
     }
   }
 
@@ -237,7 +240,7 @@ const ShippingQueue = () => {
 
     // Update the shippingHistory tracking # for main table as well
     setFilteredShippingHist(
-      shippingHistory.map((obj) => {
+      filteredShippingHist.map((obj) => {
         if (obj.id === clickedHistShipment?._id) {
           return {
             ...obj,
@@ -255,13 +258,16 @@ const ShippingQueue = () => {
 
   const onHistoryPackingSlipAdd = useCallback(
     (params) => {
-      let updatedShipment = clickedHistShipment;
-      let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
-      TEST._id = "TEST";
-      updatedShipment?.manifest.push(TEST); // TODOD
-      setClickedHistShipment({ ...updatedShipment });
+      // let updatedShipment = clickedHistShipment;
+      // let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
+      // TEST._id = "TEST";
+      // updatedShipment?.manifest.push(TEST); // TODOD
+      // setClickedHistShipment({ ...updatedShipment });
+      API.searchPackingSlips(clickedHistShipment?.customer?._id, null).then(
+        (data) => console.log(data)
+      );
     },
-    [clickedHistShipment]
+    [clickedHistShipment, API]
   );
 
   const historyRowMenuOptions = [

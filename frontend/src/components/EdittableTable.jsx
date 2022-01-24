@@ -95,7 +95,7 @@ const PackShipEditableTable = ({
       }
     });
     // no data add the add row
-    if (tableData?.length === 0) {
+    if (tableData?.length === 0 || !tableData) {
       newRows.push({ id: addRowId });
     }
   }

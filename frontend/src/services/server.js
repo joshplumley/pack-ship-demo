@@ -33,6 +33,23 @@ export const API = {
     return response.data;
   },
 
+  async searchPackingSlips(customerId, shipmentId) {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_API_URL}/packingSlips/search`,
+        {
+          params: {
+            customer: customerId,
+            shipment: shipmentId,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("searchPackingSlips", error);
+    }
+  },
+
   async getShippingQueue() {
     try {
       const response = await axios.get(`${REACT_APP_API_URL}/shipments/queue`);

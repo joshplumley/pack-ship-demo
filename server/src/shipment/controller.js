@@ -236,9 +236,8 @@ async function editOne(req, res) {
         customerHandoffName,
       } = req.body;
 
-      console.log("herer");
       switch (deliveryMethod) {
-        case "CARRIEsR":
+        case "CARRIER":
           await Shipment.updateOne(
             { _id: sid },
             {
