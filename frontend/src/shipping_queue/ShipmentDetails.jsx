@@ -78,7 +78,7 @@ const ShipmentDetails = ({
             return (
               <TitleTextInput
                 title="Customer Name:"
-                value={shipment?.customerTag}
+                value={shipment?.customerHandoffName}
                 viewOnly={viewOnly}
                 onChange={onCustomerNameChange}
               />
