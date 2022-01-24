@@ -72,7 +72,7 @@ const ShippingQueue = () => {
     return historyTableData;
   }, []);
 
-  useEffect(() => {
+  const reloadData = useCallback(() => {
     async function fetchData() {
       const data = await Promise.all([
         API.getShippingQueue(),
@@ -112,6 +112,10 @@ const ShippingQueue = () => {
     });
   }, [extractHistoryDetails]);
 
+  useEffect(() => {
+    reloadData();
+  }, [reloadData]);
+
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
@@ -141,6 +145,7 @@ const ShippingQueue = () => {
   function onCreateShipmentClose() {
     setCreateShipmentOpen(false);
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
+    reloadData();
   }
 
   function onQueueSearch(value) {

@@ -30,9 +30,7 @@ const CreateShipmentTable = ({ rowData }) => {
         return <Typography sx={{ fontWeight: 900 }}>Ship Qty</Typography>;
       },
       renderCell: (params) => {
-        return (
-          <Typography color="textSecondary">{params.row.quantity}</Typography>
-        );
+        return <Typography color="textSecondary">{params.row.qty}</Typography>;
       },
     },
   ];
