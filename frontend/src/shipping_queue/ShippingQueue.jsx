@@ -430,6 +430,13 @@ const ShippingQueue = () => {
             customerAccount: value,
           });
         }}
+        onCustomerNameChange={(value) => {
+          //TODO is this right? customerTag for customerName
+          // setClickedHistShipment({
+          //   ...clickedHistShipment,
+          //   customerName: value,
+          // });
+        }}
         onTrackingChange={(value) => {
           setClickedHistShipment({
             ...clickedHistShipment,
