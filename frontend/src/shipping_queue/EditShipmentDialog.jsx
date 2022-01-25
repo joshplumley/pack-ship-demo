@@ -50,7 +50,9 @@ const EditShipmentTableDialog = ({
     <div className={classes.root}>
       <PopupDialog
         open={isOpen}
-        titleText={`Edit Shipment / ${shipment?.shipmentId}`}
+        titleText={`${viewOnly ? "" : "Edit Shipment / "}${
+          shipment?.shipmentId
+        }`}
         onClose={onClose}
         onSubmit={onSubmit}
       >
