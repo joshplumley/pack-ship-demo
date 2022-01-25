@@ -103,9 +103,8 @@ const PackShipEditableTable = ({
   return (
     <div className={classes.root}>
       <ThisDataGrid
-        sx={{ border: "none" }}
+        sx={{ border: "none", height: "50vh" }}
         className={classes.table}
-        autoHeight
         disableSelectionOnClick={true}
         onRowClick={onRowClick}
         rows={newRows}
