@@ -259,7 +259,9 @@ async function editOne(req, res) {
             customerHandoffName,
           },
           $pull: {
-            manifest: { $in: deletedPackingSlips?.map((e) => ObjectId(e)) },
+            manifest: {
+              $in: deletedPackingSlips?.map((e) => ObjectId(e)) ?? [],
+            },
           },
         }
       );
@@ -269,7 +271,7 @@ async function editOne(req, res) {
         { _id: sid },
         {
           $push: {
-            manifest: { $each: newPackingSlips?.map((e) => ObjectId(e)) },
+            manifest: { $each: newPackingSlips?.map((e) => ObjectId(e)) ?? [] },
           },
         }
       );

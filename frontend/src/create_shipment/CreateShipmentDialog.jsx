@@ -8,6 +8,7 @@ import CommonButton from "../common/Button";
 import { DialogActions, Grid } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
+import { isShippingInfoValid } from "../utils/Validators";
 const CreateShipmentDialog = ({
   customer,
   packingSlipIds,
@@ -73,19 +74,10 @@ const CreateShipmentDialog = ({
     onResetClick();
   };
 
-  const isValidShippingInfo = () => {
-    return (
-      shippingInfo.carrier &&
-      shippingInfo.carrier !== "-----" &&
-      shippingInfo.deliverySpeed &&
-      shippingInfo.deliverySpeed !== ""
-    );
-  };
-
   const onSubmit = async () => {
     setCanErrorCheck(true);
     if (
-      isValidShippingInfo() ||
+      isShippingInfoValid(shippingInfo) ||
       shippingInfo.deliveryMethod === "PICKUP" ||
       shippingInfo.deliveryMethod === "DROPOFF"
     ) {

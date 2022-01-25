@@ -2,8 +2,10 @@ import React from "react";
 import { Typography, Grid } from "@mui/material";
 import TitleTextInput from "../components/TitleTextInput";
 import CarrierServiceDropdown from "../components/CarrierServiceDropdown";
+import { isDeliverySpeedValid } from "../utils/Validators";
 
 const ShipmentDetails = ({
+  canErrorCheck,
   shipment,
   onCarrierInputChange,
   onDeliverySpeedChange,
@@ -35,9 +37,9 @@ const ShipmentDetails = ({
                     </Grid>
                     <Grid item xs={4}>
                       <CarrierServiceDropdown
+                        canErrorCheck={canErrorCheck}
                         carrier={shipment?.carrier}
                         setCarrier={onCarrierInputChange}
-                        canErrorCheck={false}
                         disabled={viewOnly}
                       />
                     </Grid>
@@ -48,6 +50,8 @@ const ShipmentDetails = ({
                     value={shipment?.deliverySpeed}
                     viewOnly={viewOnly}
                     onChange={onDeliverySpeedChange}
+                    error={!isDeliverySpeedValid(shipment?.deliverySpeed)}
+                    canErrorCheck={canErrorCheck}
                   />
                   <TitleTextInput
                     title="Customer Account:"

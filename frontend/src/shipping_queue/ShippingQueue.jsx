@@ -15,6 +15,7 @@ import TextInput from "../components/TextInput";
 import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
 import ConfirmDialog from "../components/ConfrimDialog";
+import { isShippingInfoValid } from "../utils/Validators";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -64,6 +65,7 @@ const ShippingQueue = () => {
   const [confirmShippingDeleteDialogOpen, setConfirmShippingDeleteDialogOpen] =
     useState(false);
   const [packingSlipToDelete, setPackingSlipToDelete] = useState();
+  const [canErrorCheck, setCanErrorCheck] = useState(false);
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -164,6 +166,8 @@ const ShippingQueue = () => {
     setHistoryMenuPosition(null);
     // close edit dialog
     setIsEditShipmentOpen(false);
+    // reset whether to check form for errors
+    setCanErrorCheck(false);
   }
 
   function onQueueSearch(value) {
@@ -261,27 +265,31 @@ const ShippingQueue = () => {
     }
   }
 
-  //  TODO need a confirm on this as well
   function onEditShipmentSubmit() {
-    API.patchShipment(clickedHistShipment?._id, clickedHistShipment);
-    setIsEditShipmentOpen(false);
+    setCanErrorCheck(true);
 
-    // Update the shippingHistory tracking # for main table as well
-    setFilteredShippingHist(
-      filteredShippingHist.map((obj) => {
-        if (obj.id === clickedHistShipment?._id) {
-          return {
-            ...obj,
-            trackingNumber: clickedHistShipment?.trackingNumber,
-          };
-        } else {
-          return obj;
-        }
-      })
-    );
+    if (isShippingInfoValid(clickedHistShipment)) {
+      API.patchShipment(clickedHistShipment?._id, clickedHistShipment);
+      setIsEditShipmentOpen(false);
 
-    //close context menu
-    setHistoryMenuPosition(null);
+      // Update the shippingHistory tracking # for main table as well
+      setFilteredShippingHist(
+        filteredShippingHist.map((obj) => {
+          if (obj.id === clickedHistShipment?._id) {
+            return {
+              ...obj,
+              trackingNumber: clickedHistShipment?.trackingNumber,
+            };
+          } else {
+            return obj;
+          }
+        })
+      );
+      //close context menu
+      setHistoryMenuPosition(null);
+
+      setCanErrorCheck(false);
+    }
   }
 
   const onHistoryPackingSlipAdd = useCallback(() => {
@@ -445,6 +453,7 @@ const ShippingQueue = () => {
       />
 
       <EditShipmentTableDialog
+        canErrorCheck={canErrorCheck}
         shipment={clickedHistShipment}
         isOpen={isEditShipmentOpen}
         onClose={onEditShipmentClose}
