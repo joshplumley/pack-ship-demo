@@ -233,13 +233,10 @@ const ShippingQueue = () => {
         const newShipmentManifest = clickedHistShipment?.manifest?.filter(
           (e) => e._id !== packingSlipToDelete.id
         );
-        const updatedShipment = {
-          manifest: newShipmentManifest,
-        };
 
         setClickedHistShipment({
           ...clickedHistShipment,
-          ...updatedShipment,
+          manifest: newShipmentManifest,
         });
       });
 

@@ -4,6 +4,7 @@ const Shipment = require("./model");
 const PackingSlip = require("../packingSlip/model");
 const Customer = require("../customer/model");
 const handler = require("../handler");
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports = router;
 
@@ -227,7 +228,6 @@ async function editOne(req, res) {
       const { sid } = req.params;
       let {
         deliveryMethod,
-        manifest,
         cost,
         carrier,
         deliverySpeed,
@@ -238,59 +238,43 @@ async function editOne(req, res) {
         newPackingSlips,
       } = req.body;
 
-      console.log(req.body);
-      const p_deleted = deletedPackingSlips?.map((x) =>
-        unassignPackingSlipFromShipment(x)
-      );
-      const p_added = newPackingSlips?.map((x) =>
-        assignPackingSlipToShipment(x, sid)
+      const p_deleted =
+        deletedPackingSlips?.map((x) => unassignPackingSlipFromShipment(x)) ??
+        [];
+
+      const p_added =
+        newPackingSlips?.map((x) => assignPackingSlipToShipment(x, sid)) ?? [];
+
+      // Update
+      await Shipment.updateOne(
+        { _id: sid },
+        {
+          $set: {
+            deliveryMethod,
+            cost: cost,
+            carrier,
+            deliverySpeed,
+            customerAccount,
+            trackingNumber,
+            customerHandoffName,
+          },
+          $pull: {
+            manifest: { $in: deletedPackingSlips?.map((e) => ObjectId(e)) },
+          },
+        }
       );
 
-      let p_update = null;
-      switch (deliveryMethod) {
-        case "CARRIER":
-          p_update = Shipment.updateOne(
-            { _id: sid },
-            {
-              $set: {
-                deliveryMethod,
-                manifest,
-                cost: cost,
-                carrier,
-                deliverySpeed,
-                customerAccount,
-                trackingNumber,
-              },
-              $unset: {
-                customerHandoffName,
-              },
-            }
-          );
+      // then update newPackingSlips otherwise a conflict will occur
+      await Shipment.updateOne(
+        { _id: sid },
+        {
+          $push: {
+            manifest: { $each: newPackingSlips?.map((e) => ObjectId(e)) },
+          },
+        }
+      );
 
-          break;
-        case "PICKUP":
-        case "DROPOFF":
-        default:
-          p_update = Shipment.updateOne(
-            { _id: sid },
-            {
-              $unset: {
-                manifest,
-                cost: cost,
-                carrier,
-                deliverySpeed,
-                customerAccount,
-                trackingNumber,
-              },
-              $set: {
-                deliveryMethod,
-                customerHandoffName,
-              },
-            }
-          );
-          break;
-      }
-      await Promise.all(p_deleted, p_added, p_update);
+      await Promise.all(p_deleted, p_added);
 
       return [null];
     },
