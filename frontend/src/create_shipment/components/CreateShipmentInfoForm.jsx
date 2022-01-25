@@ -165,7 +165,7 @@ const CreateCarrierShipmentInfoForm = ({
         <Grid item xs>
           <TextField
             required
-            value={localShippingInfo.tracking ?? ""}
+            value={localShippingInfo.trackingNumber ?? ""}
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
