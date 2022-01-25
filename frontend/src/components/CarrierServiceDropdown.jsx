@@ -6,6 +6,8 @@ import {
   FormControl,
   FormHelperText,
 } from "@mui/material";
+import { isCarrierValid } from "../utils/Validators";
+import { CARRIERS } from "../utils/Constants";
 
 const CarrierServiceDropdown = ({
   carrier,
@@ -13,9 +15,8 @@ const CarrierServiceDropdown = ({
   canErrorCheck,
   disabled = false,
 }) => {
-  const carriers = ["-----", "UPS", "FedEx", "Freight", "Other"];
   const [localCarrier, setLocalCarrier] = useState(carrier);
-  const [hasSelectError, setHasSelectError] = useState(true);
+  const [hasSelectError, setHasSelectError] = useState(false);
 
   return (
     <Grid item xs>
@@ -30,14 +31,14 @@ const CarrierServiceDropdown = ({
           sx={{ width: "100%" }}
           value={localCarrier}
           onChange={(event) => {
-            setHasSelectError(event.target.value === carriers[0]);
+            setHasSelectError(!isCarrierValid(event.target.value));
             setLocalCarrier(event.target.value);
           }}
           onBlur={() => {
             setCarrier(localCarrier);
           }}
         >
-          {carriers.map((carrier) => (
+          {CARRIERS.map((carrier) => (
             <MenuItem key={carrier} value={carrier}>
               {carrier}
             </MenuItem>

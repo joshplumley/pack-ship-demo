@@ -9,6 +9,7 @@ import ShipmentDetails from "./ShipmentDetails";
 const useStyle = makeStyles((theme) => ({}));
 
 const EditShipmentTableDialog = ({
+  canErrorCheck,
   shipment,
   isOpen,
   onClose,
@@ -63,6 +64,7 @@ const EditShipmentTableDialog = ({
           viewOnly={viewOnly}
         />
         <ShipmentDetails
+          canErrorCheck={canErrorCheck}
           shipment={shipment}
           onCarrierInputChange={onCarrierInputChange}
           onDeliverySpeedChange={onDeliverySpeedChange}

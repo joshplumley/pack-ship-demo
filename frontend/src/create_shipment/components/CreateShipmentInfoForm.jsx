@@ -6,8 +6,8 @@ import {
   Box,
   InputAdornment,
 } from "@mui/material";
-import { checkCostError } from "../../utils/NumberValidators";
 import CarrierServiceDropdown from "../../components/CarrierServiceDropdown";
+import { CARRIERS } from "../../utils/Constants";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
@@ -16,10 +16,9 @@ const CreateCarrierShipmentInfoForm = ({
   reset,
   setReset,
 }) => {
-  const carriers = ["-----", "UPS", "FedEx", "Freight", "Other"];
   const [localShippingInfo, setLocalShippingInfo] = useState({
     ...shippingInfo,
-    carrier: carriers[0],
+    carrier: CARRIERS[0],
   });
   const [hasSelectError, setHasSelectError] = useState(true);
 
@@ -27,7 +26,7 @@ const CreateCarrierShipmentInfoForm = ({
     manifest: shippingInfo.manifest,
     customer: shippingInfo.customer,
     deliveryMethod: shippingInfo.deliveryMethod,
-    carrier: carriers[0],
+    carrier: CARRIERS[0],
   };
 
   useEffect(() => {
@@ -59,45 +58,6 @@ const CreateCarrierShipmentInfoForm = ({
           }}
           canErrorCheck={canErrorCheck}
         />
-        {/* <Grid item xs>
-          <FormControl
-            sx={{ width: "100%" }}
-            error={canErrorCheck && hasSelectError}
-          >
-            <Select
-              required
-              error={canErrorCheck && hasSelectError}
-              sx={{ width: "100%" }}
-              value={localShippingInfo.carrier}
-              onChange={(event) => {
-                setHasSelectError(event.target.value === carriers[0]);
-                setLocalShippingInfo({
-                  ...localShippingInfo,
-                  carrier: event.target.value,
-                });
-              }}
-              onBlur={() => {
-                setShippingInfo(localShippingInfo);
-              }}
-            >
-              {carriers.map((carrier) => (
-                <MenuItem key={carrier} value={carrier}>
-                  {carrier}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText
-              error={canErrorCheck && hasSelectError}
-              sx={{
-                display: canErrorCheck && hasSelectError ? "block" : "none",
-              }}
-            >
-              {canErrorCheck && hasSelectError
-                ? "Must select non-default carrier"
-                : undefined}
-            </FormHelperText>
-          </FormControl>
-        </Grid> */}
       </Grid>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
