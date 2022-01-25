@@ -229,9 +229,6 @@ const ShippingQueue = () => {
   }
 
   function onNewRowChange(oldVal, newVal) {
-    console.log(clickedHistShipment);
-    console.log(oldVal);
-    console.log(newVal);
     let updatedShipment = {
       ...clickedHistShipment,
       manifest: clickedHistShipment?.manifest?.filter(
@@ -239,8 +236,6 @@ const ShippingQueue = () => {
       ),
     };
     updatedShipment.manifest.push({ ...oldVal, ...newVal });
-    console.log(updatedShipment);
-
     setClickedHistShipment(updatedShipment);
   }
 
