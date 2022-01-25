@@ -5,6 +5,7 @@ import PackShipEditableTable from "../components/EdittableTable";
 import PopupDialog from "../components/PackingDialog";
 import PackingSlipDrowdown from "./PackingSlipDropdown";
 import ShipmentDetails from "./ShipmentDetails";
+import EditTableDropdown from "../components/EditTableDropdown";
 
 const useStyle = makeStyles((theme) => ({}));
 
@@ -21,22 +22,38 @@ const EditShipmentTableDialog = ({
   onCustomerNameChange,
   onTrackingChange,
   onCostChange,
+  onNewRowChange,
   viewOnly = true,
 }) => {
   const classes = useStyle();
+
+  function renderDropdown(params) {
+    if (params.row.isNew) {
+      return (
+        <EditTableDropdown
+          choices={params.row.possibleSlips}
+          onChange={(newVal) => {
+            onNewRowChange(params.row, newVal);
+          }}
+          value={params.row}
+        />
+      );
+    } else if (params.id !== "add-row-id") {
+      return (
+        <PackingSlipDrowdown
+          params={params}
+          packingSlipId={params.row.packingSlipId}
+          manifest={shipment.manifest}
+        />
+      );
+    }
+  }
+
   const columns = [
     {
       field: "packingSlipId",
       renderCell: (params) => {
-        return (
-          params.id !== "add-row-id" && (
-            <PackingSlipDrowdown
-              params={params}
-              packingSlipId={params.row.packingSlipId}
-              manifest={shipment.manifest}
-            />
-          )
-        );
+        return renderDropdown(params);
       },
       flex: 2,
       renderHeader: (params) => {
@@ -57,7 +74,7 @@ const EditShipmentTableDialog = ({
       >
         <PackShipEditableTable
           tableData={shipment?.manifest?.map((e) => {
-            return { id: e._id, packingSlipId: e.packingSlipId };
+            return { ...e, id: e._id };
           })}
           columns={columns}
           onDelete={onDelete}
