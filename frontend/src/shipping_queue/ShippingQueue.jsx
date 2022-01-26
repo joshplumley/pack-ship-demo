@@ -228,6 +228,17 @@ const ShippingQueue = () => {
     setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
   }
 
+  function onNewRowChange(oldVal, newVal) {
+    let updatedShipment = {
+      ...clickedHistShipment,
+      manifest: clickedHistShipment?.manifest?.filter(
+        (e) => e._id !== oldVal._id
+      ),
+    };
+    updatedShipment.manifest.push({ ...oldVal, ...newVal });
+    setClickedHistShipment(updatedShipment);
+  }
+
   function onHistoryPackingSlipDelete() {
     if (packingSlipToDelete) {
       API.patchShipment(clickedHistShipment?._id, {
@@ -276,19 +287,31 @@ const ShippingQueue = () => {
     }
   }
 
-  const onHistoryPackingSlipAdd = useCallback(
-    (params) => {
-      // let updatedShipment = clickedHistShipment;
-      // let TEST = Object.assign({}, clickedHistShipment?.manifest[0]);
-      // TEST._id = "TEST";
-      // updatedShipment?.manifest.push(TEST); // TODOD
-      // setClickedHistShipment({ ...updatedShipment });
-      API.searchPackingSlips(clickedHistShipment?.customer?._id, null).then(
-        (data) => console.log(data)
-      );
-    },
-    [clickedHistShipment, API]
-  );
+  const onHistoryPackingSlipAdd = useCallback(() => {
+    API.searchPackingSlips(clickedHistShipment?.customer?._id, null).then(
+      (data) => {
+        let updatedShipment = { ...clickedHistShipment };
+
+        if (data?.packingSlips.length > 0) {
+          const possibleChoices = data?.packingSlips.filter(
+            (e) => !clickedHistShipment.manifest.some((m) => m._id === e._id)
+          );
+
+          updatedShipment.manifest.push({
+            _id: "",
+            isNew: true,
+            customer: clickedHistShipment.customer._id,
+            possibleSlips: possibleChoices,
+            ...possibleChoices[0],
+          });
+
+          setClickedHistShipment(updatedShipment);
+        } else {
+          alert("There are additions that can be made.");
+        }
+      }
+    );
+  }, [clickedHistShipment, API]);
 
   const historyRowMenuOptions = [
     <MenuItem
@@ -469,6 +492,7 @@ const ShippingQueue = () => {
             trackingNumber: value,
           });
         }}
+        onNewRowChange={onNewRowChange}
       />
 
       <ConfirmDialog
