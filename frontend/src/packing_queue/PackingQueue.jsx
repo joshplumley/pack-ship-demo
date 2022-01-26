@@ -66,6 +66,37 @@ const PackingQueue = () => {
     setPackingSlipOpen(false);
   }
 
+  function onPackingSlipSubmit(filledForm, orderNum) {
+    const items = filledForm.map((e) => {
+      return { item: e.id, qty: e.packQty };
+    });
+    API.createPackingSlip(items, filledForm[0].customer, orderNum)
+      .then(() => {
+        // update the fullfilled Qty
+        const updatedFulfilled = filledForm.map((e) => {
+          let tmp = {
+            ...e,
+            fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
+          };
+          delete tmp.packQty;
+          return tmp;
+        });
+
+        // remove the old one
+        const updatedPackingQueue = filteredPackingQueue.filter(
+          (e) => !updatedFulfilled.map((f) => f.id).includes(e.id)
+        );
+
+        // add the new ones and set
+        setFilteredPackingQueue(updatedPackingQueue.concat(updatedFulfilled));
+
+        onPackingSlipClose();
+      })
+      .catch(() => {
+        alert("An error occurred submitting packing slip");
+      });
+  }
+
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
     for (const item of tableData) {
@@ -137,10 +168,13 @@ const PackingQueue = () => {
       />
 
       <PackingSlipDialog
+        onSubmit={onPackingSlipSubmit}
         open={packingSlipOpen}
         onClose={onPackingSlipClose}
         orderNum={selectedOrderNumber}
-        parts={packingQueue.filter((e) => selectedOrderIds.includes(e.id))}
+        parts={filteredPackingQueue.filter((e) =>
+          selectedOrderIds.includes(e.id)
+        )}
       />
 
       <Grid
