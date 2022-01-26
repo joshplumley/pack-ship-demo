@@ -18,6 +18,7 @@ const PackingDialog = ({
   fullWidth = true,
   actions,
   children,
+  submitDisabled = false,
 }) => {
   return (
     <Dialog
@@ -48,7 +49,12 @@ const PackingDialog = ({
       ) : (
         <DialogActions>
           <CommonButton onClick={onClose} label="Cancel" />
-          <CommonButton autoFocus onClick={onSubmit} label={progressText} />
+          <CommonButton
+            disabled={submitDisabled}
+            autoFocus
+            onClick={onSubmit}
+            label={progressText}
+          />
         </DialogActions>
       )}
     </Dialog>
