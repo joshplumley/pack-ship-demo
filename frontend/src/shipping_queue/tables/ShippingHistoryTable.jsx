@@ -54,6 +54,7 @@ const ShippingHistoryTable = ({
   onPageChange,
   rowCount,
   perPageCount,
+  onRowClick,
 }) => {
   const classes = useStyle();
 
@@ -87,9 +88,8 @@ const ShippingHistoryTable = ({
         paginationMode="server"
         onPageChange={(page, _) => onPageChange(page)}
         rowCount={rowCount}
-        sx={{ border: "none" }}
+        sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        autoHeight
         disableSelectionOnClick={true}
         rows={tableData}
         rowHeight={65}
@@ -98,6 +98,7 @@ const ShippingHistoryTable = ({
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"
+        onRowClick={onRowClick}
       />
     </div>
   );

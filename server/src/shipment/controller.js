@@ -144,7 +144,19 @@ async function getAll(_req, res) {
 async function createOne(req, res) {
   handler(
     async () => {
-      const { manifest, customer, trackingNumber, cost } = req.body;
+      const {
+        manifest,
+        customer,
+        trackingNumber,
+        cost,
+        deliveryMethod,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        customerHandoffName
+      } = req.body;
+
+
       const p_numShipments = Shipment.countDocuments({ customer });
       const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
 
@@ -160,6 +172,12 @@ async function createOne(req, res) {
         customer,
         shipmentId,
         manifest,
+
+        deliveryMethod,
+        customerHandoffName,
+        carrier,
+        deliverySpeed,
+        customerAccount,
         trackingNumber,
         cost,
       });
@@ -209,9 +227,12 @@ async function editOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-      const { manifest } = req.body;
+      const { manifest, deletedPackingSlips, newPackingSlips } = req.body;
 
-      await Shipment.updateOne(
+      const p_deleted = deletedPackingSlips.map(x => unassignPackingSlipFromShipment(x));
+      const p_added = newPackingSlips.map(x => assignPackingSlipToShipment(x, sid));
+
+      const p_update = Shipment.updateOne(
         { _id: sid },
         {
           $set: {
@@ -219,6 +240,8 @@ async function editOne(req, res) {
           },
         }
       );
+
+      await Promise.all(p_deleted, p_added, p_update);
 
       return [null];
     },
@@ -241,4 +264,17 @@ async function deleteOne(req, res) {
     "deleting shipment",
     res
   );
+}
+
+/**
+ * 
+ * @param {any[]} packingSlipId Id of packing slip to assign
+ * @param {string} shipmentId _id of Shipment to assign to packing slip
+ */
+async function assignPackingSlipToShipment(packingSlipId, shipmentId) {
+  await PackingSlip.updateOne({ _id: packingSlipId }, { $set: { shipment: shipmentId } });
+}
+
+async function unassignPackingSlipFromShipment(packingSlipId) {
+  await PackingSlip.updateOne({ _id: packingSlipId }, { $unset: { shipment: 1 } });
 }

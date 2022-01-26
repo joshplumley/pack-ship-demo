@@ -93,9 +93,10 @@ const HistoryTable = () => {
   }
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ width: "100%" }}>
       <DataGrid
-        rows={packingSlipHistory}
+        sx={{ border: "none", height: "65vh" }}
+        rows={rows}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}

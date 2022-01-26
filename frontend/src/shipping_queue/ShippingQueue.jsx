@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, MenuItem } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
 import CommonButton from "../common/Button";
 import ShippingQueueTable from "./tables/ShippingQueueTable";
+import CreateShipmentDialog from "../create_shipment/CreateShipmentDialog";
+import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
+import ContextMenu from "../components/GenericContextMenu";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -37,6 +40,10 @@ const ShippingQueue = () => {
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
   const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
+  const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
+  const [currentDialogState, setCurrentDialogState] = useState(
+    ShippingDialogStates.CreateShipmentTable
+  );
 
   // Shipping History States
   const [shippingHistory, setShippingHistory] = useState([]);
@@ -45,17 +52,36 @@ const ShippingQueue = () => {
   const [partNumber, setPartNumber] = useState("");
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
   const histResultsPerPage = 10;
+  const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
     return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
   }
 
-  useEffect(() => {
+  const extractHistoryDetails = useCallback((history) => {
+    let historyTableData = [];
+    history.forEach((e) => {
+      historyTableData.push({
+        id: e._id,
+        shipmentId: e.shipmentId,
+        trackingNumber: e.trackingNumber,
+        dateCreated: getFormattedDate(e.dateCreated),
+      });
+    });
+    return historyTableData;
+  }, []);
+
+  const reloadData = useCallback(() => {
     async function fetchData() {
       const data = await Promise.all([
         API.getShippingQueue(),
-        API.getShippingHistory(),
+        API.searchShippingHistory(
+          orderNumber,
+          partNumber,
+          histResultsPerPage,
+          0
+        ),
       ]);
       return { queue: data[0], history: data[1] };
     }
@@ -68,41 +94,41 @@ const ShippingQueue = () => {
           id: e._id,
           orderNumber: e.orderNumber,
           packingSlipId: e.packingSlipId,
+          customer: e.customer,
           items: e.items,
         });
       });
+
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
 
       // Gather the history data for the table
-      let historyTableData = extractHistoryDetails(data?.history?.shipments);
+      let historyTableData = extractHistoryDetails(
+        data?.history?.data.shipments
+      );
       setFilteredShippingHist(historyTableData);
       setShippingHistory(historyTableData);
-      setHistSearchTotalCount(historyTableData.length);
+      setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
-  }, []);
+  }, [extractHistoryDetails]);
 
-  function extractHistoryDetails(history) {
-    let historyTableData = [];
-    history.forEach((e) => {
-      historyTableData.push({
-        id: e._id,
-        shipmentId: e.shipmentId,
-        trackingNumber: e.trackingNumber,
-        dateCreated: getFormattedDate(e.dateCreated),
-      });
-    });
-    return historyTableData;
-  }
+  useEffect(() => {
+    reloadData();
+  }, [reloadData]);
 
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
+    const customerId =
+      selectionModel.length > 0
+        ? tableData.find((element) => element.id === selectionModel[0]).customer
+            ?._id
+        : undefined;
     for (const item of tableData) {
       // All selected items will have the same customer id
       // so we just take the first one
-      if (selectionModel.length > 0 && item.id === selectionModel[0]) {
-        setSelectedCustomerId(item.customerId);
+      if (selectionModel.length > 0 && item.customer?._id === customerId) {
+        setSelectedCustomerId(item.customer._id);
         break;
       }
       // If nothing selected set it to null
@@ -112,8 +138,27 @@ const ShippingQueue = () => {
     }
   }
 
+  function onCreateShipmentClick() {
+    setCreateShipmentOpen(true);
+  }
+
+  function onCreateShipmentClose() {
+    setCreateShipmentOpen(false);
+    setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
+    reloadData();
+  }
+
   function onQueueSearch(value) {
-    return; // TODO
+    const filtered = shippingQueue.filter(
+      (order) =>
+        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
+        order.items.filter((e) =>
+          e.item.partNumber.toLowerCase().includes(value.toLowerCase())
+        ).length > 0 ||
+        selectedOrderIds.includes(order.id) // Ensure selected rows are included
+    );
+
+    setFilteredShippingQueue(filtered);
   }
 
   function onTabChange(event, newValue) {
@@ -159,6 +204,17 @@ const ShippingQueue = () => {
     fetchSearch(pageNumber + 1);
   }
 
+  function onHistoryRowClick(_, event, __) {
+    setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
+  }
+
+  const historyRowMenuOptions = [
+    <MenuItem>View</MenuItem>,
+    <MenuItem>Download</MenuItem>,
+    <MenuItem>Edit</MenuItem>,
+    <MenuItem>Delete</MenuItem>,
+  ];
+
   return (
     <Box p="40px">
       {currentTab === TabNames.Queue ? (
@@ -172,6 +228,7 @@ const ShippingQueue = () => {
             <CommonButton
               label="Create Shipment"
               disabled={selectedOrderIds.length === 0}
+              onClick={onCreateShipmentClick}
             />
           </Grid>
           <Grid container item justifyContent="start" xs={6}>
@@ -234,10 +291,42 @@ const ShippingQueue = () => {
             onPageChange={onPageChange}
             rowCount={histSearchTotalCount}
             perPageCount={histResultsPerPage}
+            onRowClick={onHistoryRowClick}
           />
         }
       />
 
+      <CreateShipmentDialog
+        customer={
+          shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
+            ?.customer
+        }
+        packingSlipIds={shippingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .map((e) => e.id)}
+        open={createShipmentOpen}
+        onClose={onCreateShipmentClose}
+        currentState={currentDialogState}
+        setCurrentState={setCurrentDialogState}
+        parts={shippingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .reduce(
+            (result, current) =>
+              result.concat(
+                current.items.map((e) => {
+                  return { ...e, id: e._id };
+                })
+              ),
+            []
+          )}
+      />
+
+      <ContextMenu
+        menuPosition={historyMenuPosition}
+        setMenuPosition={setHistoryMenuPosition}
+      >
+        {historyRowMenuOptions}
+      </ContextMenu>
       <Grid
         className={classes.navButton}
         container
