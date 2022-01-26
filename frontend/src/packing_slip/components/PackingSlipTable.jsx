@@ -14,9 +14,6 @@ const useStyle = makeStyles((theme) => ({
 const PackingSlipTable = ({ rowData, filledForm, setFilledForm, viewOnly=false }) => {
   const classes = useStyle();
 
-  console.log("ZH")
-  console.log(rowData)
-
   function hasValueError(value) {
     return /^[-+]?(\d+)$/.test(value);
   }

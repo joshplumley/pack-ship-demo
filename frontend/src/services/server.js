@@ -75,6 +75,15 @@ export const API = {
     }
   },
 
+  async deletePackingSlip(id) {
+    try {
+      const response = await axios.delete(`${REACT_APP_API_URL}/packingSlips/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("getPackingSlipHistory", error);
+    }
+  },
+
   async createShipment(
     manifest,
     customer,

@@ -3,19 +3,22 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
-import Box from '@mui/material/Box'
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { API } from "../../services/server";
 
 
-export default function DeleteAlert({deleteDialog, setDeleteDialog}) {
+export default function DeleteAlert({deleteDialog, setDeleteDialog, selectedId}) {
   const open = Boolean(deleteDialog)
 
   const handleClose = () => {
     setDeleteDialog(false);
   };
 
-  const handleDelete = () => {
-    setDeleteDialog(false)
+  async function deletePackingSlip() {
+    API.deletePackingSlip(selectedId)
+      .then(handleClose())
+      .catch(() => {
+        alert("An error occurred deleting packing slip");
+      });
   }
 
   return (
@@ -31,7 +34,7 @@ export default function DeleteAlert({deleteDialog, setDeleteDialog}) {
         </DialogTitle>
         <DialogActions>
           <Button onClick={handleClose}>No</Button>
-          <Button onClick={handleClose} autoFocus>Yes</Button>
+          <Button onClick={deletePackingSlip} autoFocus>Yes</Button>
         </DialogActions>
       </Dialog>
     </div>

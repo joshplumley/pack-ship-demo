@@ -15,9 +15,6 @@ import { API } from "../services/server";
 const PackingSlipDialog = ({ open, onClose, orderNum, parts, viewOnly=false }) => {
   const [filledForm, setFilledForm] = useState([]);
 
-  console.log("PSD")
-  console.log(parts)
-
   useEffect(() => {
     setFilledForm(parts);
   }, [parts]);
