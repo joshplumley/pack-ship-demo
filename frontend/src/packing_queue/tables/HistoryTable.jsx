@@ -1,13 +1,13 @@
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ContextMenu from "../../components/GenericContextMenu"
 import MenuItem from '@mui/material/MenuItem';
 import DeleteAlert from "./DeleteMenu"
 import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
-
+import { API } from "../../services/server";
 
 const columns = [
-  { field: "id", headerName: "ID", width: 70 },
+  // { field: "id", headerName: "ID", width: 70 },
   { field: "orderId", headerName: "Order", width: 200 },
   {
     field: "packingSlipN",
@@ -32,6 +32,8 @@ const HistoryTable = () => {
   const [menuPosition, setMenuPosition] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [viewPackingSlip, setViewPackingSlip] = useState(false)
+  const [packingSlipHistory, setPackingSlipHistory] = useState([]);
+  const [selectRow, setSelectRow] = useState([])
 
   const openDeleteDialog = (event) => {
       setDeleteDialog(true)
@@ -54,16 +56,56 @@ const HistoryTable = () => {
     <MenuItem onClick={openDeleteDialog}>Delete</MenuItem>
   ];
 
+  useEffect(() => {
+    async function fetchData() {
+      const data = await Promise.all([
+        API.getPackingSlipHistory(),
+      ]);
+      return { history: data };
+    }
+
+    fetchData().then((data) => {
+      console.log(data?.history[0]?.packingSlips)
+      let fpackingSlipHistory = extractHistoryDetails(data?.history[0]?.packingSlips)
+      console.log(fpackingSlipHistory)
+      setPackingSlipHistory(fpackingSlipHistory);
+      console.log("Foo")
+      console.log(packingSlipHistory)
+    });
+  }, []);
+
+  function extractHistoryDetails(history) {
+    let historyTableData = [];
+    // console.log(history[0].packingSlips)
+    history.forEach((e) => {
+      console.log("Each")
+      console.log(e)
+      let ind = e.packingSlipId.indexOf("-") + 3
+      let psnum = e.packingSlipId.slice(ind)
+      historyTableData.push({
+        id: e._id,
+        orderId: e.orderNumber,
+        packingSlipN: psnum,
+        items: e.items,
+      });
+    });
+    return historyTableData;
+  }
+
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={rows}
+        rows={packingSlipHistory}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}
         checkboxSelection={false}
         onRowClick={(params, event, details) => {
-          setMenuPosition({left: event.pageX, top: event.pageY})
+          setMenuPosition({left: event.pageX, top: event.pageY});
+          setSelectRow(params.row);
+          console.log(params.row)
+          console.log("Z")
+          console.log(selectRow)
         }}
       />
       <ContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}>
@@ -72,8 +114,9 @@ const HistoryTable = () => {
       <PackingSlipDialog
         open={viewPackingSlip}
         onClose={onPackingSlipClose}
-        orderNum="ABC456"
-        parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
+        orderNum={"ABC1007"}
+        parts={selectRow.items}
+        // parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
         viewOnly={true}
       />
       <DeleteAlert deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog}/>

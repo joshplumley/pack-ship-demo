@@ -74,4 +74,13 @@ export const API = {
       console.error("searchShippingHistory", error);
     }
   },
+
+  async getPackingSlipHistory() {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/packingSlips`);
+      return response.data;
+    } catch (error) {
+      console.error("getPackingSlipHistory", error);
+    }
+  },
 };

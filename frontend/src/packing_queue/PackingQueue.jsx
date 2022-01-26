@@ -54,6 +54,7 @@ const PackingQueue = () => {
         });
       });
       setPackingQueue(tableData);
+      console.log(packingQueue)
       setFilteredPackingQueue(tableData);
     });
   }, [isShowUnfinishedBatches]);

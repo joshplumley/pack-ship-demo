@@ -15,6 +15,9 @@ import { API } from "../services/server";
 const PackingSlipDialog = ({ open, onClose, orderNum, parts, viewOnly=false }) => {
   const [filledForm, setFilledForm] = useState([]);
 
+  console.log("PSD")
+  console.log(parts)
+
   useEffect(() => {
     setFilledForm(parts);
   }, [parts]);
@@ -44,7 +47,7 @@ const PackingSlipDialog = ({ open, onClose, orderNum, parts, viewOnly=false }) =
     >
       <DialogTitle sx={{ m: 0, p: 2 }}>
         <Typography align="center">
-          {viewOnly ? " " : "Create "}Packing Slip for Order #{orderNum}
+          {viewOnly ? "" : "Create "}Packing Slip for Order #{orderNum}
         </Typography>
         <IconButton
           sx={{
