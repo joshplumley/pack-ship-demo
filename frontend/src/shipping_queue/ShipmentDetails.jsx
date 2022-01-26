@@ -1,8 +1,9 @@
 import React from "react";
-import { Typography, Grid } from "@mui/material";
+import { Typography, Grid, Box } from "@mui/material";
 import TitleTextInput from "../components/TitleTextInput";
 import CarrierServiceDropdown from "../components/CarrierServiceDropdown";
 import { isDeliverySpeedValid } from "../utils/Validators";
+import TextInput from "../components/TextInput";
 
 const ShipmentDetails = ({
   canErrorCheck,
@@ -23,27 +24,35 @@ const ShipmentDetails = ({
             return (
               <Grid container direction="row" alignItems="flex-start">
                 <Grid item container xs={6} direction="column">
-                  <Grid
-                    item
-                    container
-                    direction="row"
-                    alignItems="center"
-                    spacing={5}
-                  >
-                    <Grid item container xs={3} justifyContent="flex-end">
-                      <Typography sx={{ fontWeight: 900 }}>
-                        {"Carrier Service:"}
-                      </Typography>
+                  {viewOnly ? (
+                    <TitleTextInput
+                      title="Carrier Service:"
+                      value={shipment?.carrier}
+                      viewOnly={viewOnly}
+                    />
+                  ) : (
+                    <Grid
+                      item
+                      container
+                      direction="row"
+                      alignItems="center"
+                      spacing={5}
+                    >
+                      <Grid item container xs={3} justifyContent="flex-end">
+                        <Typography sx={{ fontWeight: 900 }}>
+                          {"Carrier Service:"}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <CarrierServiceDropdown
+                          canErrorCheck={canErrorCheck}
+                          carrier={shipment?.carrier}
+                          setCarrier={onCarrierInputChange}
+                          disabled={viewOnly}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={4}>
-                      <CarrierServiceDropdown
-                        canErrorCheck={canErrorCheck}
-                        carrier={shipment?.carrier}
-                        setCarrier={onCarrierInputChange}
-                        disabled={viewOnly}
-                      />
-                    </Grid>
-                  </Grid>
+                  )}
 
                   <TitleTextInput
                     title="Delivery Speed:"
