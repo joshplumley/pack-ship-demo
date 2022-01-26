@@ -73,16 +73,14 @@ const ShippingQueue = () => {
   }
 
   const extractHistoryDetails = useCallback((history) => {
-    let historyTableData = [];
-    history.forEach((e) => {
-      historyTableData.push({
+    return history.map((e) => {
+      return {
         id: e._id,
         shipmentId: e.shipmentId,
         trackingNumber: e.trackingNumber,
         dateCreated: getFormattedDate(e.dateCreated),
-      });
+      };
     });
-    return historyTableData;
   }, []);
 
   const reloadData = useCallback(() => {
@@ -112,6 +110,10 @@ const ShippingQueue = () => {
         });
       });
 
+      // The set state order is important
+      setSelectedCustomerId(null);
+      setFilteredSelectedIds([]);
+      setSelectedOrderIds([]);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
 
@@ -129,7 +131,7 @@ const ShippingQueue = () => {
     reloadData();
   }, [reloadData]);
 
-  function onQueueRowClick(selectionModel, tableData) {
+  const onQueueRowClick = useCallback((selectionModel, tableData) => {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
     const customerId =
@@ -149,7 +151,7 @@ const ShippingQueue = () => {
         setSelectedCustomerId(null);
       }
     }
-  }
+  }, []);
 
   function onCreateShipmentClick() {
     setCreateShipmentOpen(true);
@@ -179,7 +181,6 @@ const ShippingQueue = () => {
         ).length > 0 ||
         selectedOrderIds.includes(order.id) // Ensure selected rows are included
     );
-
     setFilteredShippingQueue(filtered);
   }
 
@@ -315,6 +316,7 @@ const ShippingQueue = () => {
 
   const historyRowMenuOptions = [
     <MenuItem
+      key="view-menu-item"
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(true);
@@ -322,8 +324,9 @@ const ShippingQueue = () => {
     >
       View
     </MenuItem>,
-    <MenuItem>Download</MenuItem>,
+    <MenuItem key="download-menu-item">Download</MenuItem>,
     <MenuItem
+      key="edit-menu-item"
       onClick={() => {
         setIsEditShipmentOpen(true);
         setIsEditShipmentViewOnly(false);
@@ -332,6 +335,7 @@ const ShippingQueue = () => {
       Edit
     </MenuItem>,
     <MenuItem
+      key="delete-menu-item"
       onClick={() => {
         setHistoryMenuPosition(null);
         setConfirmShippingDeleteDialogOpen(true);
