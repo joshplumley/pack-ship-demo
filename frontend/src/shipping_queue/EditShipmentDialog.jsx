@@ -39,7 +39,7 @@ const EditShipmentTableDialog = ({
           value={params.row}
         />
       );
-    } else if (params.id !== "add-row-id") {
+    } else if (!params.id.includes("add-row-id")) {
       return (
         <PackingSlipDrowdown
           params={params}

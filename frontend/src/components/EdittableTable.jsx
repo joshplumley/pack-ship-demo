@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography, IconButton } from "@mui/material";
@@ -54,8 +54,11 @@ const PackShipEditableTable = ({
 }) => {
   const classes = useStyle();
   const addRowId = "add-row-id";
+
+  // const [localPageSize, setLocalPageSize] = useState(pageSize);
   let newColumns = columns;
   let newRows = tableData;
+  let localPageSize = pageSize;
 
   // Add the delete action column if not view only
   if (!viewOnly) {
@@ -64,8 +67,8 @@ const PackShipEditableTable = ({
         field: "actions",
         flex: 1,
         renderCell: (params) => {
-          return params.id === addRowId ? (
-            <IconButton onClick={() => onAdd(tableData)}>
+          return params.id.includes(addRowId) ? (
+            <IconButton onClick={() => onAdd(params.row.pageNum)}>
               <AddCircleOutlineIcon />
             </IconButton>
           ) : (
@@ -82,22 +85,11 @@ const PackShipEditableTable = ({
     newColumns = deleteCol.concat(columns);
 
     // Add row for the ability to add a new row
-    newRows = [];
-    tableData?.forEach((e, i) => {
-      newRows.push(e);
-      // make sure the add Row is at the end of the page and at the end of the
-      // last page
-      if (
-        (i % (pageSize - 2) === 0 && i !== 0) ||
-        i === tableData?.length - 1
-      ) {
-        newRows.push({ id: addRowId });
-      }
+    newRows = [...tableData];
+    newRows.push({
+      id: addRowId,
     });
-    // no data add the add row
-    if (tableData?.length === 0 || !tableData) {
-      newRows.push({ id: addRowId });
-    }
+    localPageSize = newRows.length;
   }
 
   return (
@@ -110,7 +102,7 @@ const PackShipEditableTable = ({
         rows={newRows}
         rowHeight={65}
         columns={newColumns}
-        pageSize={pageSize}
+        pageSize={localPageSize}
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"

@@ -264,54 +264,67 @@ const ShippingQueue = () => {
     setCanErrorCheck(true);
 
     if (isShippingInfoValid(clickedHistShipment)) {
-      API.patchShipment(clickedHistShipment?._id, clickedHistShipment);
-      setIsEditShipmentOpen(false);
+      let sentData = { ...clickedHistShipment };
 
-      // Update the shippingHistory tracking # for main table as well
-      setFilteredShippingHist(
-        filteredShippingHist.map((obj) => {
-          if (obj.id === clickedHistShipment?._id) {
-            return {
-              ...obj,
-              trackingNumber: clickedHistShipment?.trackingNumber,
-            };
-          } else {
-            return obj;
-          }
+      sentData.newPackingSlips = clickedHistShipment.manifest
+        .filter((e) => e?.isNew === true)
+        .map((e) => e._id);
+
+      API.patchShipment(sentData?._id, sentData)
+        .then(() => {
+          setIsEditShipmentOpen(false);
+
+          // Update the shippingHistory tracking # for main table as well
+          setFilteredShippingHist(
+            filteredShippingHist.map((obj) => {
+              if (obj.id === clickedHistShipment?._id) {
+                return {
+                  ...obj,
+                  trackingNumber: clickedHistShipment?.trackingNumber,
+                };
+              } else {
+                return obj;
+              }
+            })
+          );
+          //close context menu
+          setHistoryMenuPosition(null);
+
+          setCanErrorCheck(false);
         })
-      );
-      //close context menu
-      setHistoryMenuPosition(null);
-
-      setCanErrorCheck(false);
+        .catch(() => {
+          alert("Something went wrong submitting edits");
+        });
     }
   }
 
-  const onHistoryPackingSlipAdd = useCallback(() => {
-    API.searchPackingSlips(clickedHistShipment?.customer?._id, null).then(
-      (data) => {
-        let updatedShipment = { ...clickedHistShipment };
-
-        if (data?.packingSlips.length > 0) {
+  const onHistoryPackingSlipAdd = useCallback(
+    (pageNum) => {
+      API.searchPackingSlips(clickedHistShipment?.customer?._id, null).then(
+        (data) => {
+          let updatedShipment = { ...clickedHistShipment };
           const possibleChoices = data?.packingSlips.filter(
             (e) => !clickedHistShipment.manifest.some((m) => m._id === e._id)
           );
+          if (data?.packingSlips.length > 0 && possibleChoices.length > 0) {
+            updatedShipment.manifest.push({
+              _id: "",
+              pageNum: pageNum,
+              isNew: true,
+              customer: clickedHistShipment.customer._id,
+              possibleSlips: possibleChoices,
+              ...possibleChoices[0],
+            });
 
-          updatedShipment.manifest.push({
-            _id: "",
-            isNew: true,
-            customer: clickedHistShipment.customer._id,
-            possibleSlips: possibleChoices,
-            ...possibleChoices[0],
-          });
-
-          setClickedHistShipment(updatedShipment);
-        } else {
-          alert("There are additions that can be made.");
+            setClickedHistShipment(updatedShipment);
+          } else {
+            alert("There are no additions that can be made.");
+          }
         }
-      }
-    );
-  }, [clickedHistShipment, API]);
+      );
+    },
+    [clickedHistShipment, API]
+  );
 
   const historyRowMenuOptions = [
     <MenuItem

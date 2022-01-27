@@ -6,8 +6,9 @@ export const checkCostError = (shippingInfo) => {
 
 export const isShippingInfoValid = (shippingInfo) => {
   return (
-    isCarrierValid(shippingInfo?.carrier) &&
-    isDeliverySpeedValid(shippingInfo?.deliverySpeed)
+    (isCarrierValid(shippingInfo?.carrier) &&
+      isDeliverySpeedValid(shippingInfo?.deliverySpeed)) ||
+    isDropoffOrPickup(shippingInfo?.deliveryMethod)
   );
 };
 
@@ -17,4 +18,11 @@ export const isCarrierValid = (carrier) => {
 
 export const isDeliverySpeedValid = (deliverySpeed) => {
   return deliverySpeed && deliverySpeed !== "";
+};
+
+export const isDropoffOrPickup = (deliveryMethod) => {
+  return (
+    deliveryMethod &&
+    (deliveryMethod === "PICKUP" || deliveryMethod === "DROPOFF")
+  );
 };

@@ -76,11 +76,7 @@ const CreateShipmentDialog = ({
 
   const onSubmit = async () => {
     setCanErrorCheck(true);
-    if (
-      isShippingInfoValid(shippingInfo) ||
-      shippingInfo.deliveryMethod === "PICKUP" ||
-      shippingInfo.deliveryMethod === "DROPOFF"
-    ) {
+    if (isShippingInfoValid(shippingInfo)) {
       API.createShipment(
         shippingInfo.manifest,
         shippingInfo.customer,
