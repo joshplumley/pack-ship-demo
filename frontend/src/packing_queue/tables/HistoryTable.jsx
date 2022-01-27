@@ -1,8 +1,8 @@
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ContextMenu from "../../components/GenericContextMenu"
 import MenuItem from '@mui/material/MenuItem';
-import DeleteAlert from "./DeleteMenu"
+import DeleteModal from "./DeleteModal"
 import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
 import { API } from "../../services/server";
 
@@ -17,31 +17,39 @@ const columns = [
   { field: "dateCreated", headerName: "Date Created", width: 150 },
 ];
 
-// TODO REPLACE FAKE DATA
-const rows = [
-  {
-    id: 1,
-    orderId: "ABC1001",
-    packingSlipN: 1,
-    dateCreated: "10/23/2021",
-  },
-  {
-    id: "61f0a50e202d7891ce25626c",
-    orderId: "GHI2002",
-    packingSlipN: 1,
-    dateCreated: "1/1/2022"
-  }
-];
-
 const HistoryTable = () => {
   const [menuPosition, setMenuPosition] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [viewPackingSlip, setViewPackingSlip] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
+  const [rows, setRows] = useState(null)
+
+  const reloadData = useCallback(() => {
+    async function fetchData() {
+      return await API.getPackingSlipHistory();
+    }
+
+    fetchData().then((data) => {
+      let packingSlips = [];
+      data?.packingSlips?.forEach((e) => {
+        packingSlips.push({
+          id: e._id,
+          orderId: e.orderNumber,
+          packingSlipN: e.packingSlipId,
+        })
+      });
+      setRows(packingSlips)
+    });
+  }, [deleteDialog]);
+  
+  useEffect(() => {
+    reloadData();
+  }, [reloadData]);
 
   const openDeleteDialog = (event) => {
       setDeleteDialog(true)
       setMenuPosition(null)
+      setViewPackingSlip(false)
   }
 
   const openViewPackingSlip = () => {
@@ -51,10 +59,6 @@ const HistoryTable = () => {
 
   const onPackingSlipClose = () => {
     setViewPackingSlip(false)
-  }
-
-  const onDeleteConfirm = () => {
-
   }
 
   const historyRowMenuOptions = [
@@ -74,8 +78,7 @@ const HistoryTable = () => {
         rowsPerPageOptions={[5]}
         checkboxSelection={false}
         onRowClick={(params, event, details) => {
-          console.log(params)
-          setSelectedRow(params.row.id)
+          setSelectedRow(params.row)
           setMenuPosition({left: event.pageX, top: event.pageY});
         }}
       />
@@ -85,11 +88,11 @@ const HistoryTable = () => {
       <PackingSlipDialog
         open={viewPackingSlip}
         onClose={onPackingSlipClose}
-        orderNum={"ABC1007"}
+        orderNum={selectedRow?.orderId}
         parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
         viewOnly={true}
       />
-      <DeleteAlert deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} selectedId={selectedRow}/>
+      <DeleteModal deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} selectedId={selectedRow?.id}/>
     </div>
   );
 };

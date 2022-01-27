@@ -6,7 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { API } from "../../services/server";
 
 
-export default function DeleteAlert({deleteDialog, setDeleteDialog, selectedId}) {
+export default function DeleteModal({deleteDialog, setDeleteDialog, selectedId}) {
   const open = Boolean(deleteDialog)
 
   const handleClose = () => {
