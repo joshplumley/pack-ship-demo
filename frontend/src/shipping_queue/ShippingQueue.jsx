@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
-import { Box, Button, Grid, MenuItem } from "@mui/material";
+import { Box, Button, Grid, MenuItem, Typography } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Link } from "react-router-dom";
 import { ROUTE_PACKING_SLIP } from "../router/router";
@@ -12,7 +12,10 @@ import CreateShipmentDialog from "../create_shipment/CreateShipmentDialog";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
+import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
+import ConfirmDialog from "../components/ConfrimDialog";
+import { isShippingInfoValid } from "../utils/Validators";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -52,7 +55,17 @@ const ShippingQueue = () => {
   const [partNumber, setPartNumber] = useState("");
   const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
   const histResultsPerPage = 10;
+  const [clickedHistShipment, setClickedHistShipment] = useState();
   const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
+
+  // Edit Shipment Dialog
+  const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
+  const [isEditShipmentViewOnly, setIsEditShipmentViewOnly] = useState(false);
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [confirmShippingDeleteDialogOpen, setConfirmShippingDeleteDialogOpen] =
+    useState(false);
+  const [packingSlipToDelete, setPackingSlipToDelete] = useState();
+  const [canErrorCheck, setCanErrorCheck] = useState(false);
 
   function getFormattedDate(dateString) {
     const dt = new Date(dateString);
@@ -60,16 +73,14 @@ const ShippingQueue = () => {
   }
 
   const extractHistoryDetails = useCallback((history) => {
-    let historyTableData = [];
-    history.forEach((e) => {
-      historyTableData.push({
+    return history.map((e) => {
+      return {
         id: e._id,
         shipmentId: e.shipmentId,
         trackingNumber: e.trackingNumber,
         dateCreated: getFormattedDate(e.dateCreated),
-      });
+      };
     });
-    return historyTableData;
   }, []);
 
   const reloadData = useCallback(() => {
@@ -99,6 +110,10 @@ const ShippingQueue = () => {
         });
       });
 
+      // The set state order is important
+      setSelectedCustomerId(null);
+      setFilteredSelectedIds([]);
+      setSelectedOrderIds([]);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
 
@@ -110,13 +125,13 @@ const ShippingQueue = () => {
       setShippingHistory(historyTableData);
       setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
-  }, [extractHistoryDetails]);
+  }, [extractHistoryDetails, orderNumber, partNumber]);
 
   useEffect(() => {
     reloadData();
   }, [reloadData]);
 
-  function onQueueRowClick(selectionModel, tableData) {
+  const onQueueRowClick = useCallback((selectionModel, tableData) => {
     setSelectedOrderIds(selectionModel);
     setFilteredSelectedIds(selectionModel);
     const customerId =
@@ -136,7 +151,7 @@ const ShippingQueue = () => {
         setSelectedCustomerId(null);
       }
     }
-  }
+  }, []);
 
   function onCreateShipmentClick() {
     setCreateShipmentOpen(true);
@@ -148,6 +163,15 @@ const ShippingQueue = () => {
     reloadData();
   }
 
+  function onEditShipmentClose() {
+    // close context menu
+    setHistoryMenuPosition(null);
+    // close edit dialog
+    setIsEditShipmentOpen(false);
+    // reset whether to check form for errors
+    setCanErrorCheck(false);
+  }
+
   function onQueueSearch(value) {
     const filtered = shippingQueue.filter(
       (order) =>
@@ -157,21 +181,12 @@ const ShippingQueue = () => {
         ).length > 0 ||
         selectedOrderIds.includes(order.id) // Ensure selected rows are included
     );
-
     setFilteredShippingQueue(filtered);
   }
 
   function onTabChange(event, newValue) {
     setCurrentTab(Object.keys(TabNames)[newValue]);
     setFilteredShippingHist(shippingHistory);
-  }
-
-  function onOrderInputChange(value) {
-    setOrderNumber(value);
-  }
-
-  function onPartInputChange(value) {
-    setPartNumber(value);
   }
 
   function fetchSearch(pageNumber) {
@@ -204,15 +219,175 @@ const ShippingQueue = () => {
     fetchSearch(pageNumber + 1);
   }
 
-  function onHistoryRowClick(_, event, __) {
+  function onHistoryRowClick(params, event, __) {
+    API.getShipment(params.id).then((data) => {
+      if (data) {
+        setClickedHistShipment(data.shipment);
+      }
+    });
+
     setHistoryMenuPosition({ left: event.pageX, top: event.pageY });
   }
 
+  function onNewRowChange(oldVal, newVal) {
+    const manifestIndex = clickedHistShipment?.manifest?.findIndex(
+      (e) => e._id === oldVal._id
+    );
+    let updatedShipment = {
+      ...clickedHistShipment,
+    };
+    updatedShipment.manifest[manifestIndex] = { ...oldVal, ...newVal };
+    API.searchPackingSlips(updatedShipment?.customer?._id, null).then(
+      (data) => {
+        updatedShipment.manifest = updatedShipment.manifest.map((e) => {
+          if (e.isNew) {
+            const possibleChoices = data?.packingSlips.filter(
+              (t) =>
+                !updatedShipment.manifest.some(
+                  (m) => m._id === t._id && t._id !== e._id
+                )
+            );
+            return {
+              ...e,
+              possibleSlips: possibleChoices,
+            };
+          }
+          return e;
+        });
+        setClickedHistShipment(updatedShipment);
+      }
+    );
+  }
+
+  function onHistoryPackingSlipDelete() {
+    if (packingSlipToDelete) {
+      API.patchShipment(clickedHistShipment?._id, {
+        deletedPackingSlips: [packingSlipToDelete.id],
+      }).then((_) => {
+        // remove packing slip id from shipment
+        const newShipmentManifest = clickedHistShipment?.manifest?.filter(
+          (e) => e._id !== packingSlipToDelete.id
+        );
+
+        setClickedHistShipment({
+          ...clickedHistShipment,
+          manifest: newShipmentManifest,
+        });
+      });
+
+      //TODO patch packing slip id so that shipment is unset
+      // updates the shipping Queue table so that this packing slip is shown
+    }
+  }
+
+  function onEditShipmentSubmit() {
+    setCanErrorCheck(true);
+
+    if (isShippingInfoValid(clickedHistShipment)) {
+      let sentData = { ...clickedHistShipment };
+
+      sentData.newPackingSlips = clickedHistShipment.manifest
+        .filter((e) => e?.isNew === true)
+        .map((e) => e._id);
+
+      API.patchShipment(sentData?._id, sentData)
+        .then(() => {
+          setIsEditShipmentOpen(false);
+
+          // Update the shippingHistory tracking # for main table as well
+          setFilteredShippingHist(
+            filteredShippingHist.map((obj) => {
+              if (obj.id === clickedHistShipment?._id) {
+                return {
+                  ...obj,
+                  trackingNumber: clickedHistShipment?.trackingNumber,
+                };
+              } else {
+                return obj;
+              }
+            })
+          );
+          //close context menu
+          setHistoryMenuPosition(null);
+
+          setCanErrorCheck(false);
+        })
+        .catch(() => {
+          alert("Something went wrong submitting edits");
+        });
+    }
+  }
+
+  const onHistoryPackingSlipAdd = useCallback(
+    (pageNum) => {
+      API.searchPackingSlips(clickedHistShipment?.customer?._id, null).then(
+        (data) => {
+          let updatedShipment = { ...clickedHistShipment };
+          const possibleChoices = data?.packingSlips.filter(
+            (e) => !clickedHistShipment.manifest.some((m) => m._id === e._id)
+          );
+          if (data?.packingSlips.length > 0 && possibleChoices.length > 0) {
+            updatedShipment.manifest = updatedShipment.manifest.map((e) => {
+              if (e.isNew) {
+                const newPossibleChoices = e.possibleSlips.filter(
+                  (t) => t._id !== possibleChoices[0]._id
+                );
+                return {
+                  ...e,
+                  possibleSlips: newPossibleChoices,
+                };
+              }
+              return e;
+            });
+
+            updatedShipment.manifest.push({
+              _id: "",
+              pageNum: pageNum,
+              isNew: true,
+              customer: clickedHistShipment.customer._id,
+              possibleSlips: possibleChoices,
+              ...possibleChoices[0],
+            });
+
+            setClickedHistShipment(updatedShipment);
+          } else {
+            alert("There are no additions that can be made.");
+          }
+        }
+      );
+    },
+    [clickedHistShipment]
+  );
+
   const historyRowMenuOptions = [
-    <MenuItem>View</MenuItem>,
-    <MenuItem>Download</MenuItem>,
-    <MenuItem>Edit</MenuItem>,
-    <MenuItem>Delete</MenuItem>,
+    <MenuItem
+      key="view-menu-item"
+      onClick={() => {
+        setIsEditShipmentOpen(true);
+        setIsEditShipmentViewOnly(true);
+      }}
+    >
+      View
+    </MenuItem>,
+    <MenuItem key="download-menu-item">Download</MenuItem>,
+    <MenuItem
+      key="edit-menu-item"
+      onClick={() => {
+        setIsEditShipmentOpen(true);
+        setIsEditShipmentViewOnly(false);
+      }}
+    >
+      Edit
+    </MenuItem>,
+    <MenuItem
+      key="delete-menu-item"
+      onClick={() => {
+        setHistoryMenuPosition(null);
+        setConfirmShippingDeleteDialogOpen(true);
+      }}
+    >
+      Delete
+    </MenuItem>,
   ];
 
   return (
@@ -244,14 +419,14 @@ const ShippingQueue = () => {
         >
           <Grid container item xs={"auto"}>
             <TextInput
-              onChange={onOrderInputChange}
+              onChange={setOrderNumber}
               placeholder="Order"
               value={orderNumber}
             />
           </Grid>
           <Grid container item xs={2}>
             <TextInput
-              onChange={onPartInputChange}
+              onChange={setPartNumber}
               placeholder="Part"
               value={partNumber}
             />
@@ -321,12 +496,84 @@ const ShippingQueue = () => {
           )}
       />
 
+      <EditShipmentTableDialog
+        canErrorCheck={canErrorCheck}
+        shipment={clickedHistShipment}
+        isOpen={isEditShipmentOpen}
+        onClose={onEditShipmentClose}
+        onSubmit={onEditShipmentSubmit}
+        viewOnly={isEditShipmentViewOnly}
+        onDelete={(params) => {
+          setConfirmDeleteDialogOpen(true);
+          setPackingSlipToDelete(params.row);
+        }}
+        onAdd={onHistoryPackingSlipAdd}
+        onCostChange={(value) => {
+          setClickedHistShipment({ ...clickedHistShipment, cost: value });
+        }}
+        onCarrierInputChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            carrier: value,
+          });
+        }}
+        onDeliverySpeedChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            deliverySpeed: value,
+          });
+        }}
+        onCustomerAccountChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            customerAccount: value,
+          });
+        }}
+        onCustomerNameChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            customerHandoffName: value,
+          });
+        }}
+        onTrackingChange={(value) => {
+          setClickedHistShipment({
+            ...clickedHistShipment,
+            trackingNumber: value,
+          });
+        }}
+        onNewRowChange={onNewRowChange}
+      />
+
+      <ConfirmDialog
+        title="Are You Sure You Want To Delete This?"
+        open={confirmDeleteDialogOpen}
+        setOpen={setConfirmDeleteDialogOpen}
+        onConfirm={onHistoryPackingSlipDelete}
+      />
+
+      <ConfirmDialog
+        title={`Are You Sure You Want To Delete`}
+        open={confirmShippingDeleteDialogOpen}
+        setOpen={setConfirmShippingDeleteDialogOpen}
+        onConfirm={() => {
+          API.deleteShipment(clickedHistShipment._id);
+          setFilteredShippingHist(
+            filteredShippingHist.filter((e) => e.id !== clickedHistShipment._id)
+          );
+        }}
+      >
+        <Typography sx={{ fontWeight: 900 }}>
+          {clickedHistShipment?.shipmentId}
+        </Typography>
+      </ConfirmDialog>
+
       <ContextMenu
         menuPosition={historyMenuPosition}
         setMenuPosition={setHistoryMenuPosition}
       >
         {historyRowMenuOptions}
       </ContextMenu>
+
       <Grid
         className={classes.navButton}
         container

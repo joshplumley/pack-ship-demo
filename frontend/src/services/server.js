@@ -33,12 +33,70 @@ export const API = {
     return response.data;
   },
 
+  async searchPackingSlips(customerId, shipmentId) {
+    try {
+      const response = await axios.get(
+        `${REACT_APP_API_URL}/packingSlips/search`,
+        {
+          params: {
+            customer: customerId,
+            shipment: shipmentId,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("searchPackingSlips", error);
+    }
+  },
+
   async getShippingQueue() {
     try {
       const response = await axios.get(`${REACT_APP_API_URL}/shipments/queue`);
       return response.data;
     } catch (error) {
       console.error("getShippingQueue", error);
+    }
+  },
+
+  async getShippingHistory() {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/shipments`);
+      return response.data;
+    } catch (error) {
+      console.error("getShippingHistory", error);
+    }
+  },
+
+  async deleteShipment(id) {
+    try {
+      const response = await axios.delete(
+        `${REACT_APP_API_URL}/shipments/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("deleteShipment", error);
+    }
+  },
+
+  async getShipment(id) {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/shipments/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("getShipment", error);
+    }
+  },
+
+  async patchShipment(id, updatedShipment) {
+    try {
+      const response = await axios.patch(
+        `${REACT_APP_API_URL}/shipments/${id}`,
+        updatedShipment
+      );
+      return response.data;
+    } catch (error) {
+      console.error("patchShipment", error);
     }
   },
 
