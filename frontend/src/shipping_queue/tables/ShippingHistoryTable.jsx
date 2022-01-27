@@ -63,7 +63,7 @@ const ShippingHistoryTable = ({
       field: "shipmentId",
       flex: 1,
       renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Shipping ID</Typography>;
+        return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
       },
     },
     {
