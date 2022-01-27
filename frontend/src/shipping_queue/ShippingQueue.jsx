@@ -16,6 +16,7 @@ import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
 import ConfirmDialog from "../components/ConfrimDialog";
 import { isShippingInfoValid } from "../utils/Validators";
+import { MAX_PAGE_SIZE } from "@mui/x-data-grid";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -230,14 +231,33 @@ const ShippingQueue = () => {
   }
 
   function onNewRowChange(oldVal, newVal) {
+    const manifestIndex = clickedHistShipment?.manifest?.findIndex(
+      (e) => e._id === oldVal._id
+    );
     let updatedShipment = {
       ...clickedHistShipment,
-      manifest: clickedHistShipment?.manifest?.filter(
-        (e) => e._id !== oldVal._id
-      ),
     };
-    updatedShipment.manifest.push({ ...oldVal, ...newVal });
-    setClickedHistShipment(updatedShipment);
+    updatedShipment.manifest[manifestIndex] = { ...oldVal, ...newVal };
+    API.searchPackingSlips(updatedShipment?.customer?._id, null).then(
+      (data) => {
+        updatedShipment.manifest = updatedShipment.manifest.map((e) => {
+          if (e.isNew) {
+            const possibleChoices = data?.packingSlips.filter(
+              (t) =>
+                !updatedShipment.manifest.some(
+                  (m) => m._id === t._id && t._id !== e._id
+                )
+            );
+            return {
+              ...e,
+              possibleSlips: possibleChoices,
+            };
+          }
+          return e;
+        });
+        setClickedHistShipment(updatedShipment);
+      }
+    );
   }
 
   function onHistoryPackingSlipDelete() {
@@ -308,6 +328,19 @@ const ShippingQueue = () => {
             (e) => !clickedHistShipment.manifest.some((m) => m._id === e._id)
           );
           if (data?.packingSlips.length > 0 && possibleChoices.length > 0) {
+            updatedShipment.manifest = updatedShipment.manifest.map((e) => {
+              if (e.isNew) {
+                const newPossibleChoices = e.possibleSlips.filter(
+                  (t) => t._id !== possibleChoices[0]._id
+                );
+                return {
+                  ...e,
+                  possibleSlips: newPossibleChoices,
+                };
+              }
+              return e;
+            });
+
             updatedShipment.manifest.push({
               _id: "",
               pageNum: pageNum,

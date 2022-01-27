@@ -23,9 +23,6 @@ const TextInput = ({
       helperText={
         canErrorCheck && error ? "Value must not be blank" : undefined
       }
-      InputProps={{
-        disableUnderline: readOnly,
-      }}
     />
   );
 };

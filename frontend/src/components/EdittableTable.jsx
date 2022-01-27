@@ -80,6 +80,7 @@ const PackShipEditableTable = ({
         renderHeader: (params) => {
           return <Typography sx={{ fontWeight: 900 }}>Actions</Typography>;
         },
+        sortable: false,
       },
     ];
     newColumns = deleteCol.concat(columns);
@@ -106,6 +107,10 @@ const PackShipEditableTable = ({
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"
+        sort={{
+          field: "actions",
+          sort: "asc",
+        }}
       />
     </div>
   );
