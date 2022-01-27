@@ -5,24 +5,55 @@ import MenuItem from '@mui/material/MenuItem';
 import DeleteModal from "./DeleteModal"
 import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
 import { API } from "../../services/server";
+import makeStyles from "@mui/styles/makeStyles";
+import { Typography } from "@mui/material";
+
+const useStyle = makeStyles((theme) => ({
+  root: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex",
+  },
+  table: {
+    backgroundColor: "white",
+    "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer":
+      {
+        display: "none",
+      },
+  },
+}));
 
 const columns = [
-  { field: "orderId", headerName: "Order", width: 200 },
+  {
+    field: "orderId",
+    renderHeader: () => {
+      return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+    },
+    flex: 1
+  },
   {
     field: "packingSlipN",
-    headerName: "Packing Slip #",
-    type: "number",
-    width: 350,
+    renderHeader: () => {
+      return <Typography sx={{ fontWeight: 900 }}>Packing Slip #</Typography>;
+    },
+    flex: 2,
   },
-  { field: "dateCreated", headerName: "Date Created", width: 150 },
+  {
+    field: "dateCreated", 
+    renderHeader: () => {
+      return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
+    },    flex: 1 },
 ];
 
 const HistoryTable = () => {
-  const [menuPosition, setMenuPosition] = useState(null);
+  const classes = useStyle();
+
+  const [menuPosition, setMenuPosition] = useState();
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [viewPackingSlip, setViewPackingSlip] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
-  const [rows, setRows] = useState(null)
+  const [rows, setRows] = useState([])
 
   const reloadData = useCallback(() => {
     async function fetchData() {
@@ -62,16 +93,17 @@ const HistoryTable = () => {
   }
 
   const historyRowMenuOptions = [
-    <MenuItem onClick={openViewPackingSlip}>View</MenuItem>,
-    <MenuItem>Download</MenuItem>,
-    <MenuItem>Edit</MenuItem>,
-    <MenuItem onClick={openDeleteDialog}>Delete</MenuItem>
+    <MenuItem key={"View"} onClick={openViewPackingSlip}>View</MenuItem>,
+    <MenuItem key={"Download"}>Download</MenuItem>,
+    <MenuItem key={"Edit"}>Edit</MenuItem>,
+    <MenuItem key={"Delete"} onClick={openDeleteDialog}>Delete</MenuItem>
   ];
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className={classes.root}>
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
+        className={classes.table}
         rows={rows}
         columns={columns}
         pageSize={5}

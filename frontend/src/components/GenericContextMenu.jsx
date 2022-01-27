@@ -21,7 +21,6 @@ export default function ContextMenu({children, menuPosition, setMenuPosition}) {
           onClose={handleClose}
           role={undefined}
           placement="bottom-start"
-          transition
           disablePortal
         >
           {children}
