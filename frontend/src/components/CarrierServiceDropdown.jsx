@@ -26,7 +26,6 @@ const CarrierServiceDropdown = ({
       >
         <Select
           variant={disabled ? "standard" : "outlined"}
-          disableUnderline={disabled}
           disabled={disabled}
           required
           error={canErrorCheck && hasSelectError}
