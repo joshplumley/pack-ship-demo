@@ -175,11 +175,11 @@ const ShippingQueue = () => {
   function onQueueSearch(value) {
     const filtered = shippingQueue.filter(
       (order) =>
-        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
-        order.items.filter((e) =>
-          e.item.partNumber.toLowerCase().includes(value.toLowerCase())
+        order?.orderNumber?.toLowerCase().includes(value?.toLowerCase()) ||
+        order?.items?.filter((e) =>
+          e.item?.partNumber?.toLowerCase().includes(value?.toLowerCase())
         ).length > 0 ||
-        selectedOrderIds.includes(order.id) // Ensure selected rows are included
+        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
     );
     setFilteredShippingQueue(filtered);
   }
