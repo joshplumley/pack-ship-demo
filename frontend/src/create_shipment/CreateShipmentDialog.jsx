@@ -18,7 +18,7 @@ const CreateShipmentDialog = ({
   setCurrentState,
   parts,
 }) => {
-  const [customerName, setCustomerName] = useState(undefined);
+  const [customerName, setCustomerName] = useState("");
   const [shippingInfo, setShippingInfo] = useState({
     manifest: [],
     customer: "",
@@ -40,7 +40,7 @@ const CreateShipmentDialog = ({
   }, [customer, packingSlipIds, shippingInfo]);
 
   useEffect(() => {
-    setCustomerName(undefined);
+    setCustomerName("");
     setShippingInfo({
       manifest: packingSlipIds,
       customer: customer?._id,
