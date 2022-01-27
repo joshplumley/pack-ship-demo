@@ -1,9 +1,8 @@
 import React from "react";
-import { Typography, Grid, Box } from "@mui/material";
+import { Typography, Grid } from "@mui/material";
 import TitleTextInput from "../components/TitleTextInput";
 import CarrierServiceDropdown from "../components/CarrierServiceDropdown";
 import { isDeliverySpeedValid } from "../utils/Validators";
-import TextInput from "../components/TextInput";
 
 const ShipmentDetails = ({
   canErrorCheck,

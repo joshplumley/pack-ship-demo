@@ -16,7 +16,6 @@ import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
 import ConfirmDialog from "../components/ConfrimDialog";
 import { isShippingInfoValid } from "../utils/Validators";
-import { MAX_PAGE_SIZE } from "@mui/x-data-grid";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -126,7 +125,7 @@ const ShippingQueue = () => {
       setShippingHistory(historyTableData);
       setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
-  }, [extractHistoryDetails]);
+  }, [extractHistoryDetails, orderNumber, partNumber]);
 
   useEffect(() => {
     reloadData();
@@ -357,7 +356,7 @@ const ShippingQueue = () => {
         }
       );
     },
-    [clickedHistShipment, API]
+    [clickedHistShipment]
   );
 
   const historyRowMenuOptions = [

@@ -28,12 +28,16 @@ const CreateShipmentDialog = ({
   const [reset, setReset] = useState(false);
 
   useEffect(() => {
-    setShippingInfo({
-      ...shippingInfo,
-      customer: customer?._id,
-      manifest: packingSlipIds,
-    });
-  }, [customer, packingSlipIds]);
+    if (
+      shippingInfo.customer !== customer?._id ||
+      shippingInfo.manifest !== packingSlipIds
+    )
+      setShippingInfo({
+        ...shippingInfo,
+        customer: customer?._id,
+        manifest: packingSlipIds,
+      });
+  }, [customer, packingSlipIds, shippingInfo]);
 
   useEffect(() => {
     setCustomerName(undefined);
@@ -43,7 +47,7 @@ const CreateShipmentDialog = ({
       deliveryMethod: "",
     });
     setCanErrorCheck(false);
-  }, [open]);
+  }, [open, customer?._id, packingSlipIds]);
 
   const onPickupClick = () => {
     setCurrentState(ShippingDialogStates.PickupDropOffPage);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   TextField,
   Grid,
@@ -20,23 +20,27 @@ const CreateCarrierShipmentInfoForm = ({
     ...shippingInfo,
     carrier: CARRIERS[0],
   });
-  const [hasSelectError, setHasSelectError] = useState(true);
 
-  const defaultInfo = {
-    manifest: shippingInfo.manifest,
-    customer: shippingInfo.customer,
-    deliveryMethod: shippingInfo.deliveryMethod,
-    carrier: CARRIERS[0],
-  };
+  const defaultInfo = useMemo(() => {
+    return {
+      manifest: shippingInfo.manifest,
+      customer: shippingInfo.customer,
+      deliveryMethod: shippingInfo.deliveryMethod,
+      carrier: CARRIERS[0],
+    };
+  }, [
+    shippingInfo.manifest,
+    shippingInfo.customer,
+    shippingInfo.deliveryMethod,
+  ]);
 
   useEffect(() => {
     if (reset) {
       setShippingInfo(defaultInfo);
       setLocalShippingInfo(defaultInfo);
       setReset(false);
-      setHasSelectError(true);
     }
-  }, [reset, setReset, defaultInfo]);
+  }, [reset, setReset, defaultInfo, setShippingInfo]);
 
   return (
     <Box component="form">
