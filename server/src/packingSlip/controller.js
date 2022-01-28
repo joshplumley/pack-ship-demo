@@ -1,18 +1,46 @@
 const { Router } = require("express");
 const router = Router();
-const PackingSlip = require('./model.js');
-const handler = require('../handler');
+const PackingSlip = require("./model.js");
+const handler = require("../handler");
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports = router;
 
-router.get('/', getAllPackingSlips);
-router.put('/', createPackingSlip);
+router.get("/", getAllPackingSlips);
+router.put("/", createPackingSlip);
 
-router.post('/merge', mergePackingSlips);
+router.get("/search", searchPackingSlips);
 
-router.get('/:pid', getPackingSlip);
-router.patch('/:pid', editPackingSlip);
-router.delete('/:pid', deletePackingSlip);
+router.post("/merge", mergePackingSlips);
+
+router.get("/:pid", getPackingSlip);
+router.patch("/:pid", editPackingSlip);
+router.delete("/:pid", deletePackingSlip);
+
+/**
+ * search packing slips
+ */
+async function searchPackingSlips(req, res) {
+  handler(
+    async () => {
+      let { customer, shipment } = req.query;
+
+      let query = {};
+      if ("customer" in req.query) {
+        query = { ...query, customer: customer ? ObjectId(customer) : null };
+      }
+      if ("shipment" in req.query) {
+        query = { ...query, shipment: shipment ? ObjectId(shipment) : null };
+      }
+
+      const packingSlips = await PackingSlip.find(query).lean().exec();
+
+      return [null, { packingSlips }];
+    },
+    "fetching packing slips",
+    res
+  );
+}
 
 /**
  * Get a list of all packing slips
@@ -20,19 +48,17 @@ router.delete('/:pid', deletePackingSlip);
 async function getAllPackingSlips(_req, res) {
   handler(
     async () => {
-      const packingSlips = await PackingSlip.find()
-        .lean()
-        .exec();
+      const packingSlips = await PackingSlip.find().lean().exec();
 
       return [null, { packingSlips }];
     },
-    'fetching packing slips',
+    "fetching packing slips",
     res
   );
 }
 
 /**
- * Create a new packing slip given an orderNumber & 
+ * Create a new packing slip given an orderNumber &
  */
 async function createPackingSlip(req, res) {
   handler(
@@ -40,19 +66,19 @@ async function createPackingSlip(req, res) {
       const { items, orderNumber, customer } = req.body;
       const numPackingSlips = await PackingSlip.countDocuments({ orderNumber });
 
-      const packingSlipId = `${orderNumber}-PS${numPackingSlips+1}`;
+      const packingSlipId = `${orderNumber}-PS${numPackingSlips + 1}`;
 
       const packingSlip = new PackingSlip({
         customer,
         orderNumber,
         packingSlipId,
-        items
+        items,
       });
 
       await packingSlip.save();
       return [null, { packingSlip }];
     },
-    'creating packing slip',
+    "creating packing slip",
     res
   );
 }
@@ -65,13 +91,11 @@ async function getPackingSlip(req, res) {
     async () => {
       const { pid } = req.params;
 
-      const packingSlip = await PackingSlip.findById(pid)
-        .lean()
-        .exec();
+      const packingSlip = await PackingSlip.findById(pid).lean().exec();
 
       return [null, { packingSlip }];
     },
-    'fetching packing slip',
+    "fetching packing slip",
     res
   );
 }
@@ -87,14 +111,16 @@ async function editPackingSlip(req, res) {
 
       await PackingSlip.updateOne(
         { _id: pid },
-        { $set: {
-          items
-        } }
+        {
+          $set: {
+            items,
+          },
+        }
       );
 
-      return [null, ];
+      return [null];
     },
-    'editing packing slip',
+    "editing packing slip",
     res
   );
 }
@@ -108,9 +134,9 @@ async function deletePackingSlip(req, res) {
       const { pid } = req.params;
 
       await PackingSlip.deleteOne({ _id: pid });
-      return [null, ];
+      return [null];
     },
-    'deleting packing slip',
+    "deleting packing slip",
     res
   );
 }
@@ -128,15 +154,18 @@ async function mergePackingSlips(req, res) {
         .lean()
         .exec();
 
-      if ( !packingSlips?.length ) return [{ status: 400, message: 'Packing slips not found.' }];
+      if (!packingSlips?.length)
+        return [{ status: 400, message: "Packing slips not found." }];
 
-      const packingSlipId = `${orderNumber}-PS${ numPackingSlips - pids.length + 1 }`;
-      const itemsFlat = [].concat( ...packingSlips.map(x => x.items) );
+      const packingSlipId = `${orderNumber}-PS${
+        numPackingSlips - pids.length + 1
+      }`;
+      const itemsFlat = [].concat(...packingSlips.map((x) => x.items));
 
       // fix qties to not have a bunch of packing slips with repeat item(Ids) & qties all over the place
       const items = [];
-      itemsFlat.forEach( ({ item, qty }) => {
-        const i = items.findIndex(x => String(x.item) === String(item));
+      itemsFlat.forEach(({ item, qty }) => {
+        const i = items.findIndex((x) => String(x.item) === String(item));
         if (i >= 0) items[i].qty += qty;
         else items.push({ item, qty });
       });
@@ -144,7 +173,7 @@ async function mergePackingSlips(req, res) {
       const packingSlip = new PackingSlip({
         orderNumber,
         packingSlipId,
-        items
+        items,
       });
 
       await PackingSlip.deleteMany({ _id: { $in: pids } });
@@ -152,7 +181,7 @@ async function mergePackingSlips(req, res) {
 
       return [null, { packingSlip }];
     },
-    'merging packing slips',
+    "merging packing slips",
     res
   );
 }

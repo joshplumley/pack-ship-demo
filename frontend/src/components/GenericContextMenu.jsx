@@ -1,8 +1,12 @@
 import React from "react";
-import Menu from '@mui/material/Menu';
+import Menu from "@mui/material/Menu";
 
-export default function ContextMenu({children, menuPosition, setMenuPosition}) {
-  const open = Boolean(menuPosition)
+export default function ContextMenu({
+  children,
+  menuPosition,
+  setMenuPosition,
+}) {
+  const open = Boolean(menuPosition);
 
   const handleClose = (event) => {
     setMenuPosition(null);

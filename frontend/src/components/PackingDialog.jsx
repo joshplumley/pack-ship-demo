@@ -18,6 +18,7 @@ const PackingDialog = ({
   fullWidth = true,
   actions,
   children,
+  submitDisabled = false,
 }) => {
   return (
     <Dialog
@@ -28,7 +29,9 @@ const PackingDialog = ({
       onBackdropClick={onClose}
     >
       <DialogTitle sx={{ m: 0, p: 2 }}>
-        <Typography align="center">{titleText}</Typography>
+        <Typography align="center" fontWeight="bold" fontSize={20}>
+          {titleText}
+        </Typography>
         <IconButton
           sx={{
             position: "absolute",
@@ -46,7 +49,12 @@ const PackingDialog = ({
       ) : (
         <DialogActions>
           <CommonButton onClick={onClose} label="Cancel" />
-          <CommonButton autoFocus onClick={onSubmit} label={progressText} />
+          <CommonButton
+            disabled={submitDisabled}
+            autoFocus
+            onClick={onSubmit}
+            label={progressText}
+          />
         </DialogActions>
       )}
     </Dialog>

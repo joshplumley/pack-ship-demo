@@ -8,6 +8,7 @@ import CommonButton from "../common/Button";
 import { DialogActions, Grid } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
+import { isShippingInfoValid } from "../utils/Validators";
 const CreateShipmentDialog = ({
   customer,
   packingSlipIds,
@@ -17,7 +18,7 @@ const CreateShipmentDialog = ({
   setCurrentState,
   parts,
 }) => {
-  const [customerName, setCustomerName] = useState(undefined);
+  const [customerName, setCustomerName] = useState("");
   const [shippingInfo, setShippingInfo] = useState({
     manifest: [],
     customer: "",
@@ -27,22 +28,26 @@ const CreateShipmentDialog = ({
   const [reset, setReset] = useState(false);
 
   useEffect(() => {
-    setShippingInfo({
-      ...shippingInfo,
-      customer: customer?._id,
-      manifest: packingSlipIds,
-    });
-  }, [customer, packingSlipIds]);
+    if (
+      shippingInfo.customer !== customer?._id ||
+      shippingInfo.manifest !== packingSlipIds
+    )
+      setShippingInfo({
+        ...shippingInfo,
+        customer: customer?._id,
+        manifest: packingSlipIds,
+      });
+  }, [customer, packingSlipIds, shippingInfo]);
 
   useEffect(() => {
-    setCustomerName(undefined);
+    setCustomerName("");
     setShippingInfo({
       manifest: packingSlipIds,
       customer: customer?._id,
       deliveryMethod: "",
     });
     setCanErrorCheck(false);
-  }, [open]);
+  }, [open, customer?._id, packingSlipIds]);
 
   const onPickupClick = () => {
     setCurrentState(ShippingDialogStates.PickupDropOffPage);
@@ -73,22 +78,9 @@ const CreateShipmentDialog = ({
     onResetClick();
   };
 
-  const isValidShippingInfo = () => {
-    return (
-      shippingInfo.carrier &&
-      shippingInfo.carrier !== "-----" &&
-      shippingInfo.deliverySpeed &&
-      shippingInfo.deliverySpeed !== ""
-    );
-  };
-
   const onSubmit = async () => {
     setCanErrorCheck(true);
-    if (
-      isValidShippingInfo() ||
-      shippingInfo.deliveryMethod === "PICKUP" ||
-      shippingInfo.deliveryMethod === "DROPOFF"
-    ) {
+    if (isShippingInfoValid(shippingInfo)) {
       API.createShipment(
         shippingInfo.manifest,
         shippingInfo.customer,
