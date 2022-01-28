@@ -122,6 +122,8 @@ const HistoryTable = () => {
         onClose={onPackingSlipClose}
         orderNum={selectedRow?.orderId}
         parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
+        title={`Packing Slip for ${selectedRow?.orderId}`}
+        actions={null}
         viewOnly={true}
       />
       <DeleteModal deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} selectedId={selectedRow?.id}/>

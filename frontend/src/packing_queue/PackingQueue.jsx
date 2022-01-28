@@ -172,6 +172,7 @@ const PackingQueue = () => {
         open={packingSlipOpen}
         onClose={onPackingSlipClose}
         orderNum={selectedOrderNumber}
+        title={`Create Packing Slip for ${selectedOrderNumber}`}
         parts={filteredPackingQueue.filter((e) =>
           selectedOrderIds.includes(e.id)
         )}
