@@ -124,6 +124,24 @@ export const API = {
     }
   },
 
+  async getPackingSlipHistory() {
+    try {
+      const response = await axios.get(`${REACT_APP_API_URL}/packingSlips`);
+      return response.data;
+    } catch (error) {
+      console.error("getPackingSlipHistory", error);
+    }
+  },
+
+  async deletePackingSlip(id) {
+    try {
+      const response = await axios.delete(`${REACT_APP_API_URL}/packingSlips/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("getPackingSlipHistory", error);
+    }
+  },
+
   async createShipment(
     manifest,
     customer,

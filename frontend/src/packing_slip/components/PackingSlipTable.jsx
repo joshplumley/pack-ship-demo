@@ -11,7 +11,7 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
+const PackingSlipTable = ({ rowData, filledForm, setFilledForm, viewOnly=false }) => {
   const classes = useStyle();
 
   function hasValueError(value) {
@@ -59,7 +59,7 @@ const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
       },
       flex: 1,
       default: 0,
-      editable: true,
+      editable: !viewOnly,
       preProcessEditCellProps: (params) => {
         const hasError = !hasValueError(params.props.value);
         return { ...params.props, error: hasError };

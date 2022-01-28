@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PackingSlipTable from "./components/PackingSlipTable";
 import PackingDialog from "../components/PackingDialog";
 
-const PackingSlipDialog = ({ onSubmit, open, onClose, orderNum, parts }) => {
+const PackingSlipDialog = ({ onSubmit, open, onClose, orderNum, parts, title, actions=undefined, viewOnly=false }) => {
   const [filledForm, setFilledForm] = useState([]);
 
   useEffect(() => {
@@ -16,16 +16,18 @@ const PackingSlipDialog = ({ onSubmit, open, onClose, orderNum, parts }) => {
   return (
     <PackingDialog
       open={open}
-      titleText={`Create Packing Slip for ${orderNum}`}
+      titleText={title}
       onClose={onClose}
       onBackdropClick={onClose}
       onSubmit={() => onSubmit(filledForm, orderNum)}
       submitDisabled={!isSubmittable()}
+      actions={actions}
     >
       <PackingSlipTable
         rowData={parts}
         filledForm={filledForm}
         setFilledForm={setFilledForm}
+        viewOnly={viewOnly}
       />
     </PackingDialog>
   );

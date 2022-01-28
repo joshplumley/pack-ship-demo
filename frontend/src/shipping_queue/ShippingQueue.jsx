@@ -14,7 +14,7 @@ import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
 import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
-import ConfirmDialog from "../components/ConfrimDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { isShippingInfoValid } from "../utils/Validators";
 
 const useStyle = makeStyles((theme) => ({

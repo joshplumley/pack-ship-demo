@@ -13,23 +13,22 @@ export default function ContextMenu({
   };
 
   return (
-    <div>
-      <Menu
-        open={open}
-        anchorReference="anchorPosition"
-        anchorPosition={menuPosition}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-        onClose={handleClose}
-        role={undefined}
-        placement="bottom-start"
-        transition
-        disablePortal
-      >
-        {children}
-      </Menu>
-    </div>
+      <div>
+        <Menu
+          open={open}
+          anchorReference="anchorPosition"
+          anchorPosition={menuPosition}
+          anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+          }}
+          onClose={handleClose}
+          role={undefined}
+          placement="bottom-start"
+          disablePortal
+        >
+          {children}
+        </Menu>
+      </div>
   );
 }
