@@ -2,11 +2,11 @@ import { DataGrid } from "@mui/x-data-grid";
 import React, { useCallback, useEffect, useState } from "react";
 import ContextMenu from "../../components/GenericContextMenu"
 import MenuItem from '@mui/material/MenuItem';
-import DeleteModal from "./DeleteModal"
 import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
 import { API } from "../../services/server";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -92,6 +92,18 @@ const HistoryTable = () => {
     setViewPackingSlip(false)
   }
 
+  const handleDeleteConfirm = () => {
+    setDeleteDialog(false);
+  };
+
+  async function deletePackingSlip() {
+    API.deletePackingSlip(selectedRow?.id)
+      .then(handleDeleteConfirm())
+      .catch(() => {
+        alert("An error occurred deleting packing slip");
+      });
+  }
+
   const historyRowMenuOptions = [
     <MenuItem key={"View"} onClick={openViewPackingSlip}>View</MenuItem>,
     <MenuItem key={"Download"}>Download</MenuItem>,
@@ -126,7 +138,12 @@ const HistoryTable = () => {
         actions={null}
         viewOnly={true}
       />
-      <DeleteModal deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} selectedId={selectedRow?.id}/>
+      <ConfirmDialog
+        title="Do You Want To Delete This?"
+        open={deleteDialog}
+        setOpen={setDeleteDialog}
+        onConfirm={deletePackingSlip}
+      />
     </div>
   );
 };
