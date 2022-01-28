@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
-import MakePackingSlipButton from "./buttons/MakePackingSlip";
-import Search from "./Search";
-import PackingQueueTabs from "./Tabs";
-import UnfinishedBatchesCheckbox from "./UnFinishedBatchesCheckbox";
+import Search from "../components/Search";
+import PackShipTabs from "../components/Tabs";
+import UnfinishedBatchesCheckbox from "../components/UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
-import { Box, Grid } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
+import { Link } from "react-router-dom";
+import { ROUTE_SHIPMENTS } from "../router/router";
+import CommonButton from "../common/Button";
 import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
+import PackingQueueTable from "./tables/PackingQueueTable";
+import HistoryTable from "./tables/HistoryTable";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
     paddingBottom: "20px",
+  },
+  navButton: {
+    paddingTop: "20px",
   },
 }));
 
@@ -22,7 +29,6 @@ const PackingQueue = () => {
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
-  const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
 
   useEffect(() => {
@@ -44,6 +50,7 @@ const PackingQueue = () => {
           partDescription: e.partDescription,
           batchQty: e.batchQty,
           fulfilledQty: e.packedQty,
+          customer: e.customer,
         });
       });
       setPackingQueue(tableData);
@@ -59,9 +66,39 @@ const PackingQueue = () => {
     setPackingSlipOpen(false);
   }
 
+  function onPackingSlipSubmit(filledForm, orderNum) {
+    const items = filledForm.map((e) => {
+      return { item: e.id, qty: e.packQty };
+    });
+    API.createPackingSlip(items, filledForm[0].customer, orderNum)
+      .then(() => {
+        // update the fullfilled Qty
+        const updatedFulfilled = filledForm.map((e) => {
+          let tmp = {
+            ...e,
+            fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
+          };
+          delete tmp.packQty;
+          return tmp;
+        });
+
+        // remove the old one
+        const updatedPackingQueue = filteredPackingQueue.filter(
+          (e) => !updatedFulfilled.map((f) => f.id).includes(e.id)
+        );
+
+        // add the new ones and set
+        setFilteredPackingQueue(updatedPackingQueue.concat(updatedFulfilled));
+
+        onPackingSlipClose();
+      })
+      .catch(() => {
+        alert("An error occurred submitting packing slip");
+      });
+  }
+
   function onQueueRowClick(selectionModel, tableData) {
     setSelectedOrderIds(selectionModel);
-    setFilteredSelectedIds(selectionModel);
     for (const item of tableData) {
       // All selected items will have the same order number
       // so we just take the first one
@@ -84,16 +121,10 @@ const PackingQueue = () => {
     const filtered = packingQueue.filter(
       (order) =>
         order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
-        order.part.toLowerCase().includes(value.toLowerCase())
+        order.part.toLowerCase().includes(value.toLowerCase()) ||
+        selectedOrderIds.includes(order.id) // Ensure selected rows are included
     );
 
-    let filteredSelectedIds = [];
-    filtered.forEach((e) => {
-      if (selectedOrderIds.includes(e.id)) {
-        filteredSelectedIds.push(e.id);
-      }
-    });
-    setFilteredSelectedIds(filteredSelectedIds);
     setFilteredPackingQueue(filtered);
   }
 
@@ -106,7 +137,8 @@ const PackingQueue = () => {
         spacing={2}
       >
         <Grid container item xs={"auto"}>
-          <MakePackingSlipButton
+          <CommonButton
+            label="Make Packing Slip"
             disabled={selectedOrderIds.length === 0}
             onClick={onPackingSlipClick}
           />
@@ -122,18 +154,41 @@ const PackingQueue = () => {
         </Grid>
       </Grid>
 
-      <PackingQueueTabs
+      <PackShipTabs
         queueData={filteredPackingQueue}
-        onQueueRowClick={onQueueRowClick}
-        selectedOrderNumber={selectedOrderNumber}
-        selectionOrderIds={filteredSelectedIds}
+        queueTab={
+          <PackingQueueTable
+            onRowClick={onQueueRowClick}
+            tableData={filteredPackingQueue}
+            selectedOrderNumber={selectedOrderNumber}
+            selectionOrderIds={selectedOrderIds}
+          />
+        }
+        historyTab={<HistoryTable />}
       />
+
       <PackingSlipDialog
+        onSubmit={onPackingSlipSubmit}
         open={packingSlipOpen}
         onClose={onPackingSlipClose}
         orderNum={selectedOrderNumber}
-        parts={packingQueue.filter((e) => selectedOrderIds.includes(e.id))}
+        title={`Create Packing Slip for ${selectedOrderNumber}`}
+        parts={filteredPackingQueue.filter((e) =>
+          selectedOrderIds.includes(e.id)
+        )}
       />
+
+      <Grid
+        className={classes.navButton}
+        container
+        item
+        xs
+        justifyContent="flex-end"
+      >
+        <Button component={Link} to={ROUTE_SHIPMENTS} variant="contained">
+          Shipments
+        </Button>
+      </Grid>
     </Box>
   );
 };

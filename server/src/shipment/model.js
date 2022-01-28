@@ -11,32 +11,39 @@ const { ObjectId } = Schema.Types;
 const schema = new Schema({
   customer: {
     type: ObjectId,
-    ref: 'customer'
+    ref: "customer",
   },
 
   shipmentId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
 
-  manifest: [{
-    type: ObjectId,
-    ref: 'packingSlip'
-  }],
+  manifest: [
+    {
+      type: ObjectId,
+      ref: "packingSlip",
+    },
+  ],
 
   deliveryMethod: String, // PICKUP, DROPOFF, CARRIER
 
-  customerHandoffName: String,   // For PICKUP or DROPOFF
+  customerHandoffName: String, // For PICKUP or DROPOFF
 
   // For CARRIER
-  carrier: String,        // UPS, FEDEX, FREIGHT, OTHER
+  carrier: String, // UPS, FEDEX, FREIGHT, OTHER
   deliverySpeed: String,
   customerAccount: String,
   trackingNumber: String,
   cost: Number,
+
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const Model = model('shipment', schema, 'shipments');
+const Model = model("shipment", schema, "shipments");
 
 module.exports = Model;

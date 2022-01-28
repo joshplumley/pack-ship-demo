@@ -1,4 +1,5 @@
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
@@ -11,7 +12,12 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
+const PackingSlipTable = ({
+  rowData,
+  filledForm,
+  setFilledForm,
+  viewOnly = false,
+}) => {
   const classes = useStyle();
 
   const columns = [
@@ -55,7 +61,7 @@ const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
       },
       flex: 1,
       default: 0,
-      editable: true,
+      editable: !viewOnly,
       preProcessEditCellProps: (params) => {
         const hasError = !hasValueError(params.props.value);
         return { ...params.props, error: hasError };
@@ -64,20 +70,39 @@ const PackingSlipTable = ({ rowData, filledForm, setFilledForm }) => {
   ];
 
   return (
-    <PackShipDataGrid
-      rowData={rowData}
-      columns={columns}
-      validateError={(params) => {
-        setFilledForm(
-          filledForm.map((e) => {
-            if (e.id === params.id && params.field === "packQty") {
-              return { ...e, packQty: params.value };
-            }
-            return e;
-          })
-        );
+    <Box
+      sx={{
+        height: 400,
+        width: 1,
+        "& .MuiDataGrid-cell--editing": {
+          bgcolor: "rgb(255,215,115, 0.19)",
+          color: "#1a3e72",
+        },
+        "& .Mui-error": {
+          bgcolor: (theme) =>
+            `rgb(126,10,15, ${theme.palette.mode === "dark" ? 0 : 0.1})`,
+          color: (theme) =>
+            theme.palette.mode === "dark" ? "#ff4343" : "#750f0f",
+        },
       }}
-    />
+    >
+      <DataGrid
+        autoHeight
+        rows={rowData}
+        columns={columns}
+        disableSelectionOnClick
+        onCellEditCommit={(params) => {
+          setFilledForm(
+            filledForm.map((e) => {
+              if (e.id === params.id && params.field === "packQty") {
+                return { ...e, packQty: params.value };
+              }
+              return e;
+            })
+          );
+        }}
+      />
+    </Box>
   );
 };
 

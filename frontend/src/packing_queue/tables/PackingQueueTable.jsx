@@ -1,8 +1,8 @@
 import React from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import { Tooltip, Typography } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { Typography } from "@mui/material";
+import HelpTooltip from "../../components/HelpTooltip";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -24,12 +24,11 @@ const useStyle = makeStyles((theme) => ({
     "& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer":
       {
         display: "none",
-        // "&:after": { content: "Select" },
       },
   },
 }));
 
-const QueueTable = ({
+const PackingQueueTable = ({
   tableData,
   onRowClick,
   selectedOrderNumber,
@@ -75,9 +74,7 @@ const QueueTable = ({
         return (
           <div className={classes.fulfilledQtyHeader}>
             <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
-            <Tooltip title="This includes number of items that have been packed as well as number of items that have shipped.">
-              <HelpOutlineIcon className={classes.help} />
-            </Tooltip>
+            <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
           </div>
         );
       },
@@ -88,9 +85,8 @@ const QueueTable = ({
   return (
     <div className={classes.root}>
       <DataGrid
-        sx={{ border: "none" }}
+        sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        autoHeight
         disableSelectionOnClick={false}
         isRowSelectable={(params) => {
           // If orders are selected, disable selecting of
@@ -118,4 +114,4 @@ const QueueTable = ({
   );
 };
 
-export default QueueTable;
+export default PackingQueueTable;

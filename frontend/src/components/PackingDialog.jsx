@@ -1,20 +1,37 @@
-const PopupDialog = ({
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  IconButton,
+} from "@mui/material";
+import CommonButton from "../common/Button";
+import CloseIcon from "@mui/icons-material/Close";
+
+const PackingDialog = ({
   titleText,
   onClose,
-  submitPackingSlip,
+  onSubmit,
   open,
+  progressText = "Ok",
+  fullWidth = true,
+  actions,
   children,
+  submitDisabled = false,
 }) => {
   return (
     <Dialog
-      fullWidth
+      fullWidth={fullWidth}
       maxWidth="xl"
       open={open}
       onClose={onClose}
       onBackdropClick={onClose}
     >
       <DialogTitle sx={{ m: 0, p: 2 }}>
-        <Typography align="center">{titleText}</Typography>
+        <Typography align="center" fontWeight="bold" fontSize={20}>
+          {titleText}
+        </Typography>
         <IconButton
           sx={{
             position: "absolute",
@@ -27,16 +44,21 @@ const PopupDialog = ({
         </IconButton>
       </DialogTitle>
       <DialogContent>{children}</DialogContent>
-      <DialogActions>
-        <Button variant="contained" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" autoFocus onClick={submitPackingSlip}>
-          Ok
-        </Button>
-      </DialogActions>
+      {actions !== undefined ? (
+        actions
+      ) : (
+        <DialogActions>
+          <CommonButton onClick={onClose} label="Cancel" />
+          <CommonButton
+            disabled={submitDisabled}
+            autoFocus
+            onClick={onSubmit}
+            label={progressText}
+          />
+        </DialogActions>
+      )}
     </Dialog>
   );
 };
 
-export default PopupDialog;
+export default PackingDialog;
