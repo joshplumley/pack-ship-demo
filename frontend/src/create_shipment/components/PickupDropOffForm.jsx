@@ -11,7 +11,7 @@ const PickupDropOffForm = ({ customerName, setCustomerName }) => {
               sx={{ fontWeight: 900, paddingRight: "5px", paddingLeft: "10px" }}
               noWrap
             >
-              Customer Name
+              Received By
             </Typography>
             <HelpTooltip tooltipText="Enter the name of the person you are handing off this delivery to." />
           </div>
@@ -23,7 +23,6 @@ const PickupDropOffForm = ({ customerName, setCustomerName }) => {
             onChange={(event) => {
               setCustomerName(event.target.value);
             }}
-            placeholder="Enter your name"
           />
         </Grid>
       </Grid>
