@@ -6,13 +6,6 @@ import TabPanelUnstyled from "@mui/base/TabPanelUnstyled";
 import { buttonUnstyledClasses } from "@mui/base/ButtonUnstyled";
 import TabUnstyled, { tabUnstyledClasses } from "@mui/base/TabUnstyled";
 import { Box } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-
-const useStyle = makeStyles((theme) => ({
-  tab: {
-    backgroundColor: theme.palette.secondary.light,
-  },
-}));
 
 const Tab = styled(TabUnstyled, {
   shouldForwardProp: (props) =>
@@ -24,6 +17,7 @@ const Tab = styled(TabUnstyled, {
   return `
   font-family: IBM Plex Sans, sans-serif;
   color: grey;
+  background-color: ${theme.palette.secondary.light};
   cursor: pointer;
   font-size: 1.2rem;
   font-weight: bold;
@@ -32,18 +26,13 @@ const Tab = styled(TabUnstyled, {
   border: none;
   display: flex;
   justify-content: center;
-  // background-color: ${theme.palette.primary.light}};
 
   &:hover {
     background-color: ${theme.palette.primary.light}};
   }
 
-  // &:focus{
-  //   background-color: ${theme.palette.primary.light}};
-  // }
 
   &.${buttonUnstyledClasses.focusVisible} {
-    // color: #fff;
     outline: none;
   }
 
@@ -72,9 +61,13 @@ export default function PackShipTabs({
   queueTab,
   historyTab,
 }) {
-  const classes = useStyle();
   return (
-    <Box className={classes.tab} borderRadius="16px" p={2} height="fit-content">
+    <Box
+      bgcolor="secondary.light"
+      borderRadius="16px"
+      p={2}
+      height="fit-content"
+    >
       <TabsUnstyled defaultValue={0}>
         <Tabs value={false} onChange={onTabChange}>
           <Tab value={0}>Queue ({queueData.length})</Tab>
