@@ -45,7 +45,7 @@ const CreateCarrierShipmentInfoForm = ({
     <Box component="form">
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography sx={{ fontWeight: 700 }}>Carrier Service*:</Typography>
+          <Typography align="right" sx={{ fontWeight: 700 }}>Carrier Service*:</Typography>
         </Grid>
         <Grid item xs>
           <FormControl
@@ -89,7 +89,7 @@ const CreateCarrierShipmentInfoForm = ({
       </Grid>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography sx={{ fontWeight: 700 }}>Delivery Speed*:</Typography>
+          <Typography align="right" sx={{ fontWeight: 700 }}>Delivery Speed*:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
@@ -128,7 +128,7 @@ const CreateCarrierShipmentInfoForm = ({
         sx={{ paddingBottom: "20px" }}
       >
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography sx={{ fontWeight: 700 }}>Customer Account:</Typography>
+          <Typography align="right" sx={{ fontWeight: 700 }}>Customer Account:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
@@ -148,7 +148,7 @@ const CreateCarrierShipmentInfoForm = ({
       </Grid>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography sx={{ fontWeight: 700 }}>Tracking:</Typography>
+          <Typography align="right" sx={{ fontWeight: 700 }}>Tracking:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
@@ -168,7 +168,7 @@ const CreateCarrierShipmentInfoForm = ({
       </Grid>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
-          <Typography sx={{ fontWeight: 700 }}>Cost:</Typography>
+          <Typography align="right" sx={{ fontWeight: 700 }}>Cost:</Typography>
         </Grid>
         <Grid item xs>
           <TextField
