@@ -236,7 +236,11 @@ const ShippingQueue = () => {
     let updatedShipment = {
       ...clickedHistShipment,
     };
-    updatedShipment.manifest[manifestIndex] = { ...oldVal, ...newVal };
+
+    updatedShipment.manifest[manifestIndex] = {
+      ...oldVal,
+      ...newVal,
+    };
     API.searchPackingSlips(updatedShipment?.customer?._id, null).then(
       (data) => {
         updatedShipment.manifest = updatedShipment.manifest.map((e) => {

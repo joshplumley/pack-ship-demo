@@ -1,24 +1,35 @@
 import PackingDialog from "../components/PackingDialog";
 import EditPackingSlipTable from "./components/EditPackingSlipTable";
 
-const EditPackingSlipDialog = ({ open, onClose, orderNum, parts }) => {
-  const [filledForm, setFilledForm] = useState([]);
-
-  useEffect(() => {
-    setFilledForm(parts);
-  }, [parts]);
-
+const EditPackingSlipDialog = ({
+  packingSlipData,
+  isOpen,
+  onClose,
+  onSubmit,
+  onAdd,
+  onDelete,
+  onNewOrderNumRowChange,
+  onNewPartRowChange,
+  onPackQtyChange,
+  viewOnly = true,
+}) => {
   return (
     <PackingDialog
-      titleText={`Create Packing Slip for Order #${orderNum}`}
+      open={isOpen}
+      titleText={`${viewOnly ? "" : "Edit Packing Slip / "}${
+        packingSlipData?.packingSlipId
+      }`}
       onClose={onClose}
-      submitPackingSlip={submitPackingSlip}
-      open={open}
+      onSubmit={onSubmit}
     >
       <EditPackingSlipTable
-        rowData={parts}
-        filledForm={filledForm}
-        setFilledForm={setFilledForm}
+        rowData={packingSlipData}
+        onAdd={onAdd}
+        onDelete={onDelete}
+        onNewOrderNumRowChange={onNewOrderNumRowChange}
+        onNewPartRowChange={onNewPartRowChange}
+        onPackQtyChange={onPackQtyChange}
+        viewOnly={viewOnly}
       />
     </PackingDialog>
   );

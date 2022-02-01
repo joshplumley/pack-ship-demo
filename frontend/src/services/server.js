@@ -135,7 +135,9 @@ export const API = {
 
   async deletePackingSlip(id) {
     try {
-      const response = await axios.delete(`${REACT_APP_API_URL}/packingSlips/${id}`);
+      const response = await axios.delete(
+        `${REACT_APP_API_URL}/packingSlips/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error("getPackingSlipHistory", error);
@@ -164,6 +166,15 @@ export const API = {
       customerAccount,
       customerHandoffName,
     });
+
+    return response.data;
+  },
+
+  async patchPackingSlip(id, updatedItems) {
+    const response = await axios.patch(
+      `${REACT_APP_API_URL}/shipments/${id}`,
+      updatedItems
+    );
 
     return response.data;
   },

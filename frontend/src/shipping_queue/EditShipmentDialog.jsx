@@ -33,10 +33,9 @@ const EditShipmentTableDialog = ({
       return (
         <EditTableDropdown
           choices={params.row.possibleSlips}
-          onChange={(newVal) => {
-            onNewRowChange(params.row, newVal);
-          }}
+          onChange={onNewRowChange}
           value={params.row}
+          valueKey="packingSlipId"
         />
       );
     } else if (!params.id.includes("add-row-id")) {

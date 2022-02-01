@@ -1,12 +1,13 @@
 import { DataGrid } from "@mui/x-data-grid";
 import React, { useCallback, useEffect, useState } from "react";
-import ContextMenu from "../../components/GenericContextMenu"
-import MenuItem from '@mui/material/MenuItem';
-import DeleteModal from "./DeleteModal"
+import ContextMenu from "../../components/GenericContextMenu";
+import MenuItem from "@mui/material/MenuItem";
+import DeleteModal from "./DeleteModal";
 import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
 import { API } from "../../services/server";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
+import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -30,7 +31,7 @@ const columns = [
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
     },
-    flex: 1
+    flex: 1,
   },
   {
     field: "packingSlipN",
@@ -40,10 +41,12 @@ const columns = [
     flex: 2,
   },
   {
-    field: "dateCreated", 
+    field: "dateCreated",
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
-    },    flex: 1 },
+    },
+    flex: 1,
+  },
 ];
 
 const HistoryTable = () => {
@@ -51,9 +54,12 @@ const HistoryTable = () => {
 
   const [menuPosition, setMenuPosition] = useState();
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [viewPackingSlip, setViewPackingSlip] = useState(false)
-  const [selectedRow, setSelectedRow] = useState(null)
-  const [rows, setRows] = useState([])
+  const [isEditPackingSlipOpen, setIsEditPackingSlipOpen] = useState({
+    open: false,
+    viewOnly: false,
+  });
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [rows, setRows] = useState([]);
 
   const reloadData = useCallback(() => {
     async function fetchData() {
@@ -64,39 +70,210 @@ const HistoryTable = () => {
       let packingSlips = [];
       data?.packingSlips?.forEach((e) => {
         packingSlips.push({
+          ...e,
           id: e._id,
           orderId: e.orderNumber,
           packingSlipN: e.packingSlipId,
-        })
+        });
       });
-      setRows(packingSlips)
+      setRows(packingSlips);
     });
   }, [deleteDialog]);
-  
+
   useEffect(() => {
     reloadData();
   }, [reloadData]);
 
-  const openDeleteDialog = (event) => {
-      setDeleteDialog(true)
-      setMenuPosition(null)
-      setViewPackingSlip(false)
+  const onHistoryPackingSlipAdd = useCallback(
+    (pageNum) => {
+      API.getPackingQueue().then((data) => {
+        let newSelectedRow = { ...selectedRow };
+
+        const possibleChoices = data.filter(
+          (e) =>
+            e.customer === selectedRow.customer._id &&
+            !selectedRow.items.some((t) => t.item._id === e._id)
+        );
+
+        if (data?.length > 0 && possibleChoices.length > 0) {
+          newSelectedRow.items = newSelectedRow.items.map((e) => {
+            if (e.item.isNew) {
+              const newPossibleChoices = e.item.possibleItems.filter((t) => {
+                return t._id !== possibleChoices[0]._id || t._id === e.item._id;
+              });
+
+              return {
+                ...e,
+                item: {
+                  ...e.item,
+                  possibleItems: newPossibleChoices,
+                },
+              };
+            }
+            return e;
+          });
+          newSelectedRow.items.push({
+            _id: "",
+            pageNum: pageNum,
+            item: {
+              isNew: true,
+              possibleItems: possibleChoices,
+              ...possibleChoices[0],
+            },
+            qty: undefined,
+          });
+          setSelectedRow(newSelectedRow);
+        } else {
+          alert("There are no additions that can be made.");
+        }
+      });
+    },
+    [selectedRow]
+  );
+
+  function onNewOrderNumRowChange(oldVal, newVal) {
+    const itemIndex = selectedRow?.items?.findIndex(
+      (e) =>
+        e.item.orderNumber === oldVal.orderNumber &&
+        e.item.partNumber === oldVal.partNumber
+    );
+    let updatedPackingSlip = {
+      ...selectedRow,
+    };
+
+    updatedPackingSlip.items[itemIndex] = {
+      item: {
+        ...oldVal,
+        ...newVal,
+      },
+    };
+
+    API.getPackingQueue().then((data) => {
+      updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
+        if (e.item.isNew) {
+          const newPossibleChoices = data.filter(
+            (m) =>
+              m.customer === selectedRow.customer._id &&
+              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                m._id === e.item._id)
+          );
+          return {
+            ...e,
+            item: {
+              ...e.item,
+              possibleItems: newPossibleChoices,
+            },
+          };
+        }
+        return e;
+      });
+      setSelectedRow(updatedPackingSlip);
+    });
   }
+
+  function onNewPartRowChange(oldVal, newVal) {
+    const itemIndex = selectedRow?.items?.findIndex(
+      (e) =>
+        e.item.orderNumber === oldVal.orderNumber &&
+        e.item.partNumber === oldVal.partNumber
+    );
+    let updatedPackingSlip = {
+      ...selectedRow,
+    };
+
+    updatedPackingSlip.items[itemIndex] = {
+      item: { ...oldVal, ...newVal },
+    };
+
+    API.getPackingQueue().then((data) => {
+      updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
+        if (e.item.isNew) {
+          const newPossibleChoices = data.filter(
+            (m) =>
+              m.customer === selectedRow.customer._id &&
+              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                m._id === e.item._id)
+          );
+          return {
+            ...e,
+            item: {
+              ...e.item,
+              possibleItems: newPossibleChoices,
+            },
+          };
+        }
+        return e;
+      });
+      setSelectedRow(updatedPackingSlip);
+    });
+  }
+
+  function onPackQtyChange(row, value) {
+    const itemIndex = selectedRow?.items?.findIndex(
+      (e) => e.item._id === row._id
+    );
+    let updatedPackingSlip = {
+      ...selectedRow,
+    };
+
+    updatedPackingSlip.items[itemIndex] = {
+      item: { ...updatedPackingSlip.items[itemIndex], packQty: value },
+      qty: value,
+    };
+
+    console.log(updatedPackingSlip.items[itemIndex]);
+    setSelectedRow(updatedPackingSlip);
+  }
+
+  const openDeleteDialog = (event) => {
+    setDeleteDialog(true);
+    setMenuPosition(null);
+    setIsEditPackingSlipOpen({ open: true, viewOnly: true });
+  };
 
   const openViewPackingSlip = () => {
-    setViewPackingSlip(true)
-    setMenuPosition(null)
-  }
+    setIsEditPackingSlipOpen({ open: true, viewOnly: true });
+    setMenuPosition(null);
+  };
 
   const onPackingSlipClose = () => {
-    setViewPackingSlip(false)
-  }
+    setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+  };
+
+  const onPackingSlipSubmit = () => {
+    console.log(selectedRow);
+    API.patchPackingSlip(selectedRow.id, {
+      items: selectedRow.items.map((e) => {
+        return {
+          item: { ...e.item },
+          qty: e.qty || e.item.packQty,
+        };
+      }),
+    })
+      .then(() => {
+        setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+      })
+      .catch(() => {
+        alert("Failed to submit edits.");
+      });
+  };
+
+  const openEditPackingSlip = () => {
+    setIsEditPackingSlipOpen({ open: true, viewOnly: false });
+    setMenuPosition(null);
+  };
 
   const historyRowMenuOptions = [
-    <MenuItem key={"View"} onClick={openViewPackingSlip}>View</MenuItem>,
+    <MenuItem key={"View"} onClick={openViewPackingSlip}>
+      View
+    </MenuItem>,
     <MenuItem key={"Download"}>Download</MenuItem>,
-    <MenuItem key={"Edit"}>Edit</MenuItem>,
-    <MenuItem key={"Delete"} onClick={openDeleteDialog}>Delete</MenuItem>
+    <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
+      Edit
+    </MenuItem>,
+    <MenuItem key={"Delete"} onClick={openDeleteDialog}>
+      Delete
+    </MenuItem>,
   ];
 
   return (
@@ -106,27 +283,41 @@ const HistoryTable = () => {
         className={classes.table}
         rows={rows}
         columns={columns}
-        pageSize={5}
-        rowsPerPageOptions={[5]}
+        pageSize={10}
+        rowsPerPageOptions={[10]}
         checkboxSelection={false}
         onRowClick={(params, event, details) => {
-          setSelectedRow(params.row)
-          setMenuPosition({left: event.pageX, top: event.pageY});
+          setSelectedRow(params.row);
+          setMenuPosition({ left: event.pageX, top: event.pageY });
         }}
       />
-      <ContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}>
+      <ContextMenu
+        menuPosition={menuPosition}
+        setMenuPosition={setMenuPosition}
+      >
         {historyRowMenuOptions}
       </ContextMenu>
-      <PackingSlipDialog
-        open={viewPackingSlip}
+      <EditPackingSlipDialog
+        isOpen={isEditPackingSlipOpen.open}
+        viewOnly={isEditPackingSlipOpen.viewOnly}
         onClose={onPackingSlipClose}
-        orderNum={selectedRow?.orderId}
-        parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
-        title={`Packing Slip for ${selectedRow?.orderId}`}
-        actions={null}
-        viewOnly={true}
+        onSubmit={onPackingSlipSubmit}
+        packingSlipData={selectedRow}
+        onAdd={onHistoryPackingSlipAdd}
+        onNewOrderNumRowChange={onNewOrderNumRowChange}
+        onNewPartRowChange={onNewPartRowChange}
+        onPackQtyChange={onPackQtyChange}
+        // onDelete={(params) => {
+        //   setConfirmDeleteDialogOpen(true);
+        //   setPackingSlipToDelete(params.row);
+        // }}
       />
-      <DeleteModal deleteDialog={deleteDialog} setDeleteDialog={setDeleteDialog} selectedId={selectedRow?.id}/>
+
+      <DeleteModal
+        deleteDialog={deleteDialog}
+        setDeleteDialog={setDeleteDialog}
+        selectedId={selectedRow?.id}
+      />
     </div>
   );
 };
