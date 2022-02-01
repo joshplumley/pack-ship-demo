@@ -275,10 +275,11 @@ async function editOne(req, res) {
           },
         }
       );
+        
+      const promises = p_deleted.contact(p_added);
+      await Promise.all( promises );
 
-      await Promise.all(p_deleted, p_added);
-
-      return [null];
+      return [null, ];
     },
     "editing shipment",
     res
@@ -293,8 +294,20 @@ async function deleteOne(req, res) {
     async () => {
       const { sid } = req.params;
 
-      await Shipment.deleteOne({ _id: sid });
-      return [null];
+      // delete shipment
+      const p_delete = Shipment.deleteOne({ _id: sid });
+
+      // update packing slips to unassign them from shipments
+      const p_updatePackingSlips = PackingSlip.updateMany(
+        { shipment: sid },
+        { $unset: {'shipment': 1} }
+      );
+
+      await Promise.all([
+        p_delete,
+        p_updatePackingSlips
+      ]);
+      return [null, ];
     },
     "deleting shipment",
     res
