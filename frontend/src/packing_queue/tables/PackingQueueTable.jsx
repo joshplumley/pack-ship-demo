@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
+import { createColumnFilters } from "../../utils/TableFilters";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -35,6 +36,14 @@ const PackingQueueTable = ({
   selectionOrderIds,
 }) => {
   const classes = useStyle();
+
+  const [queueData, setQueueData] = useState(tableData);
+  const [sortModel, setSortModel] = useState([
+    { field: "orderNumber", sort: "asc" },
+    { field: "part", sort: "asc" },
+    { field: "batchQty", sort: "asc" },
+    { field: "fulfilledQty", sort: "asc" },
+  ]);
 
   const columns = [
     {
@@ -82,6 +91,24 @@ const PackingQueueTable = ({
     },
   ];
 
+  const filters = createColumnFilters(columns, tableData);
+
+  useEffect(() => {
+    if (sortModel.length !== 0) {
+      // find the filter handler based on the column clicked
+      const clickedColumnField = filters.find(
+        (e) => e.field === sortModel[0]?.field
+      );
+      // execute the handler
+      const newRows = clickedColumnField?.handler(
+        sortModel[0]?.sort,
+        selectionOrderIds,
+        tableData
+      );
+      setQueueData(newRows);
+    }
+  }, [sortModel, tableData]);
+
   return (
     <div className={classes.root}>
       <DataGrid
@@ -104,11 +131,14 @@ const PackingQueueTable = ({
           onRowClick(selectionModel, tableData);
         }}
         selectionModel={selectionOrderIds}
-        rows={tableData}
+        rows={queueData}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
         checkboxSelection
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={(model) => setSortModel(model)}
       />
     </div>
   );

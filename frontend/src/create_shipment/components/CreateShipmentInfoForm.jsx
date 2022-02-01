@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   TextField,
   Grid,
   Typography,
   Box,
-  Select,
-  MenuItem,
-  FormControl,
-  FormHelperText,
   InputAdornment,
 } from "@mui/material";
+import CarrierServiceDropdown from "../../components/CarrierServiceDropdown";
+import { CARRIERS } from "../../utils/Constants";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
@@ -18,28 +16,31 @@ const CreateCarrierShipmentInfoForm = ({
   reset,
   setReset,
 }) => {
-  const carriers = ["-----", "UPS", "FedEx", "Freight", "Other"];
   const [localShippingInfo, setLocalShippingInfo] = useState({
     ...shippingInfo,
-    carrier: carriers[0],
+    carrier: CARRIERS[0],
   });
-  const [hasSelectError, setHasSelectError] = useState(true);
 
-  const defaultInfo = {
-    manifest: shippingInfo.manifest,
-    customer: shippingInfo.customer,
-    deliveryMethod: shippingInfo.deliveryMethod,
-    carrier: carriers[0],
-  };
+  const defaultInfo = useMemo(() => {
+    return {
+      manifest: shippingInfo.manifest,
+      customer: shippingInfo.customer,
+      deliveryMethod: shippingInfo.deliveryMethod,
+      carrier: CARRIERS[0],
+    };
+  }, [
+    shippingInfo.manifest,
+    shippingInfo.customer,
+    shippingInfo.deliveryMethod,
+  ]);
 
   useEffect(() => {
     if (reset) {
       setShippingInfo(defaultInfo);
       setLocalShippingInfo(defaultInfo);
       setReset(false);
-      setHasSelectError(true);
     }
-  }, [reset, setReset, defaultInfo]);
+  }, [reset, setReset, defaultInfo, setShippingInfo]);
 
   return (
     <Box component="form">
@@ -47,45 +48,20 @@ const CreateCarrierShipmentInfoForm = ({
         <Grid container item xs={5} justifyContent="flex-end">
           <Typography align="right" sx={{ fontWeight: 700 }}>Carrier Service*:</Typography>
         </Grid>
-        <Grid item xs>
-          <FormControl
-            sx={{ width: "100%" }}
-            error={canErrorCheck && hasSelectError}
-          >
-            <Select
-              required
-              error={canErrorCheck && hasSelectError}
-              sx={{ width: "100%" }}
-              value={localShippingInfo.carrier}
-              onChange={(event) => {
-                setHasSelectError(event.target.value === carriers[0]);
-                setLocalShippingInfo({
-                  ...localShippingInfo,
-                  carrier: event.target.value,
-                });
-              }}
-              onBlur={() => {
-                setShippingInfo(localShippingInfo);
-              }}
-            >
-              {carriers.map((carrier) => (
-                <MenuItem key={carrier} value={carrier}>
-                  {carrier}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText
-              error={canErrorCheck && hasSelectError}
-              sx={{
-                display: canErrorCheck && hasSelectError ? "block" : "none",
-              }}
-            >
-              {canErrorCheck && hasSelectError
-                ? "Must select non-default carrier"
-                : undefined}
-            </FormHelperText>
-          </FormControl>
-        </Grid>
+        <CarrierServiceDropdown
+          carrier={localShippingInfo?.carrier}
+          setCarrier={(value) => {
+            setShippingInfo({
+              ...localShippingInfo,
+              carrier: value,
+            });
+            setLocalShippingInfo({
+              ...localShippingInfo,
+              carrier: value,
+            });
+          }}
+          canErrorCheck={canErrorCheck}
+        />
       </Grid>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
@@ -153,11 +129,11 @@ const CreateCarrierShipmentInfoForm = ({
         <Grid item xs>
           <TextField
             required
-            value={localShippingInfo.tracking ?? ""}
+            value={localShippingInfo.trackingNumber ?? ""}
             onChange={(event) => {
               setLocalShippingInfo({
                 ...localShippingInfo,
-                tracking: event.target.value,
+                trackingNumber: event.target.value,
               });
             }}
             onBlur={() => {

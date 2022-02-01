@@ -4,6 +4,7 @@ const Shipment = require("./model");
 const PackingSlip = require("../packingSlip/model");
 const Customer = require("../customer/model");
 const handler = require("../handler");
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports = router;
 
@@ -60,8 +61,7 @@ async function searchShipments(req, res) {
       let matchShipments;
       if (!matchOrder && !matchPart) {
         matchShipments = allShipments;
-      }
-      else {
+      } else {
         matchShipments = allShipments.filter((x) =>
           x.manifest.some(
             (y) =>
@@ -153,9 +153,8 @@ async function createOne(req, res) {
         carrier,
         deliverySpeed,
         customerAccount,
-        customerHandoffName
+        customerHandoffName,
       } = req.body;
-
 
       const p_numShipments = Shipment.countDocuments({ customer });
       const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
@@ -227,21 +226,57 @@ async function editOne(req, res) {
   handler(
     async () => {
       const { sid } = req.params;
-      const { manifest, deletedPackingSlips, newPackingSlips } = req.body;
+      let {
+        deliveryMethod,
+        cost,
+        carrier,
+        deliverySpeed,
+        customerAccount,
+        trackingNumber,
+        customerHandoffName,
+        deletedPackingSlips,
+        newPackingSlips,
+      } = req.body;
 
-      const p_deleted = deletedPackingSlips.map(x => unassignPackingSlipFromShipment(x));
-      const p_added = newPackingSlips.map(x => assignPackingSlipToShipment(x, sid));
+      const p_deleted =
+        deletedPackingSlips?.map((x) => unassignPackingSlipFromShipment(x)) ??
+        [];
 
-      const p_update = Shipment.updateOne(
+      const p_added =
+        newPackingSlips?.map((x) => assignPackingSlipToShipment(x, sid)) ?? [];
+
+      // Update
+      await Shipment.updateOne(
         { _id: sid },
         {
           $set: {
-            manifest,
+            deliveryMethod,
+            cost: cost,
+            carrier,
+            deliverySpeed,
+            customerAccount,
+            trackingNumber,
+            customerHandoffName,
+          },
+          $pull: {
+            manifest: {
+              $in: deletedPackingSlips?.map((e) => ObjectId(e)) ?? [],
+            },
           },
         }
       );
 
-      await Promise.all(p_deleted, p_added, p_update);
+      // then update newPackingSlips otherwise a conflict will occur
+      await Shipment.updateOne(
+        { _id: sid },
+        {
+          $push: {
+            manifest: { $each: newPackingSlips?.map((e) => ObjectId(e)) ?? [] },
+          },
+        }
+      );
+
+      await Promise.all(p_deleted, p_added);
 
       return [null];
     },
@@ -267,14 +302,20 @@ async function deleteOne(req, res) {
 }
 
 /**
- * 
+ *
  * @param {any[]} packingSlipId Id of packing slip to assign
  * @param {string} shipmentId _id of Shipment to assign to packing slip
  */
 async function assignPackingSlipToShipment(packingSlipId, shipmentId) {
-  await PackingSlip.updateOne({ _id: packingSlipId }, { $set: { shipment: shipmentId } });
+  await PackingSlip.updateOne(
+    { _id: packingSlipId },
+    { $set: { shipment: shipmentId } }
+  );
 }
 
 async function unassignPackingSlipFromShipment(packingSlipId) {
-  await PackingSlip.updateOne({ _id: packingSlipId }, { $unset: { shipment: 1 } });
+  await PackingSlip.updateOne(
+    { _id: packingSlipId },
+    { $unset: { shipment: 1 } }
+  );
 }
