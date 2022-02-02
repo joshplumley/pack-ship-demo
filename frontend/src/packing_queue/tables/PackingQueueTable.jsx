@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
-import { DataGrid, GridFooter } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";

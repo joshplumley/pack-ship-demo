@@ -137,7 +137,7 @@ const PackingQueue = () => {
         )?.orderNumber ?? null
       );
     },
-    [selectedOrderIds]
+    [selectedOrderIds, handleSelection]
   );
 
   const onSelectAllClick = useCallback(

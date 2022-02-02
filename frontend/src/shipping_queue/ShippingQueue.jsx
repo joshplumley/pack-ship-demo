@@ -169,7 +169,7 @@ const ShippingQueue = () => {
         )?.customer?._id ?? null
       );
     },
-    [selectedOrderIds]
+    [handleSelection]
   );
 
   const onSelectAllClick = useCallback(
