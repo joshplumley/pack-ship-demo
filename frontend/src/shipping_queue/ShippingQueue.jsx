@@ -42,11 +42,11 @@ const ShippingQueue = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [shippingQueue, setShippingQueue] = useState([]);
   const [filteredShippingQueue, setFilteredShippingQueue] = useState([]);
-  const [filteredSelectedIds, setFilteredSelectedIds] = useState([]);
   const [createShipmentOpen, setCreateShipmentOpen] = useState(false);
   const [currentDialogState, setCurrentDialogState] = useState(
     ShippingDialogStates.CreateShipmentTable
   );
+  const [isSelectAllOn, setIsSelectAll] = useState(false);
 
   // Shipping History States
   const [shippingHistory, setShippingHistory] = useState([]);
@@ -112,7 +112,6 @@ const ShippingQueue = () => {
 
       // The set state order is important
       setSelectedCustomerId(null);
-      setFilteredSelectedIds([]);
       setSelectedOrderIds([]);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
@@ -131,27 +130,80 @@ const ShippingQueue = () => {
     reloadData();
   }, [reloadData]);
 
-  const onQueueRowClick = useCallback((selectionModel, tableData) => {
-    setSelectedOrderIds(selectionModel);
-    setFilteredSelectedIds(selectionModel);
-    const customerId =
-      selectionModel.length > 0
-        ? tableData.find((element) => element.id === selectionModel[0]).customer
-            ?._id
-        : undefined;
-    for (const item of tableData) {
-      // All selected items will have the same customer id
-      // so we just take the first one
-      if (selectionModel.length > 0 && item.customer?._id === customerId) {
-        setSelectedCustomerId(item.customer._id);
-        break;
-      }
-      // If nothing selected set it to null
-      if (selectionModel.length === 0) {
+  function handleSelection(selection, tableData) {
+    let newSelection = selectedOrderIds;
+    if (selectedOrderIds.includes(selection)) {
+      // remove it
+      newSelection = selectedOrderIds.filter((e) => e !== selection);
+      // if something is deselected then selectAll is false
+      setIsSelectAll(false);
+    } else {
+      // add it
+      newSelection.push(selection);
+
+      // if the new selection contains all possible selected order numbers
+      // then select all is on
+      const selectedCustId = tableData?.find(
+        (e) => e.id === selection
+      )?.orderNumber;
+      const idsWithSelectedCustId = tableData
+        ?.filter((e) => e.orderNumber === selectedCustId)
+        .map((e) => e.id);
+
+      setIsSelectAll(
+        idsWithSelectedCustId.sort().toString() ===
+          newSelection.sort().toString()
+      );
+    }
+    return newSelection;
+  }
+
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData) => {
+      const newSelectedOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newSelectedOrderIds]);
+
+      setSelectedCustomerId(
+        tableData?.find((e) => e.id === selectionModel)?.customer?._id ?? null
+      );
+    },
+    [selectedOrderIds]
+  );
+
+  const onSelectAllClick = useCallback(
+    (value, tableData) => {
+      setIsSelectAll(value);
+
+      if (value) {
+        if (selectedOrderIds.length > 0) {
+          // Something is selected, so we need to select the remaining
+          // that matach selectedOrderNumber
+          setSelectedOrderIds(
+            tableData
+              .filter((e) => e.customer?._id === selectedCustomerId)
+              .map((e) => e.id)
+          );
+        } else if (selectedOrderIds.length === 0) {
+          // Nothing selected yet, so select the first row and all that match
+          // the first row order number
+
+          setSelectedOrderIds(
+            tableData
+              .filter((e) => e.customer?._id === tableData[0]?.customer?._id)
+              .map((e) => e.id)
+          );
+          setSelectedCustomerId(
+            tableData?.find((e) => e.id === tableData[0].id)?.customer?._id ??
+              null
+          );
+        }
+      } else {
+        setSelectedOrderIds([]);
         setSelectedCustomerId(null);
       }
-    }
-  }, []);
+    },
+    [selectedOrderIds]
+  );
 
   function onCreateShipmentClick() {
     setCreateShipmentOpen(true);
@@ -160,7 +212,7 @@ const ShippingQueue = () => {
   function onCreateShipmentClose() {
     setCreateShipmentOpen(false);
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
-    reloadData();
+    // reloadData();
   }
 
   function onEditShipmentClose() {
@@ -455,9 +507,10 @@ const ShippingQueue = () => {
           <ShippingQueueTable
             onRowClick={onQueueRowClick}
             tableData={filteredShippingQueue}
-            setTableData={setFilteredShippingQueue}
             selectedCustomerId={selectedCustomerId}
-            selectionOrderIds={filteredSelectedIds}
+            selectionOrderIds={selectedOrderIds}
+            onSelectAll={onSelectAllClick}
+            isSelectAllOn={isSelectAllOn}
           />
         }
         historyTab={

@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Typography,
-  Collapse,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-} from "@mui/material";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
+import { Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { createColumnFilters } from "../../utils/TableFilters";
+import { getCheckboxColumn } from "../../components/CheckboxColumn";
+import ShipQueuePackSlipDrowdown from "./ShipQueuePackSlipDropdown";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -51,41 +44,11 @@ const ShippingQueueDataGrid = styled(DataGrid)`
   }
 `;
 
-const PackingSlipDrowdown = ({ params }) => {
-  return (
-    <div style={{ width: "100%" }}>
-      <List>
-        <ListItemButton>
-          {params.row.open && params.row.open !== undefined ? (
-            <ExpandLess />
-          ) : (
-            <ExpandMore />
-          )}
-          <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
-        </ListItemButton>
-        <Collapse in={params.row.open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {params.row.items.map((e) => (
-              <ListItem key={e._id} divider>
-                <ListItemText
-                  primary={`${e.item.partNumber} (${
-                    e.qty !== undefined ? e.qty : "-"
-                  })`}
-                  secondary={`${e.item.partDescription}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Collapse>
-      </List>
-    </div>
-  );
-};
-
 const ShippingQueueTable = ({
   tableData,
-  setTableData,
   onRowClick,
+  isSelectAllOn,
+  onSelectAll,
   selectedCustomerId,
   selectionOrderIds,
 }) => {
@@ -96,7 +59,22 @@ const ShippingQueueTable = ({
     { field: "packingSlipId", sort: "asc" },
   ]);
 
+  function isDisabled(params) {
+    return (
+      selectedCustomerId !== null &&
+      selectedCustomerId !== params.row.customer?._id
+    );
+  }
+
   const columns = [
+    getCheckboxColumn(
+      isDisabled,
+      selectionOrderIds,
+      isSelectAllOn,
+      queueData,
+      onSelectAll,
+      onRowClick
+    ),
     {
       field: "orderNumber",
       flex: 1,
@@ -107,7 +85,7 @@ const ShippingQueueTable = ({
     {
       field: "packingSlipId",
       renderCell: (params) => {
-        return <PackingSlipDrowdown params={params} />;
+        return <ShipQueuePackSlipDrowdown params={params} />;
       },
       flex: 2,
       renderHeader: (params) => {
@@ -139,37 +117,25 @@ const ShippingQueueTable = ({
       <ShippingQueueDataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        disableSelectionOnClick={true}
-        isRowSelectable={(params) => {
-          // If orders are selected, disable selecting of
-          // other orders if the order number does not match
-          // that if the selected order
-          if (
-            selectedCustomerId !== null &&
-            selectedCustomerId !== params.row.customer?._id
-          ) {
-            return false;
-          }
-          return true;
-        }}
-        onSelectionModelChange={(selectionModel, _) => {
-          onRowClick(selectionModel, tableData);
-        }}
         onRowClick={(params) => {
-          let tmpData = [...tableData];
+          let tmpData = [...queueData];
           const tmpIndex = tmpData.findIndex((e) => {
             return e.id === params.id;
           });
           tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
-          setTableData(tmpData);
+          setQueueData(tmpData);
         }}
-        selectionModel={selectionOrderIds}
         rows={queueData}
         rowHeight={65}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
-        checkboxSelection
+        columnBuffer={0}
+        disableColumnMenu
+        disableColumnSelector
+        disableDensitySelector
+        checkboxSelection={false}
+        disableSelectionOnClick={true}
         editMode="row"
         sortingMode="server"
         sortModel={sortModel}
