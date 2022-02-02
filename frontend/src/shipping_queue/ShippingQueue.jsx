@@ -164,7 +164,9 @@ const ShippingQueue = () => {
       setSelectedOrderIds([...newSelectedOrderIds]);
 
       setSelectedCustomerId(
-        tableData?.find((e) => e.id === selectionModel)?.customer?._id ?? null
+        tableData?.find(
+          (e) => newSelectedOrderIds.length > 0 && e.id === selectionModel
+        )?.customer?._id ?? null
       );
     },
     [selectedOrderIds]

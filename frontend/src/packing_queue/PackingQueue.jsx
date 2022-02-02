@@ -132,7 +132,9 @@ const PackingQueue = () => {
       setSelectedOrderIds([...newSelectedOrderIds]);
 
       setSelectedOrderNumber(
-        tableData?.find((e) => e.id === selectionModel)?.orderNumber ?? null
+        tableData?.find(
+          (e) => newSelectedOrderIds.length > 0 && e.id === selectionModel
+        )?.orderNumber ?? null
       );
     },
     [selectedOrderIds]
