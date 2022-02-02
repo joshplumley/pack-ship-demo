@@ -214,7 +214,6 @@ const ShippingQueue = () => {
   function onCreateShipmentClose() {
     setCreateShipmentOpen(false);
     setCurrentDialogState(ShippingDialogStates.CreateShipmentTable);
-    // reloadData();
   }
 
   function onEditShipmentClose() {
@@ -328,9 +327,6 @@ const ShippingQueue = () => {
           manifest: newShipmentManifest,
         });
       });
-
-      //TODO patch packing slip id so that shipment is unset
-      // updates the shipping Queue table so that this packing slip is shown
     }
   }
 

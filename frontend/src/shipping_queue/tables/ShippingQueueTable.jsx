@@ -140,6 +140,16 @@ const ShippingQueueTable = ({
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={(model) => setSortModel(model)}
+        components={{
+          Footer: () =>
+            selectionOrderIds.length > 0 ? (
+              <Typography sx={{ padding: "8px" }}>
+                {selectionOrderIds.length} rows selected
+              </Typography>
+            ) : (
+              <div></div>
+            ),
+        }}
       />
     </div>
   );

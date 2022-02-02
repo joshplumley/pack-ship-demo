@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridFooter } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";
@@ -132,18 +132,6 @@ const PackingQueueTable = ({
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        // isRowSelectable={(params) => {
-        //   // If orders are selected, disable selecting of
-        //   // other orders if the order number does not match
-        //   // that if the selected order
-        //   if (
-        //     selectedOrderNumber !== null &&
-        //     selectedOrderNumber !== params.row.orderNumber
-        //   ) {
-        //     return false;
-        //   }
-        //   return true;
-        // }}
         rows={queueData}
         columns={columns}
         pageSize={10}
@@ -157,6 +145,16 @@ const PackingQueueTable = ({
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={(model) => setSortModel(model)}
+        components={{
+          Footer: () =>
+            selectionOrderIds.length > 0 ? (
+              <Typography sx={{ padding: "8px" }}>
+                {selectionOrderIds.length} rows selected
+              </Typography>
+            ) : (
+              <div></div>
+            ),
+        }}
       />
     </div>
   );
