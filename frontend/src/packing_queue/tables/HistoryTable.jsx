@@ -334,6 +334,7 @@ const HistoryTable = () => {
         pageSize={10}
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
+        disableSelectionOnClick
         onRowClick={(params, event, details) => {
           setSelectedRow(params.row);
           setMenuPosition({ left: event.pageX, top: event.pageY });
