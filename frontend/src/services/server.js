@@ -172,7 +172,7 @@ export const API = {
 
   async patchPackingSlip(id, updatedItems) {
     const response = await axios.patch(
-      `${REACT_APP_API_URL}/shipments/${id}`,
+      `${REACT_APP_API_URL}/packingSlips/${id}`,
       updatedItems
     );
 

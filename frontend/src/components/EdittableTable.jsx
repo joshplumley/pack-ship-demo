@@ -89,7 +89,6 @@ const PackShipEditableTable = ({
         rowsPerPageOptions={[localPageSize]}
         checkboxSelection={false}
         onCellEditCommit={onCellEditCommit}
-        editMode="row"
         sort={{
           field: "actions",
           sort: "asc",

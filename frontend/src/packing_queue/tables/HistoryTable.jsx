@@ -2,12 +2,11 @@ import { DataGrid } from "@mui/x-data-grid";
 import React, { useCallback, useEffect, useState } from "react";
 import ContextMenu from "../../components/GenericContextMenu";
 import MenuItem from "@mui/material/MenuItem";
-import DeleteModal from "./DeleteModal";
-import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
 import { API } from "../../services/server";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
 import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -53,13 +52,21 @@ const HistoryTable = () => {
   const classes = useStyle();
 
   const [menuPosition, setMenuPosition] = useState();
+
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [rows, setRows] = useState([]);
+
+  // Deletions
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState();
   const [deleteDialog, setDeleteDialog] = useState(false);
+
+  //Edit/View
+
   const [isEditPackingSlipOpen, setIsEditPackingSlipOpen] = useState({
     open: false,
     viewOnly: false,
   });
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [rows, setRows] = useState([]);
 
   const reloadData = useCallback(() => {
     async function fetchData() {
@@ -78,7 +85,7 @@ const HistoryTable = () => {
       });
       setRows(packingSlips);
     });
-  }, [deleteDialog]);
+  }, []);
 
   useEffect(() => {
     reloadData();
@@ -142,6 +149,7 @@ const HistoryTable = () => {
     };
 
     updatedPackingSlip.items[itemIndex] = {
+      ...oldVal,
       item: {
         ...oldVal,
         ...newVal,
@@ -182,6 +190,7 @@ const HistoryTable = () => {
     };
 
     updatedPackingSlip.items[itemIndex] = {
+      ...oldVal,
       item: { ...oldVal, ...newVal },
     };
 
@@ -208,21 +217,44 @@ const HistoryTable = () => {
     });
   }
 
-  function onPackQtyChange(row, value) {
+  function onPackQtyChange(id, value) {
     const itemIndex = selectedRow?.items?.findIndex(
-      (e) => e.item._id === row._id
+      (e) => e._id === id || e.item._id === id
     );
     let updatedPackingSlip = {
       ...selectedRow,
     };
 
     updatedPackingSlip.items[itemIndex] = {
-      item: { ...updatedPackingSlip.items[itemIndex], packQty: value },
+      ...updatedPackingSlip.items[itemIndex],
+      item: { ...updatedPackingSlip.items[itemIndex].item, packQty: value },
       qty: value,
     };
 
-    console.log(updatedPackingSlip.items[itemIndex]);
     setSelectedRow(updatedPackingSlip);
+  }
+
+  function onItemDelete() {
+    if (itemToDelete) {
+      const itemsWithoutItem = selectedRow.items
+        .filter((e) => e.item._id !== itemToDelete._id)
+        .map((e) => {
+          return {
+            item: { ...e.item },
+            qty: e.qty || e.item.packQty,
+          };
+        });
+      API.patchPackingSlip(selectedRow.id, {
+        items: itemsWithoutItem,
+      })
+        .then((_) => {
+          setSelectedRow({
+            ...selectedRow,
+            items: itemsWithoutItem,
+          });
+        })
+        .catch((_) => alert("Failed to delete item from packing slip"));
+    }
   }
 
   const openDeleteDialog = (event) => {
@@ -230,6 +262,18 @@ const HistoryTable = () => {
     setMenuPosition(null);
     setIsEditPackingSlipOpen({ open: true, viewOnly: true });
   };
+
+  const handleDeleteConfirm = () => {
+    setDeleteDialog(false);
+  };
+
+  async function deletePackingSlip() {
+    API.deletePackingSlip(selectedRow?.id)
+      .then(handleDeleteConfirm())
+      .catch(() => {
+        alert("An error occurred deleting packing slip");
+      });
+  }
 
   const openViewPackingSlip = () => {
     setIsEditPackingSlipOpen({ open: true, viewOnly: true });
@@ -241,21 +285,25 @@ const HistoryTable = () => {
   };
 
   const onPackingSlipSubmit = () => {
-    console.log(selectedRow);
-    API.patchPackingSlip(selectedRow.id, {
-      items: selectedRow.items.map((e) => {
-        return {
-          item: { ...e.item },
-          qty: e.qty || e.item.packQty,
-        };
-      }),
-    })
-      .then(() => {
-        setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+    if (isEditPackingSlipOpen.viewOnly) {
+      setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+    } else {
+      API.patchPackingSlip(selectedRow.id, {
+        items: selectedRow.items.map((e) => {
+          return {
+            item: { ...e.item },
+            qty: e.qty || e.item.packQty,
+          };
+        }),
       })
-      .catch(() => {
-        alert("Failed to submit edits.");
-      });
+        .then(() => {
+          setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+          reloadData();
+        })
+        .catch(() => {
+          alert("Failed to submit edits.");
+        });
+    }
   };
 
   const openEditPackingSlip = () => {
@@ -307,16 +355,24 @@ const HistoryTable = () => {
         onNewOrderNumRowChange={onNewOrderNumRowChange}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
-        // onDelete={(params) => {
-        //   setConfirmDeleteDialogOpen(true);
-        //   setPackingSlipToDelete(params.row);
-        // }}
+        onDelete={(params) => {
+          setConfirmDeleteDialogOpen(true);
+          setItemToDelete(params.row);
+        }}
       />
 
-      <DeleteModal
-        deleteDialog={deleteDialog}
-        setDeleteDialog={setDeleteDialog}
-        selectedId={selectedRow?.id}
+      <ConfirmDialog
+        title="Are You Sure You Want To Delete This?"
+        open={confirmDeleteDialogOpen}
+        setOpen={setConfirmDeleteDialogOpen}
+        onConfirm={onItemDelete}
+      />
+
+      <ConfirmDialog
+        title="Do You Want To Delete This?"
+        open={deleteDialog}
+        setOpen={setDeleteDialog}
+        onConfirm={deletePackingSlip}
       />
     </div>
   );

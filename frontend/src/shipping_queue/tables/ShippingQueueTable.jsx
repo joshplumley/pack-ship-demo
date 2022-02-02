@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -12,6 +12,7 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/system";
+import { createColumnFilters } from "../../utils/TableFilters";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -89,6 +90,11 @@ const ShippingQueueTable = ({
   selectionOrderIds,
 }) => {
   const classes = useStyle();
+  const [queueData, setQueueData] = useState(tableData);
+  const [sortModel, setSortModel] = useState([
+    { field: "orderNumber", sort: "asc" },
+    { field: "packingSlipId", sort: "asc" },
+  ]);
 
   const columns = [
     {
@@ -109,6 +115,24 @@ const ShippingQueueTable = ({
       },
     },
   ];
+
+  const filters = createColumnFilters(columns, tableData);
+
+  useEffect(() => {
+    if (sortModel.length !== 0) {
+      // find the filter handler based on the column clicked
+      const clickedColumnField = filters.find(
+        (e) => e.field === sortModel[0]?.field
+      );
+      // execute the handler
+      const newRows = clickedColumnField?.handler(
+        sortModel[0]?.sort,
+        selectionOrderIds,
+        tableData
+      );
+      setQueueData(newRows);
+    }
+  }, [sortModel, tableData, filters, selectionOrderIds]);
 
   return (
     <div className={classes.root}>
@@ -140,13 +164,16 @@ const ShippingQueueTable = ({
           setTableData(tmpData);
         }}
         selectionModel={selectionOrderIds}
-        rows={tableData}
+        rows={queueData}
         rowHeight={65}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
         checkboxSelection
         editMode="row"
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={(model) => setSortModel(model)}
       />
     </div>
   );

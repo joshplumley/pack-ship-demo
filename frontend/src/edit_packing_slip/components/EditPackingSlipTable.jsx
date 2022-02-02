@@ -13,7 +13,7 @@ const EditPackingSlipTable = ({
   viewOnly,
 }) => {
   function renderOrderNum(params) {
-    if (params.row.isNew) {
+    if (params.row.isNew && params.row.packQty === undefined) {
       return (
         <EditTableDropdown
           choices={params.row.possibleItems.filter(
@@ -40,7 +40,7 @@ const EditPackingSlipTable = ({
   }
 
   function renderPart(params) {
-    if (params.row.isNew) {
+    if (params.row.isNew && params.row.packQty === undefined) {
       return (
         <EditTableDropdown
           menuKeyValue={"orderNumber"}
@@ -109,52 +109,6 @@ const EditPackingSlipTable = ({
     },
   ];
 
-  // console.log(
-  //   "RENDER HAPPENING",
-  //   rowData.items.map((e) => {
-  //     return {
-  //       ...e.item,
-  //       id: e._id || e.item._id,
-  //       packQty: e.qty,
-  //     };
-  //   }),
-  //   rowData.items.map((e) => {
-  //     return {
-  //       ...e.item,
-  //       id: e._id || e.item._id,
-  //       packQty: e.qty,
-  //     };
-  //   })[1],
-  //   rowData.items
-  //     .map((e) => {
-  //       return {
-  //         ...e.item,
-  //         id: e._id || e.item._id,
-  //         packQty: e.qty,
-  //       };
-  //     })[1]
-  //     ?.possibleItems?.reduce((a, b) => {
-  //       if (!a[b.orderNumber]) {
-  //         a[b.orderNumber] = 1;
-  //       } else {
-  //         a[b.orderNumber] = a[b.orderNumber] + 1;
-  //       }
-  //       return a;
-  //     }, {})
-  // );
-
-  console.log(
-    "DATA",
-    rowData.items.map((e) => {
-      return {
-        ...e.item,
-        id: e._id || e.item._id,
-        packQty: e.qty,
-        quantity: e.item.batchQty || e.item.quantity,
-      };
-    })
-  );
-
   return (
     <PackShipEditableTable
       tableData={rowData.items.map((e) => {
@@ -169,8 +123,7 @@ const EditPackingSlipTable = ({
       onDelete={onDelete}
       onAdd={onAdd}
       onCellEditCommit={(params) => {
-        console.log("YO", params);
-        onPackQtyChange(params.row, params.value);
+        onPackQtyChange(params.id, params.value);
       }}
       viewOnly={viewOnly}
     />

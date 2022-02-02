@@ -89,7 +89,7 @@ const ShipmentDetails = ({
           default:
             return (
               <TitleTextInput
-                title="Customer Name:"
+                title="Received By:"
                 value={shipment?.customerHandoffName}
                 viewOnly={viewOnly}
                 onChange={onCustomerNameChange}
