@@ -276,7 +276,7 @@ async function editOne(req, res) {
         }
       );
         
-      const promises = p_deleted.contact(p_added);
+      const promises = p_deleted.concat(p_added);
       await Promise.all( promises );
 
       return [null, ];
