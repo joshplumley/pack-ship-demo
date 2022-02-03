@@ -156,14 +156,8 @@ async function createOne(req, res) {
         customerHandoffName,
       } = req.body;
 
-      const p_numShipments = Shipment.countDocuments({ customer });
-      const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
-
-      const [numShipments, customerDoc] = [
-        await p_numShipments,
-        await p_customerDoc,
-      ];
-      const { customerTag } = customerDoc;
+      const customerDoc = Customer.findOne({ _id: customer });
+      const { customerTag, numShipments } = customerDoc;
 
       const shipmentId = `${customerTag}-SH${numShipments + 1}`;
 
@@ -187,6 +181,10 @@ async function createOne(req, res) {
       const promises = manifest.map((x) =>
         PackingSlip.updateOne({ _id: x }, { $set: { shipment: shipment._id } })
       );
+
+      customerDoc.numShipments = numShipments+1;
+      promises.push( customerDoc.save() );
+
       await Promise.all(promises);
 
       return [null, { shipment }];

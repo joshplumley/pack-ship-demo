@@ -3,6 +3,7 @@ const router = Router();
 const PackingSlip = require("./model.js");
 const handler = require("../handler");
 var ObjectId = require("mongodb").ObjectId;
+const Customer = require('../customer/model');
 
 module.exports = router;
 
@@ -64,7 +65,9 @@ async function createPackingSlip(req, res) {
   handler(
     async () => {
       const { items, orderNumber, customer } = req.body;
-      const numPackingSlips = await PackingSlip.countDocuments({ orderNumber });
+      
+      const customerDoc = await Customer.findOne({ _id: customer });
+      const { numPackingSlips } = customerDoc;
 
       const packingSlipId = `${orderNumber}-PS${numPackingSlips + 1}`;
 
@@ -76,6 +79,10 @@ async function createPackingSlip(req, res) {
       });
 
       await packingSlip.save();
+
+      customerDoc.numPackingSlips = numPackingSlips+1;
+      await customerDoc.save();
+
       return [null, { packingSlip }];
     },
     "creating packing slip",
