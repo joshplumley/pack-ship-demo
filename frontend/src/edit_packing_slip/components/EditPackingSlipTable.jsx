@@ -10,6 +10,7 @@ const EditPackingSlipTable = ({
   onNewOrderNumRowChange,
   onNewPartRowChange,
   onPackQtyChange,
+  setEditing,
   viewOnly,
 }) => {
   function renderOrderNum(params) {
@@ -122,8 +123,12 @@ const EditPackingSlipTable = ({
       columns={columns}
       onDelete={onDelete}
       onAdd={onAdd}
-      onCellEditCommit={(params) => {
-        onPackQtyChange(params.id, params.value);
+      onEditRowsModelChange={(params) => {
+        if (!params)
+          onPackQtyChange(
+            Object.keys(params)[0],
+            params[Object.keys(params)[0]]["packQty"]["value"]
+          );
       }}
       viewOnly={viewOnly}
     />

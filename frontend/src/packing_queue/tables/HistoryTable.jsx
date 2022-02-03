@@ -62,7 +62,7 @@ const HistoryTable = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
 
   //Edit/View
-
+  const [cellEditing, setCellEditing] = useState(false);
   const [isEditPackingSlipOpen, setIsEditPackingSlipOpen] = useState({
     open: false,
     viewOnly: false,
@@ -129,6 +129,7 @@ const HistoryTable = () => {
             },
             qty: undefined,
           });
+
           setSelectedRow(newSelectedRow);
         } else {
           alert("There are no additions that can be made.");
@@ -149,7 +150,7 @@ const HistoryTable = () => {
     };
 
     updatedPackingSlip.items[itemIndex] = {
-      ...oldVal,
+      ...updatedPackingSlip.items[itemIndex],
       item: {
         ...oldVal,
         ...newVal,
@@ -190,8 +191,11 @@ const HistoryTable = () => {
     };
 
     updatedPackingSlip.items[itemIndex] = {
-      ...oldVal,
-      item: { ...oldVal, ...newVal },
+      ...updatedPackingSlip.items[itemIndex],
+      item: {
+        ...oldVal,
+        ...newVal,
+      },
     };
 
     API.getPackingQueue().then((data) => {
@@ -361,6 +365,8 @@ const HistoryTable = () => {
           setConfirmDeleteDialogOpen(true);
           setItemToDelete(params.row);
         }}
+        cellEditing={cellEditing}
+        setCellEditing={setCellEditing}
       />
 
       <ConfirmDialog

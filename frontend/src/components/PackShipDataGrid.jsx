@@ -35,7 +35,7 @@ const PackShipDataGrid = ({
   checkboxSelection,
   editMode,
   sort,
-  onCellEditCommit,
+  onEditRowsModelChange,
 }) => {
   return (
     <Box
@@ -57,7 +57,7 @@ const PackShipDataGrid = ({
       <ThisDataGrid
         rows={rowData}
         columns={columns}
-        onCellEditCommit={onCellEditCommit}
+        onEditRowsModelChange={onEditRowsModelChange}
         sx={{
           ...sx,
         }}

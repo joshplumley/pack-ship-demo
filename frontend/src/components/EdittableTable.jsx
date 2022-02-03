@@ -30,8 +30,7 @@ const PackShipEditableTable = ({
   onAdd,
   onRowClick,
   viewOnly,
-  onCellEditCommit,
-  onCellEditStop,
+  onEditRowsModelChange,
   pageSize = 10,
 }) => {
   const classes = useStyle();
@@ -89,7 +88,7 @@ const PackShipEditableTable = ({
         pageSize={localPageSize}
         rowsPerPageOptions={[localPageSize]}
         checkboxSelection={false}
-        onCellEditCommit={onCellEditCommit}
+        onEditRowsModelChange={onEditRowsModelChange}
         sort={{
           field: "actions",
           sort: "asc",
