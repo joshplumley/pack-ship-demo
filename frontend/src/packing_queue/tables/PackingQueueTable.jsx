@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";
+import { getCheckboxColumn } from "../../components/CheckboxColumn";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -32,6 +33,8 @@ const useStyle = makeStyles((theme) => ({
 const PackingQueueTable = ({
   tableData,
   onRowClick,
+  isSelectAllOn,
+  onSelectAll,
   selectedOrderNumber,
   selectionOrderIds,
 }) => {
@@ -45,7 +48,22 @@ const PackingQueueTable = ({
     { field: "fulfilledQty", sort: "asc" },
   ]);
 
+  function isDisabled(params) {
+    return (
+      selectedOrderNumber !== null &&
+      selectedOrderNumber !== params.row.orderNumber
+    );
+  }
+
   const columns = [
+    getCheckboxColumn(
+      isDisabled,
+      selectionOrderIds,
+      isSelectAllOn,
+      queueData,
+      onSelectAll,
+      onRowClick
+    ),
     {
       field: "orderNumber",
       flex: 1,
@@ -114,31 +132,29 @@ const PackingQueueTable = ({
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        disableSelectionOnClick={false}
-        isRowSelectable={(params) => {
-          // If orders are selected, disable selecting of
-          // other orders if the order number does not match
-          // that if the selected order
-          if (
-            selectedOrderNumber !== null &&
-            selectedOrderNumber !== params.row.orderNumber
-          ) {
-            return false;
-          }
-          return true;
-        }}
-        onSelectionModelChange={(selectionModel, _) => {
-          onRowClick(selectionModel, tableData);
-        }}
-        selectionModel={selectionOrderIds}
         rows={queueData}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
-        checkboxSelection
+        columnBuffer={0}
+        disableColumnMenu
+        disableColumnSelector
+        disableDensitySelector
+        checkboxSelection={false}
+        disableSelectionOnClick={true}
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={(model) => setSortModel(model)}
+        components={{
+          Footer: () =>
+            selectionOrderIds.length > 0 ? (
+              <Typography sx={{ padding: "8px" }}>
+                {selectionOrderIds.length} rows selected
+              </Typography>
+            ) : (
+              <div></div>
+            ),
+        }}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import UnfinishedBatchesCheckbox from "../components/UnFinishedBatchesCheckbox";
@@ -30,6 +30,7 @@ const PackingQueue = () => {
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
+  const [isSelectAllOn, setIsSelectAll] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -97,21 +98,82 @@ const PackingQueue = () => {
       });
   }
 
-  function onQueueRowClick(selectionModel, tableData) {
-    setSelectedOrderIds(selectionModel);
-    for (const item of tableData) {
-      // All selected items will have the same order number
-      // so we just take the first one
-      if (selectionModel.length > 0 && item.id === selectionModel[0]) {
-        setSelectedOrderNumber(item.orderNumber);
-        break;
-      }
-      // If nothing selected set it to null
-      if (selectionModel.length === 0) {
+  function handleSelection(selection, tableData) {
+    let newSelection = selectedOrderIds;
+    if (selectedOrderIds.includes(selection)) {
+      // remove it
+      newSelection = selectedOrderIds.filter((e) => e !== selection);
+      // if something is deselected then selectAll is false
+      setIsSelectAll(false);
+    } else {
+      // add it
+      newSelection.push(selection);
+
+      // if the new selection contains all possible selected order numbers
+      // then select all is on
+      const selectedOrderNum = tableData?.find(
+        (e) => e.id === selection
+      )?.orderNumber;
+      const idsWithSelectedOrderNum = tableData
+        ?.filter((e) => e.orderNumber === selectedOrderNum)
+        .map((e) => e.id);
+
+      setIsSelectAll(
+        idsWithSelectedOrderNum.sort().toString() ===
+          newSelection.sort().toString()
+      );
+    }
+    return newSelection;
+  }
+
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData) => {
+      const newSelectedOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newSelectedOrderIds]);
+
+      setSelectedOrderNumber(
+        tableData?.find(
+          (e) => newSelectedOrderIds.length > 0 && e.id === selectionModel
+        )?.orderNumber ?? null
+      );
+    },
+    [selectedOrderIds, handleSelection]
+  );
+
+  const onSelectAllClick = useCallback(
+    (value, tableData) => {
+      setIsSelectAll(value);
+
+      if (value) {
+        if (selectedOrderIds.length > 0) {
+          // Something is selected, so we need to select the remaining
+          // that matach selectedOrderNumber
+          setSelectedOrderIds(
+            tableData
+              .filter((e) => e.orderNumber === selectedOrderNumber)
+              .map((e) => e.id)
+          );
+        } else if (selectedOrderIds.length === 0) {
+          // Nothing selected yet, so select the first row and all that match
+          // the first row order number
+
+          setSelectedOrderIds(
+            tableData
+              .filter((e) => e.orderNumber === tableData[0]?.orderNumber)
+              .map((e) => e.id)
+          );
+          setSelectedOrderNumber(
+            tableData?.find((e) => e.id === tableData[0].id)?.orderNumber ??
+              null
+          );
+        }
+      } else {
+        setSelectedOrderIds([]);
         setSelectedOrderNumber(null);
       }
-    }
-  }
+    },
+    [selectedOrderIds]
+  );
 
   function onUnfinishedBatchesClick() {
     setIsShowUnfinishedBatches(!isShowUnfinishedBatches);
@@ -159,6 +221,8 @@ const PackingQueue = () => {
         queueTab={
           <PackingQueueTable
             onRowClick={onQueueRowClick}
+            isSelectAllOn={isSelectAllOn}
+            onSelectAll={onSelectAllClick}
             tableData={filteredPackingQueue}
             selectedOrderNumber={selectedOrderNumber}
             selectionOrderIds={selectedOrderIds}
