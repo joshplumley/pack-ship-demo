@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
@@ -440,6 +440,14 @@ const ShippingQueue = () => {
     </MenuItem>,
   ];
 
+  const packingSlipIds = useMemo(() => {
+    return(
+      shippingQueue
+      .filter((e) => selectedOrderIds.includes(e.id))
+      .map((e) => e.id)
+    )
+  }, [shippingQueue, selectedOrderIds]);
+
   return (
     <Box p="40px">
       {currentTab === TabNames.Queue ? (
@@ -527,9 +535,7 @@ const ShippingQueue = () => {
           shippingQueue.filter((e) => selectedOrderIds.includes(e.id))[0]
             ?.customer
         }
-        packingSlipIds={shippingQueue
-          .filter((e) => selectedOrderIds.includes(e.id))
-          .map((e) => e.id)}
+        packingSlipIds={packingSlipIds}
         open={createShipmentOpen}
         onClose={onCreateShipmentClose}
         currentState={currentDialogState}
