@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
@@ -37,7 +37,6 @@ const PackingQueueTable = ({
 }) => {
   const classes = useStyle();
 
-  const [queueData, setQueueData] = useState(tableData);
   const [sortModel, setSortModel] = useState([
     { field: "orderNumber", sort: "asc" },
     { field: "part", sort: "asc" },
@@ -45,69 +44,71 @@ const PackingQueueTable = ({
     { field: "fulfilledQty", sort: "asc" },
   ]);
 
-  const columns = [
-    {
-      field: "orderNumber",
-      flex: 1,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+  const columns = useMemo(
+    () => [
+      {
+        field: "orderNumber",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+        },
       },
-    },
-    {
-      field: "part",
-      renderCell: (params) => (
-        <div>
-          <Typography>{params.row.part}</Typography>
-          <Typography color="textSecondary">
-            {params.row.partDescription}
-          </Typography>
-        </div>
-      ),
-      flex: 1,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
-      },
-    },
-    {
-      field: "batchQty",
-      type: "number",
-      flex: 1,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
-      },
-    },
-    {
-      field: "fulfilledQty",
-      type: "number",
-      renderHeader: (params) => {
-        return (
-          <div className={classes.fulfilledQtyHeader}>
-            <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
-            <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
+      {
+        field: "part",
+        renderCell: (params) => (
+          <div>
+            <Typography>{params.row.part}</Typography>
+            <Typography color="textSecondary">
+              {params.row.partDescription}
+            </Typography>
           </div>
-        );
+        ),
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Part</Typography>;
+        },
       },
-      flex: 1,
-    },
-  ];
+      {
+        field: "batchQty",
+        type: "number",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Batch Qty</Typography>;
+        },
+      },
+      {
+        field: "fulfilledQty",
+        type: "number",
+        renderHeader: (params) => {
+          return (
+            <div className={classes.fulfilledQtyHeader}>
+              <Typography sx={{ fontWeight: 900 }}>Fulfilled Qty</Typography>
+              <HelpTooltip tooltipText="This includes number of items that have been packed as well as number of items that have shipped." />
+            </div>
+          );
+        },
+        flex: 1,
+      },
+    ],
+    [classes.fulfilledQtyHeader]
+  );
 
-  const filters = createColumnFilters(columns, tableData);
-
-  useEffect(() => {
+  const queueData = useMemo(() => {
     if (sortModel.length !== 0) {
       // find the filter handler based on the column clicked
-      const clickedColumnField = filters.find(
+      const clickedColumnField = createColumnFilters(columns, tableData).find(
         (e) => e.field === sortModel[0]?.field
       );
       // execute the handler
-      const newRows = clickedColumnField?.handler(
+      return clickedColumnField?.handler(
         sortModel[0]?.sort,
         selectionOrderIds,
         tableData
       );
-      setQueueData(newRows);
+    } else {
+      return tableData;
     }
-  }, [sortModel, tableData, filters, selectionOrderIds]);
+  }, [sortModel, tableData, selectionOrderIds, columns]);
 
   return (
     <div className={classes.root}>

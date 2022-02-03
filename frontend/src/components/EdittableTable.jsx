@@ -31,6 +31,7 @@ const PackShipEditableTable = ({
   onRowClick,
   viewOnly,
   onCellEditCommit,
+  onCellEditStop,
   pageSize = 10,
 }) => {
   const classes = useStyle();

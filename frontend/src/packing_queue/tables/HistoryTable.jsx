@@ -252,6 +252,7 @@ const HistoryTable = () => {
             ...selectedRow,
             items: itemsWithoutItem,
           });
+          reloadData();
         })
         .catch((_) => alert("Failed to delete item from packing slip"));
     }
