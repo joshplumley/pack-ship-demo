@@ -1,18 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  Typography,
-  Collapse,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-} from "@mui/material";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
+import { Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { createColumnFilters } from "../../utils/TableFilters";
+import { getCheckboxColumn } from "../../components/CheckboxColumn";
+import ShipQueuePackSlipDrowdown from "./ShipQueuePackSlipDropdown";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -51,81 +44,84 @@ const ShippingQueueDataGrid = styled(DataGrid)`
   }
 `;
 
-const PackingSlipDrowdown = ({ params }) => {
-  return (
-    <div style={{ width: "100%" }}>
-      <List>
-        <ListItemButton>
-          {params.row.open && params.row.open !== undefined ? (
-            <ExpandLess />
-          ) : (
-            <ExpandMore />
-          )}
-          <ListItemText primary={params.row.packingSlipId.split("-")[1]} />
-        </ListItemButton>
-        <Collapse in={params.row.open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {params.row.items.map((e) => (
-              <ListItem key={e._id} divider>
-                <ListItemText
-                  primary={`${e.item.partNumber} (${
-                    e.qty !== undefined ? e.qty : "-"
-                  })`}
-                  secondary={`${e.item.partDescription}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Collapse>
-      </List>
-    </div>
-  );
-};
-
 const ShippingQueueTable = ({
   tableData,
-  setTableData,
   onRowClick,
+  isSelectAllOn,
+  onSelectAll,
   selectedCustomerId,
   selectionOrderIds,
 }) => {
   const classes = useStyle();
+  const [queueData, setQueueData] = useState(tableData);
   const [sortModel, setSortModel] = useState([
     { field: "orderNumber", sort: "asc" },
     { field: "packingSlipId", sort: "asc" },
   ]);
 
-  const columns = [
-    {
-      field: "orderNumber",
-      flex: 1,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
-      },
+  const isDisabled = useCallback(
+    (params) => {
+      return (
+        selectedCustomerId !== null &&
+        selectedCustomerId !== params.row.customer?._id
+      );
     },
-    {
-      field: "packingSlipId",
-      renderCell: (params) => {
-        return <PackingSlipDrowdown params={params} />;
-      },
-      flex: 2,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
-      },
-    },
-  ];
+    [selectedCustomerId]
+  );
 
-  const queueData = useMemo(() => {
+  const storedTableData = useMemo(() => tableData, [tableData]);
+
+  const columns = useMemo(
+    () => [
+      getCheckboxColumn(
+        isDisabled,
+        selectionOrderIds,
+        isSelectAllOn,
+        storedTableData,
+        onSelectAll,
+        onRowClick
+      ),
+      {
+        field: "orderNumber",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+        },
+      },
+      {
+        field: "packingSlipId",
+        renderCell: (params) => {
+          return <ShipQueuePackSlipDrowdown params={params} />;
+        },
+        flex: 2,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
+        },
+      },
+    ],
+    [
+      isDisabled,
+      isSelectAllOn,
+      onRowClick,
+      onSelectAll,
+      selectionOrderIds,
+      storedTableData,
+    ]
+  );
+
+  useEffect(() => {
     if (sortModel.length !== 0) {
       // find the filter handler based on the column clicked
       const clickedColumnField = createColumnFilters(columns, tableData).find(
         (e) => e.field === sortModel[0]?.field
       );
       // execute the handler
-      return clickedColumnField?.handler(
-        sortModel[0]?.sort,
-        selectionOrderIds,
-        tableData
+      setQueueData(
+        clickedColumnField?.handler(
+          sortModel[0]?.sort,
+          selectionOrderIds,
+          tableData
+        )
       );
     } else {
       return tableData;
@@ -137,41 +133,39 @@ const ShippingQueueTable = ({
       <ShippingQueueDataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        disableSelectionOnClick={true}
-        isRowSelectable={(params) => {
-          // If orders are selected, disable selecting of
-          // other orders if the order number does not match
-          // that if the selected order
-          if (
-            selectedCustomerId !== null &&
-            selectedCustomerId !== params.row.customer?._id
-          ) {
-            return false;
-          }
-          return true;
-        }}
-        onSelectionModelChange={(selectionModel, _) => {
-          onRowClick(selectionModel, tableData);
-        }}
         onRowClick={(params) => {
-          let tmpData = [...tableData];
+          let tmpData = [...queueData];
           const tmpIndex = tmpData.findIndex((e) => {
             return e.id === params.id;
           });
           tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
-          setTableData(tmpData);
+          setQueueData(tmpData);
         }}
-        selectionModel={selectionOrderIds}
         rows={queueData}
         rowHeight={65}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
-        checkboxSelection
+        columnBuffer={0}
+        disableColumnMenu
+        disableColumnSelector
+        disableDensitySelector
+        checkboxSelection={false}
+        disableSelectionOnClick={true}
         editMode="row"
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={(model) => setSortModel(model)}
+        components={{
+          Footer: () =>
+            selectionOrderIds.length > 0 ? (
+              <Typography sx={{ padding: "8px" }}>
+                {selectionOrderIds.length} rows selected
+              </Typography>
+            ) : (
+              <div></div>
+            ),
+        }}
       />
     </div>
   );

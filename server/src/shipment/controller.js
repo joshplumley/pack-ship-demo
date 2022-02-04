@@ -156,14 +156,8 @@ async function createOne(req, res) {
         customerHandoffName,
       } = req.body;
 
-      const p_numShipments = Shipment.countDocuments({ customer });
-      const p_customerDoc = Customer.findOne({ _id: customer }).lean().exec();
-
-      const [numShipments, customerDoc] = [
-        await p_numShipments,
-        await p_customerDoc,
-      ];
-      const { customerTag } = customerDoc;
+      const customerDoc = Customer.findOne({ _id: customer });
+      const { customerTag, numShipments } = customerDoc;
 
       const shipmentId = `${customerTag}-SH${numShipments + 1}`;
 
@@ -187,6 +181,10 @@ async function createOne(req, res) {
       const promises = manifest.map((x) =>
         PackingSlip.updateOne({ _id: x }, { $set: { shipment: shipment._id } })
       );
+
+      customerDoc.numShipments = numShipments+1;
+      promises.push( customerDoc.save() );
+
       await Promise.all(promises);
 
       return [null, { shipment }];
@@ -275,10 +273,11 @@ async function editOne(req, res) {
           },
         }
       );
+        
+      const promises = p_deleted.concat(p_added);
+      await Promise.all( promises );
 
-      await Promise.all(p_deleted, p_added);
-
-      return [null];
+      return [null, ];
     },
     "editing shipment",
     res
@@ -293,8 +292,20 @@ async function deleteOne(req, res) {
     async () => {
       const { sid } = req.params;
 
-      await Shipment.deleteOne({ _id: sid });
-      return [null];
+      // delete shipment
+      const p_delete = Shipment.deleteOne({ _id: sid });
+
+      // update packing slips to unassign them from shipments
+      const p_updatePackingSlips = PackingSlip.updateMany(
+        { shipment: sid },
+        { $unset: {'shipment': 1} }
+      );
+
+      await Promise.all([
+        p_delete,
+        p_updatePackingSlips
+      ]);
+      return [null, ];
     },
     "deleting shipment",
     res
