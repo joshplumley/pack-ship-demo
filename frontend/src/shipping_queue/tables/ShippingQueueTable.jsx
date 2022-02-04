@@ -110,23 +110,8 @@ const ShippingQueueTable = ({
   );
 
   useEffect(() => {
-    if (sortModel.length !== 0) {
-      // find the filter handler based on the column clicked
-      const clickedColumnField = createColumnFilters(columns, tableData).find(
-        (e) => e.field === sortModel[0]?.field
-      );
-      // execute the handler
-      setQueueData(
-        clickedColumnField?.handler(
-          sortModel[0]?.sort,
-          selectionOrderIds,
-          tableData
-        )
-      );
-    } else {
-      return tableData;
-    }
-  }, [sortModel, tableData, selectionOrderIds, columns]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   return (
     <div className={classes.root}>
@@ -155,7 +140,26 @@ const ShippingQueueTable = ({
         editMode="row"
         sortingMode="server"
         sortModel={sortModel}
-        onSortModelChange={(model) => setSortModel(model)}
+        onSortModelChange={(model) => {
+          setSortModel(model);
+          if (model.length !== 0) {
+            // find the filter handler based on the column clicked
+            const clickedColumnField = createColumnFilters(
+              columns,
+              tableData
+            ).find((e) => e.field === model[0]?.field);
+            // execute the handler
+            setQueueData(
+              clickedColumnField?.handler(
+                model[0]?.sort,
+                selectionOrderIds,
+                tableData
+              )
+            );
+          } else {
+            setQueueData(tableData);
+          }
+        }}
         components={{
           Footer: () =>
             selectionOrderIds.length > 0 ? (

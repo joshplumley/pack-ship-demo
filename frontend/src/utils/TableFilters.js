@@ -17,6 +17,8 @@ export const createColumnFilters = (columns) => {
           selected.sort((a, b) => (a[e.field] < b[e.field] ? 1 : -1));
           filtered.sort((a, b) => (a[e.field] < b[e.field] ? 1 : -1));
         }
+
+        console.log(selected.concat(filtered));
         return selected.concat(filtered);
       },
     };

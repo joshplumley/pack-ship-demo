@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
@@ -40,6 +40,7 @@ const PackingQueueTable = ({
 }) => {
   const classes = useStyle();
 
+  const [queueData, setQueueData] = useState();
   const [sortModel, setSortModel] = useState([
     { field: "orderNumber", sort: "asc" },
     { field: "part", sort: "asc" },
@@ -124,22 +125,9 @@ const PackingQueueTable = ({
     ]
   );
 
-  const queueData = useMemo(() => {
-    if (sortModel.length !== 0) {
-      // find the filter handler based on the column clicked
-      const clickedColumnField = createColumnFilters(columns, tableData).find(
-        (e) => e.field === sortModel[0]?.field
-      );
-      // execute the handler
-      return clickedColumnField?.handler(
-        sortModel[0]?.sort,
-        selectionOrderIds,
-        tableData
-      );
-    } else {
-      return tableData;
-    }
-  }, [sortModel, tableData, selectionOrderIds, columns]);
+  useEffect(() => {
+    setQueueData(tableData);
+  }, [tableData]);
 
   return (
     <div className={classes.root}>
@@ -158,7 +146,26 @@ const PackingQueueTable = ({
         disableSelectionOnClick={true}
         sortingMode="server"
         sortModel={sortModel}
-        onSortModelChange={(model) => setSortModel(model)}
+        onSortModelChange={(model) => {
+          setSortModel(model);
+          if (model.length !== 0) {
+            // find the filter handler based on the column clicked
+            const clickedColumnField = createColumnFilters(
+              columns,
+              tableData
+            ).find((e) => e.field === model[0]?.field);
+            // execute the handler
+            setQueueData(
+              clickedColumnField?.handler(
+                model[0]?.sort,
+                selectionOrderIds,
+                tableData
+              )
+            );
+          } else {
+            setQueueData(tableData);
+          }
+        }}
         components={{
           Footer: () =>
             selectionOrderIds.length > 0 ? (

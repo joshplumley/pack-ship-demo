@@ -144,11 +144,10 @@ const ShippingQueue = () => {
 
         // if the new selection contains all possible selected order numbers
         // then select all is on
-        const selectedCustId = tableData?.find(
-          (e) => e.id === selection
-        )?.orderNumber;
+        const selectedCustId = tableData?.find((e) => e.id === selection)
+          ?.customer._id;
         const idsWithSelectedCustId = tableData
-          ?.filter((e) => e.orderNumber === selectedCustId)
+          ?.filter((e) => e.customer._id === selectedCustId)
           .map((e) => e.id);
 
         setIsSelectAll(
