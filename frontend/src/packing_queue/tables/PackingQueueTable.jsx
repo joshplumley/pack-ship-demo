@@ -40,7 +40,7 @@ const PackingQueueTable = ({
 }) => {
   const classes = useStyle();
 
-  const [queueData, setQueueData] = useState();
+  const [queueData, setQueueData] = useState(tableData);
   const [sortModel, setSortModel] = useState([
     { field: "orderNumber", sort: "asc" },
     { field: "part", sort: "asc" },
