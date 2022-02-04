@@ -124,11 +124,12 @@ const EditPackingSlipTable = ({
       onDelete={onDelete}
       onAdd={onAdd}
       onEditRowsModelChange={(params) => {
-        if (!params)
+        if (params && Object.keys(params).length > 0) {
           onPackQtyChange(
             Object.keys(params)[0],
             params[Object.keys(params)[0]]["packQty"]["value"]
           );
+        }
       }}
       viewOnly={viewOnly}
     />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -90,7 +90,6 @@ const ShippingQueueTable = ({
   selectionOrderIds,
 }) => {
   const classes = useStyle();
-  const [queueData, setQueueData] = useState(tableData);
   const [sortModel, setSortModel] = useState([
     { field: "orderNumber", sort: "asc" },
     { field: "packingSlipId", sort: "asc" },
@@ -116,23 +115,22 @@ const ShippingQueueTable = ({
     },
   ];
 
-  const filters = createColumnFilters(columns, tableData);
-
-  useEffect(() => {
+  const queueData = useMemo(() => {
     if (sortModel.length !== 0) {
       // find the filter handler based on the column clicked
-      const clickedColumnField = filters.find(
+      const clickedColumnField = createColumnFilters(columns, tableData).find(
         (e) => e.field === sortModel[0]?.field
       );
       // execute the handler
-      const newRows = clickedColumnField?.handler(
+      return clickedColumnField?.handler(
         sortModel[0]?.sort,
         selectionOrderIds,
         tableData
       );
-      setQueueData(newRows);
+    } else {
+      return tableData;
     }
-  }, [sortModel, tableData, filters, selectionOrderIds]);
+  }, [sortModel, tableData, selectionOrderIds, columns]);
 
   return (
     <div className={classes.root}>

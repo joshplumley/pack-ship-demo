@@ -96,18 +96,24 @@ const HistoryTable = () => {
       API.getPackingQueue().then((data) => {
         let newSelectedRow = { ...selectedRow };
 
-        const possibleChoices = data.filter(
-          (e) =>
-            e.customer === selectedRow.customer._id &&
-            !selectedRow.items.some((t) => t.item._id === e._id)
-        );
+        const possibleChoices = data
+          .filter(
+            (e) =>
+              e.customer === selectedRow.customer._id &&
+              !selectedRow.items.some((t) => t.item._id === e._id)
+          )
+          .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
 
         if (data?.length > 0 && possibleChoices.length > 0) {
           newSelectedRow.items = newSelectedRow.items.map((e) => {
             if (e.item.isNew) {
-              const newPossibleChoices = e.item.possibleItems.filter((t) => {
-                return t._id !== possibleChoices[0]._id || t._id === e.item._id;
-              });
+              const newPossibleChoices = e.item.possibleItems
+                .filter((t) => {
+                  return (
+                    t._id !== possibleChoices[0]._id || t._id === e.item._id
+                  );
+                })
+                .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
 
               return {
                 ...e,
@@ -160,12 +166,14 @@ const HistoryTable = () => {
     API.getPackingQueue().then((data) => {
       updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
         if (e.item.isNew) {
-          const newPossibleChoices = data.filter(
-            (m) =>
-              m.customer === selectedRow.customer._id &&
-              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
-                m._id === e.item._id)
-          );
+          const newPossibleChoices = data
+            .filter(
+              (m) =>
+                m.customer === selectedRow.customer._id &&
+                (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                  m._id === e.item._id)
+            )
+            .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
           return {
             ...e,
             item: {
@@ -201,12 +209,14 @@ const HistoryTable = () => {
     API.getPackingQueue().then((data) => {
       updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
         if (e.item.isNew) {
-          const newPossibleChoices = data.filter(
-            (m) =>
-              m.customer === selectedRow.customer._id &&
-              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
-                m._id === e.item._id)
-          );
+          const newPossibleChoices = data
+            .filter(
+              (m) =>
+                m.customer === selectedRow.customer._id &&
+                (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                  m._id === e.item._id)
+            )
+            .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
           return {
             ...e,
             item: {
