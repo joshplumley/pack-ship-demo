@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography } from "@mui/material";
+import { Typography, TablePagination, Grid } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
@@ -127,12 +127,18 @@ const PackingQueueTable = ({
     }
   }, [sortModel, tableData]);
 
+  const [page, setPage] = useState(0)
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage)
+  };
+
   return (
     <div className={classes.root}>
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        rows={queueData}
+        rows={queueData.slice(page * 10, page * 10 + 10)}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
@@ -148,11 +154,32 @@ const PackingQueueTable = ({
         components={{
           Footer: () =>
             selectionOrderIds.length > 0 ? (
-              <Typography sx={{ padding: "8px" }}>
-                {selectionOrderIds.length} rows selected
-              </Typography>
+              <Grid container item alignItems="center" spacing={2}>
+                <Grid container item xs={6} justifyContent="flex-start">
+                  <Typography sx={{ padding: "8px" }}>
+                    {selectionOrderIds.length} rows selected
+                  </Typography>
+                </Grid>
+                <Grid container item xs={6} justifyContent="flex-end">
+                  <TablePagination
+                    count={queueData.length}
+                    rowsPerPageOptions={[5]}
+                    rowsPerPage={5}
+                    onPageChange={handlePageChange}
+                    page={page}
+                  />
+                </Grid>
+              </Grid>
             ) : (
-              <div></div>
+              <Grid container item xs={12} justifyContent="flex-end">
+                <TablePagination
+                  count={queueData.length}
+                  rowsPerPageOptions={[10]}
+                  rowsPerPage={10}
+                  onPageChange={handlePageChange}
+                  page={page}
+                />
+              </Grid>
             ),
         }}
       />
