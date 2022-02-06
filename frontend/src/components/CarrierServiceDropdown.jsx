@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Select,
@@ -15,8 +15,11 @@ const CarrierServiceDropdown = ({
   canErrorCheck,
   disabled = false,
 }) => {
-  const [localCarrier, setLocalCarrier] = useState(carrier);
-  const [hasSelectError, setHasSelectError] = useState(false);
+  const [hasSelectError, setHasSelectError] = useState(!isCarrierValid(carrier));
+
+  useEffect(()=> {
+    setHasSelectError(!isCarrierValid(carrier));
+  }, [carrier]);
 
   return (
     <Grid item xs>
@@ -30,13 +33,12 @@ const CarrierServiceDropdown = ({
           required
           error={canErrorCheck && hasSelectError}
           sx={{ width: "100%" }}
-          value={localCarrier}
+          value={carrier}
           onChange={(event) => {
-            setHasSelectError(!isCarrierValid(event.target.value));
-            setLocalCarrier(event.target.value);
+            setCarrier(event.target.value);
           }}
           onBlur={() => {
-            setCarrier(localCarrier);
+            setCarrier(carrier);
           }}
         >
           {CARRIERS.map((carrier) => (
