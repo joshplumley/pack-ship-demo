@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import CarrierServiceDropdown from "../../components/CarrierServiceDropdown";
 import { CARRIERS } from "../../utils/Constants";
+import CheckboxForm from "../../components/CheckboxForm";
 
 const CreateCarrierShipmentInfoForm = ({
   shippingInfo,
@@ -20,6 +21,8 @@ const CreateCarrierShipmentInfoForm = ({
     ...shippingInfo,
     carrier: CARRIERS[0],
   });
+
+  const [chargeCustomer, setChargeCustomer] = useState(false)
 
   const defaultInfo = useMemo(() => {
     return {
@@ -41,6 +44,26 @@ const CreateCarrierShipmentInfoForm = ({
       setReset(false);
     }
   }, [reset, setReset, defaultInfo, setShippingInfo]);
+
+  useEffect(() => {
+
+    if (chargeCustomer)
+    {
+      setShippingInfo(localShippingInfo)
+    }
+    else
+    {
+      setShippingInfo({
+        ...localShippingInfo,
+        customerAccount: undefined
+      })
+    }
+
+  }, [chargeCustomer])
+
+  function onChargeCustomerClick() {
+    setChargeCustomer(!chargeCustomer)
+  }
 
   return (
     <Box component="form">
@@ -101,7 +124,6 @@ const CreateCarrierShipmentInfoForm = ({
         item
         alignItems="center"
         spacing={2}
-        sx={{ paddingBottom: "20px" }}
       >
         <Grid container item xs={5} justifyContent="flex-end">
           <Typography align="right" sx={{ fontWeight: 700 }}>Customer Account:</Typography>
@@ -119,6 +141,16 @@ const CreateCarrierShipmentInfoForm = ({
             onBlur={() => {
               setShippingInfo(localShippingInfo);
             }}
+            disabled={!chargeCustomer}
+          />
+        </Grid>
+      </Grid>
+      <Grid container item alignItems="center" spacing={2} sx={{ paddingBottom: "20px" }}>
+        <Grid container item xs={5} justifyContent="flex-end">
+        <CheckboxForm
+            onChange={onChargeCustomerClick}
+            label="Charge Customer?"
+            checked={chargeCustomer}
           />
         </Grid>
       </Grid>
