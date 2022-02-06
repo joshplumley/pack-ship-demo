@@ -1,4 +1,4 @@
-import { Typography, Box, TextField } from "@mui/material";
+import { Typography, Box, TextField, TableCell } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
@@ -66,6 +66,52 @@ const PackingSlipTable = ({
         const hasError = !hasValueError(params.props.value);
         return { ...params.props, error: hasError };
       },
+      renderCell: (params) => {
+        console.log("RENDER", params);
+        return (
+          <TextField
+            // autoFocus={params.id === "61fecad561868753c2a3de80"}
+            fullWidth
+            error={params.error}
+            value={params.row.packQty}
+            onChange={(event) => {
+              console.log("CHANGING VALUE", event);
+              // setFilledForm(
+              //   filledForm.map((e) => {
+              //     if (e.id === params.id && params.field === "packQty") {
+              //       return { ...e, packQty: params.value };
+              //     }
+              //     return e;
+              //   })
+              // );
+            }}
+          />
+        );
+      },
+      renderEditCell: (params) => {
+        console.log("RENDEREDIT", params);
+        return (
+          <TableCell>
+            <TextField
+              // autoFocus={params.id === "61fecad561868753c2a3de80"}
+              fullWidth
+              error={params.error}
+              value={params.row.packQty}
+              onChange={(event) => {
+                console.log("CHANGING VALUE", event);
+                // setFilledForm(
+                //   filledForm.map((e) => {
+                //     if (e.id === params.id && params.field === "packQty") {
+                //       return { ...e, packQty: params.value };
+                //     }
+                //     return e;
+                //   })
+                // );
+              }}
+            />
+          </TableCell>
+        );
+      },
       // renderCell: (params) => {
       //   console.log("RENDER", params);
       //   return (
@@ -129,7 +175,9 @@ const PackingSlipTable = ({
         rowsPerPageOptions={[rowData.length]}
         hideFooter
         editCellPropsChange={(params) => console.log("MEEP", params)}
-        onCellClick={(params) => console.log("CLICK", params)}
+        onCellClick={(params) => {
+          console.log("CLICK", params);
+        }}
         onCellEditCommit={(params) => {
           setFilledForm(
             filledForm.map((e) => {
