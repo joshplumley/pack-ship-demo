@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography } from "@mui/material";
+import { Typography, TablePagination, Grid } from "@mui/material";
 import { styled } from "@mui/system";
 import { createColumnFilters } from "../../utils/TableFilters";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
@@ -59,6 +59,8 @@ const ShippingQueueTable = ({
     { field: "packingSlipId", sort: "asc" },
   ]);
 
+  const numRowsPerPage = 10;
+
   function isDisabled(params) {
     return (
       selectedCustomerId !== null &&
@@ -112,6 +114,24 @@ const ShippingQueueTable = ({
     }
   }, [sortModel, tableData]);
 
+  const [page, setPage] = useState(0)
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage)
+  };
+
+  const generateTablePagination = useCallback(() => {
+    return (
+      <TablePagination
+        count={queueData.length}
+        rowsPerPageOptions={[numRowsPerPage]}
+        rowsPerPage={numRowsPerPage}
+        onPageChange={handlePageChange}
+        page={page}
+      />
+    );
+  }, [page, queueData.length]);
+
   return (
     <div className={classes.root}>
       <ShippingQueueDataGrid
@@ -128,8 +148,8 @@ const ShippingQueueTable = ({
         rows={queueData}
         rowHeight={65}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
+        pageSize={numRowsPerPage}
+        rowsPerPageOptions={[numRowsPerPage]}
         columnBuffer={0}
         disableColumnMenu
         disableColumnSelector
@@ -143,11 +163,20 @@ const ShippingQueueTable = ({
         components={{
           Footer: () =>
             selectionOrderIds.length > 0 ? (
-              <Typography sx={{ padding: "8px" }}>
-                {selectionOrderIds.length} rows selected
-              </Typography>
+              <Grid container item alignItems="center" spacing={2}>
+                <Grid container item xs={6} justifyContent="flex-start">
+                  <Typography sx={{ padding: "8px" }}>
+                    {selectionOrderIds.length} rows selected
+                  </Typography>
+                </Grid>
+                <Grid container item xs={6} justifyContent="flex-end">
+                {generateTablePagination()}
+                </Grid>
+              </Grid>
             ) : (
-              <div></div>
+              <Grid container item xs={12} justifyContent="flex-end">
+                {generateTablePagination()}
+              </Grid>
             ),
         }}
       />

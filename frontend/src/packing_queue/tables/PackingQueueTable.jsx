@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography, TablePagination, Grid } from "@mui/material";
@@ -39,6 +39,7 @@ const PackingQueueTable = ({
   selectionOrderIds,
 }) => {
   const classes = useStyle();
+  const numRowsPerPage = 10;
 
   const [queueData, setQueueData] = useState(tableData);
   const [sortModel, setSortModel] = useState([
@@ -133,15 +134,27 @@ const PackingQueueTable = ({
     setPage(newPage)
   };
 
+  const generateTablePagination = useCallback(() => {
+    return (
+      <TablePagination
+        count={queueData.length}
+        rowsPerPageOptions={[numRowsPerPage]}
+        rowsPerPage={numRowsPerPage}
+        onPageChange={handlePageChange}
+        page={page}
+      />
+    );
+  }, [page, queueData.length]);
+
   return (
     <div className={classes.root}>
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        rows={queueData.slice(page * 10, page * 10 + 10)}
+        rows={queueData.slice(page * numRowsPerPage, page * numRowsPerPage + numRowsPerPage)}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
+        pageSize={numRowsPerPage}
+        rowsPerPageOptions={[numRowsPerPage]}
         columnBuffer={0}
         disableColumnMenu
         disableColumnSelector
@@ -161,24 +174,12 @@ const PackingQueueTable = ({
                   </Typography>
                 </Grid>
                 <Grid container item xs={6} justifyContent="flex-end">
-                  <TablePagination
-                    count={queueData.length}
-                    rowsPerPageOptions={[5]}
-                    rowsPerPage={5}
-                    onPageChange={handlePageChange}
-                    page={page}
-                  />
+                {generateTablePagination()}
                 </Grid>
               </Grid>
             ) : (
               <Grid container item xs={12} justifyContent="flex-end">
-                <TablePagination
-                  count={queueData.length}
-                  rowsPerPageOptions={[10]}
-                  rowsPerPage={10}
-                  onPageChange={handlePageChange}
-                  page={page}
-                />
+                {generateTablePagination()}
               </Grid>
             ),
         }}
