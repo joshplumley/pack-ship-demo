@@ -1,4 +1,4 @@
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, TextField } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
@@ -66,13 +66,35 @@ const PackingSlipTable = ({
         const hasError = !hasValueError(params.props.value);
         return { ...params.props, error: hasError };
       },
+      // renderCell: (params) => {
+      //   console.log("RENDER", params);
+      //   return (
+      //     <TextField
+      //       // autoFocus={params.id === "61fecad561868753c2a3de80"}
+      //       fullWidth
+      //       error={params.error}
+      //       value={params.row.packQty}
+      //       onChange={(event) => {
+      //         console.log("CHANGING VALUE", event);
+      //         // setFilledForm(
+      //         //   filledForm.map((e) => {
+      //         //     if (e.id === params.id && params.field === "packQty") {
+      //         //       return { ...e, packQty: params.value };
+      //         //     }
+      //         //     return e;
+      //         //   })
+      //         // );
+      //       }}
+      //     />
+      //   );
+      // },
     },
   ];
 
   return (
     <Box
       sx={{
-        height: 400,
+        height: "55vh",
         width: 1,
         "& .MuiDataGrid-cell--editing": {
           bgcolor: "rgb(255,215,115, 0.19)",
@@ -87,10 +109,27 @@ const PackingSlipTable = ({
       }}
     >
       <DataGrid
-        autoHeight
+        sx={{
+          border: "none",
+          height: "50vh",
+          "& .MuiDataGrid-cell--editable": {
+            // padding: "0px",
+            backgroundColor: "grey",
+            border: "solid 1px grey",
+            boxShadow: "1px 1px grey",
+            ":hover": {
+              border: "solid 1px black",
+            },
+          },
+        }}
         rows={rowData}
         columns={columns}
         disableSelectionOnClick
+        pageSize={rowData.length}
+        rowsPerPageOptions={[rowData.length]}
+        hideFooter
+        editCellPropsChange={(params) => console.log("MEEP", params)}
+        onCellClick={(params) => console.log("CLICK", params)}
         onCellEditCommit={(params) => {
           setFilledForm(
             filledForm.map((e) => {
