@@ -1,3 +1,4 @@
+import React from "react";
 import { Typography, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
@@ -72,7 +73,7 @@ const PackingSlipTable = ({
   return (
     <Box
       sx={{
-        height: 400,
+        height: "55vh",
         width: 1,
         "& .MuiDataGrid-cell--editing": {
           bgcolor: "rgb(255,215,115, 0.19)",
@@ -87,10 +88,23 @@ const PackingSlipTable = ({
       }}
     >
       <DataGrid
-        autoHeight
+        sx={{
+          border: "none",
+          height: "50vh",
+          "& .MuiDataGrid-cell--editable": {
+            border: "solid 1px grey",
+            fontStyle: "italic",
+            ":hover": {
+              border: "solid 1px black",
+            },
+          },
+        }}
         rows={rowData}
         columns={columns}
         disableSelectionOnClick
+        pageSize={rowData.length}
+        rowsPerPageOptions={[rowData.length]}
+        hideFooter
         onCellEditCommit={(params) => {
           setFilledForm(
             filledForm.map((e) => {

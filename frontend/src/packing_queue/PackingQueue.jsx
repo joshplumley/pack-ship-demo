@@ -240,9 +240,15 @@ const PackingQueue = () => {
         onClose={onPackingSlipClose}
         orderNum={selectedOrderNumber}
         title={`Create Packing Slip for ${selectedOrderNumber}`}
-        parts={filteredPackingQueue.filter((e) =>
-          selectedOrderIds.includes(e.id)
-        )}
+        parts={filteredPackingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .map((e) => {
+            return {
+              ...e,
+              packQty:
+                e.fulfilledQty > e.batchQty ? 0 : e.batchQty - e.fulfilledQty,
+            };
+          })}
       />
 
       <Grid

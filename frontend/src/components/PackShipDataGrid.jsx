@@ -36,6 +36,7 @@ const PackShipDataGrid = ({
   editMode,
   sort,
   onEditRowsModelChange,
+  hideFooter,
 }) => {
   return (
     <Box
@@ -70,6 +71,7 @@ const PackShipDataGrid = ({
         checkboxSelection={checkboxSelection}
         editMode={editMode}
         sort={sort}
+        hideFooter={hideFooter}
       />
     </Box>
   );

@@ -24,6 +24,7 @@ const useStyle = makeStyles((theme) => ({
 }));
 
 const PackShipEditableTable = ({
+  sx,
   columns,
   tableData,
   onDelete,
@@ -78,7 +79,7 @@ const PackShipEditableTable = ({
     <div className={classes.root}>
       <PackShipDataGrid
         rowData={newRows}
-        sx={{ border: "none", height: "50vh" }}
+        sx={{ border: "none", height: "50vh", ...sx }}
         className={classes.table}
         disableSelectionOnClick={true}
         onRowClick={onRowClick}
@@ -93,6 +94,7 @@ const PackShipEditableTable = ({
           field: "actions",
           sort: "asc",
         }}
+        hideFooter
       />
     </div>
   );
