@@ -92,9 +92,8 @@ const PackingSlipTable = ({
           border: "none",
           height: "50vh",
           "& .MuiDataGrid-cell--editable": {
-            backgroundColor: "grey",
             border: "solid 1px grey",
-            boxShadow: "1px 1px grey",
+            fontStyle: "italic",
             ":hover": {
               border: "solid 1px black",
             },
