@@ -1,11 +1,46 @@
 import { Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { styled } from "@mui/system";
 
-const PackShipDataGrid = ({ validateError, rowData, columns }) => {
+const ThisDataGrid = styled(DataGrid)`
+  .MuiDataGrid-row {
+    max-height: fit-content !important;
+  }
+
+  .MuiDataGrid-renderingZone {
+    max-height: none !important;
+  }
+
+  .MuiDataGrid-cell {
+    max-height: fit-content !important;
+    overflow: auto;
+    height: auto;
+    line-height: none !important;
+    align-items: center;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+`;
+
+const PackShipDataGrid = ({
+  rowData,
+  columns,
+  sx,
+  className,
+  disableSelectionOnClick,
+  onRowClick,
+  rowHeight,
+  pageSize,
+  rowsPerPageOptions,
+  checkboxSelection,
+  editMode,
+  sort,
+  onEditRowsModelChange,
+}) => {
   return (
     <Box
       sx={{
-        height: 400,
+        height: "fit-content",
         width: 1,
         "& .MuiDataGrid-cell--editing": {
           bgcolor: "rgb(255,215,115, 0.19)",
@@ -19,11 +54,22 @@ const PackShipDataGrid = ({ validateError, rowData, columns }) => {
         },
       }}
     >
-      <DataGrid
-        autoHeight
+      <ThisDataGrid
         rows={rowData}
         columns={columns}
-        onCellEditCommit={validateError}
+        onEditRowsModelChange={onEditRowsModelChange}
+        sx={{
+          ...sx,
+        }}
+        className={className}
+        disableSelectionOnClick={disableSelectionOnClick}
+        onRowClick={onRowClick}
+        rowHeight={rowHeight}
+        pageSize={pageSize}
+        rowsPerPageOptions={rowsPerPageOptions}
+        checkboxSelection={checkboxSelection}
+        editMode={editMode}
+        sort={sort}
       />
     </Box>
   );

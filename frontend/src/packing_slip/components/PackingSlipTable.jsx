@@ -2,6 +2,7 @@ import { Typography, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
+import { hasValueError } from "../../utils/validators/number_validator";
 
 const useStyle = makeStyles((theme) => ({
   fulfilledQtyHeader: {
@@ -11,12 +12,13 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const PackingSlipTable = ({ rowData, filledForm, setFilledForm, viewOnly=false }) => {
+const PackingSlipTable = ({
+  rowData,
+  filledForm,
+  setFilledForm,
+  viewOnly = false,
+}) => {
   const classes = useStyle();
-
-  function hasValueError(value) {
-    return /^[-+]?(\d+)$/.test(value);
-  }
 
   const columns = [
     {

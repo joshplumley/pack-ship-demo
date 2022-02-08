@@ -98,33 +98,36 @@ const PackingQueue = () => {
       });
   }
 
-  function handleSelection(selection, tableData) {
-    let newSelection = selectedOrderIds;
-    if (selectedOrderIds.includes(selection)) {
-      // remove it
-      newSelection = selectedOrderIds.filter((e) => e !== selection);
-      // if something is deselected then selectAll is false
-      setIsSelectAll(false);
-    } else {
-      // add it
-      newSelection.push(selection);
+  const handleSelection = useCallback(
+    (selection, tableData) => {
+      let newSelection = selectedOrderIds;
+      if (selectedOrderIds.includes(selection)) {
+        // remove it
+        newSelection = selectedOrderIds.filter((e) => e !== selection);
+        // if something is deselected then selectAll is false
+        setIsSelectAll(false);
+      } else {
+        // add it
+        newSelection.push(selection);
 
-      // if the new selection contains all possible selected order numbers
-      // then select all is on
-      const selectedOrderNum = tableData?.find(
-        (e) => e.id === selection
-      )?.orderNumber;
-      const idsWithSelectedOrderNum = tableData
-        ?.filter((e) => e.orderNumber === selectedOrderNum)
-        .map((e) => e.id);
+        // if the new selection contains all possible selected order numbers
+        // then select all is on
+        const selectedOrderNum = tableData?.find(
+          (e) => e.id === selection
+        )?.orderNumber;
+        const idsWithSelectedOrderNum = tableData
+          ?.filter((e) => e.orderNumber === selectedOrderNum)
+          .map((e) => e.id);
 
-      setIsSelectAll(
-        idsWithSelectedOrderNum.sort().toString() ===
-          newSelection.sort().toString()
-      );
-    }
-    return newSelection;
-  }
+        setIsSelectAll(
+          idsWithSelectedOrderNum.sort().toString() ===
+            newSelection.sort().toString()
+        );
+      }
+      return newSelection;
+    },
+    [selectedOrderIds]
+  );
 
   const onQueueRowClick = useCallback(
     (selectionModel, tableData) => {
@@ -137,7 +140,7 @@ const PackingQueue = () => {
         )?.orderNumber ?? null
       );
     },
-    [selectedOrderIds, handleSelection]
+    [handleSelection]
   );
 
   const onSelectAllClick = useCallback(
@@ -172,7 +175,7 @@ const PackingQueue = () => {
         setSelectedOrderNumber(null);
       }
     },
-    [selectedOrderIds]
+    [selectedOrderIds, selectedOrderNumber]
   );
 
   function onUnfinishedBatchesClick() {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography } from "@mui/material";
@@ -59,58 +59,59 @@ const ShippingQueueTable = ({
     { field: "packingSlipId", sort: "asc" },
   ]);
 
-  function isDisabled(params) {
-    return (
-      selectedCustomerId !== null &&
-      selectedCustomerId !== params.row.customer?._id
-    );
-  }
+  const isDisabled = useCallback(
+    (params) => {
+      return (
+        selectedCustomerId !== null &&
+        selectedCustomerId !== params.row.customer?._id
+      );
+    },
+    [selectedCustomerId]
+  );
 
-  const columns = [
-    getCheckboxColumn(
+  const storedTableData = useMemo(() => tableData, [tableData]);
+
+  const columns = useMemo(
+    () => [
+      getCheckboxColumn(
+        isDisabled,
+        selectionOrderIds,
+        isSelectAllOn,
+        storedTableData,
+        onSelectAll,
+        onRowClick
+      ),
+      {
+        field: "orderNumber",
+        flex: 1,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
+        },
+      },
+      {
+        field: "packingSlipId",
+        renderCell: (params) => {
+          return <ShipQueuePackSlipDrowdown params={params} />;
+        },
+        flex: 2,
+        renderHeader: (params) => {
+          return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
+        },
+      },
+    ],
+    [
       isDisabled,
-      selectionOrderIds,
       isSelectAllOn,
-      queueData,
+      onRowClick,
       onSelectAll,
-      onRowClick
-    ),
-    {
-      field: "orderNumber",
-      flex: 1,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
-      },
-    },
-    {
-      field: "packingSlipId",
-      renderCell: (params) => {
-        return <ShipQueuePackSlipDrowdown params={params} />;
-      },
-      flex: 2,
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Packing Slip</Typography>;
-      },
-    },
-  ];
-
-  const filters = createColumnFilters(columns, tableData);
+      selectionOrderIds,
+      storedTableData,
+    ]
+  );
 
   useEffect(() => {
-    if (sortModel.length !== 0) {
-      // find the filter handler based on the column clicked
-      const clickedColumnField = filters.find(
-        (e) => e.field === sortModel[0]?.field
-      );
-      // execute the handler
-      const newRows = clickedColumnField?.handler(
-        sortModel[0]?.sort,
-        selectionOrderIds,
-        tableData
-      );
-      setQueueData(newRows);
-    }
-  }, [sortModel, tableData]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   return (
     <div className={classes.root}>
@@ -139,7 +140,26 @@ const ShippingQueueTable = ({
         editMode="row"
         sortingMode="server"
         sortModel={sortModel}
-        onSortModelChange={(model) => setSortModel(model)}
+        onSortModelChange={(model) => {
+          setSortModel(model);
+          if (model.length !== 0) {
+            // find the filter handler based on the column clicked
+            const clickedColumnField = createColumnFilters(
+              columns,
+              tableData
+            ).find((e) => e.field === model[0]?.field);
+            // execute the handler
+            setQueueData(
+              clickedColumnField?.handler(
+                model[0]?.sort,
+                selectionOrderIds,
+                tableData
+              )
+            );
+          } else {
+            setQueueData(tableData);
+          }
+        }}
         components={{
           Footer: () =>
             selectionOrderIds.length > 0 ? (

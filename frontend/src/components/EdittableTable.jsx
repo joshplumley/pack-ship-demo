@@ -1,10 +1,10 @@
 import React from "react";
 import makeStyles from "@mui/styles/makeStyles";
-import { DataGrid } from "@mui/x-data-grid";
 import { Typography, IconButton } from "@mui/material";
-import { styled } from "@mui/system";
+
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import PackShipDataGrid from "./PackShipDataGrid";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -23,26 +23,6 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const ThisDataGrid = styled(DataGrid)`
-  .MuiDataGrid-row {
-    max-height: fit-content !important;
-  }
-
-  .MuiDataGrid-renderingZone {
-    max-height: none !important;
-  }
-
-  .MuiDataGrid-cell {
-    max-height: fit-content !important;
-    overflow: auto;
-    height: auto;
-    line-height: none !important;
-    align-items: center;
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
-  }
-`;
-
 const PackShipEditableTable = ({
   columns,
   tableData,
@@ -50,6 +30,7 @@ const PackShipEditableTable = ({
   onAdd,
   onRowClick,
   viewOnly,
+  onEditRowsModelChange,
   pageSize = 10,
 }) => {
   const classes = useStyle();
@@ -95,7 +76,8 @@ const PackShipEditableTable = ({
 
   return (
     <div className={classes.root}>
-      <ThisDataGrid
+      <PackShipDataGrid
+        rowData={newRows}
         sx={{ border: "none", height: "50vh" }}
         className={classes.table}
         disableSelectionOnClick={true}
@@ -104,9 +86,9 @@ const PackShipEditableTable = ({
         rowHeight={65}
         columns={newColumns}
         pageSize={localPageSize}
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={[localPageSize]}
         checkboxSelection={false}
-        editMode="row"
+        onEditRowsModelChange={onEditRowsModelChange}
         sort={{
           field: "actions",
           sort: "asc",
