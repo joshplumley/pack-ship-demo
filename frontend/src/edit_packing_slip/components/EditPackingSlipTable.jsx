@@ -7,39 +7,10 @@ const EditPackingSlipTable = ({
   rowData,
   onDelete,
   onAdd,
-  onNewOrderNumRowChange,
   onNewPartRowChange,
   onPackQtyChange,
-  setEditing,
   viewOnly,
 }) => {
-  function renderOrderNum(params) {
-    if (params.row.isNew && params.row.packQty === undefined) {
-      return (
-        <EditTableDropdown
-          choices={params.row.possibleItems.filter(
-            (v, i, a) =>
-              a.findIndex((t) => t.orderNumber === v.orderNumber) === i
-          )}
-          value={params.row}
-          onChange={onNewOrderNumRowChange}
-          valueKey="orderNumber"
-        />
-      );
-    } else {
-      return (
-        <Typography
-          variant="body1"
-          component="p"
-          sx={{ padding: "4px" }}
-          color="textSecondary"
-        >
-          {params.row.orderNumber}
-        </Typography>
-      );
-    }
-  }
-
   function renderPart(params) {
     if (params.row.isNew && params.row.packQty === undefined) {
       return (
@@ -70,14 +41,6 @@ const EditPackingSlipTable = ({
   }
 
   const columns = [
-    {
-      field: "orderNumber",
-      renderHeader: (params) => {
-        return <Typography sx={{ fontWeight: 900 }}>Order#</Typography>;
-      },
-      renderCell: renderOrderNum,
-      flex: 1,
-    },
     {
       field: "part",
       renderHeader: (params) => {
