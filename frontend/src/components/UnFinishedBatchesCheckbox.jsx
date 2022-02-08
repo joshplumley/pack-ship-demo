@@ -1,6 +1,6 @@
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
-const PackSkipCheckbox = ({
+const PackShipCheckbox = ({
   label,
   onChange,
   checked = true,
@@ -18,4 +18,4 @@ const PackSkipCheckbox = ({
   );
 };
 
-export default PackSkipCheckbox;
+export default PackShipCheckbox;
