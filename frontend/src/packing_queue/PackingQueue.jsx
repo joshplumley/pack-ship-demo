@@ -212,15 +212,16 @@ const PackingQueue = () => {
         <Grid container item xs justifyContent="flex-end">
           <PackSkipCheckbox
             label="Show Unfinished Batches"
-            onChange={onUnfinishedBatchesClick}
+            disabled={true}
+            onChange={() => console.log("not implemented yet")}
             checked={isShowUnfinishedBatches}
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
           <PackSkipCheckbox
             label="Show Fulfilled Batches"
-            onChange={() => {
-              setIsFulfilledBatchesOn(!isFulfilledBatchesOn);
+            onChange={(checked) => {
+              setIsFulfilledBatchesOn(checked);
 
               if (isFulfilledBatchesOn) {
                 setFilteredPackingQueue(
