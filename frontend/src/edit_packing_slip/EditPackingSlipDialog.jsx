@@ -8,10 +8,8 @@ const EditPackingSlipDialog = ({
   onSubmit,
   onAdd,
   onDelete,
-  onNewOrderNumRowChange,
   onNewPartRowChange,
   onPackQtyChange,
-  setCellEditing,
   cellEditing = false,
   viewOnly = true,
 }) => {
@@ -29,10 +27,8 @@ const EditPackingSlipDialog = ({
         rowData={packingSlipData}
         onAdd={onAdd}
         onDelete={onDelete}
-        onNewOrderNumRowChange={onNewOrderNumRowChange}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
-        setEditing={setCellEditing}
         viewOnly={viewOnly}
       />
     </PackingDialog>

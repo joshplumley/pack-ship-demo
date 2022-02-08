@@ -62,7 +62,6 @@ const HistoryTable = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
 
   //Edit/View
-  const [cellEditing, setCellEditing] = useState(false);
   const [isEditPackingSlipOpen, setIsEditPackingSlipOpen] = useState({
     open: false,
     viewOnly: false,
@@ -96,24 +95,17 @@ const HistoryTable = () => {
       API.getPackingQueue().then((data) => {
         let newSelectedRow = { ...selectedRow };
 
-        const possibleChoices = data
-          .filter(
-            (e) =>
-              e.customer === selectedRow.customer._id &&
-              !selectedRow.items.some((t) => t.item._id === e._id)
-          )
-          .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
-
+        const possibleChoices = data.filter(
+          (e) =>
+            e.orderNumber === selectedRow.orderNumber &&
+            !selectedRow.items.some((t) => t.item._id === e._id)
+        );
         if (data?.length > 0 && possibleChoices.length > 0) {
           newSelectedRow.items = newSelectedRow.items.map((e) => {
             if (e.item.isNew) {
-              const newPossibleChoices = e.item.possibleItems
-                .filter((t) => {
-                  return (
-                    t._id !== possibleChoices[0]._id || t._id === e.item._id
-                  );
-                })
-                .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
+              const newPossibleChoices = e.item.possibleItems.filter((t) => {
+                return t._id !== possibleChoices[0]._id || t._id === e.item._id;
+              });
 
               return {
                 ...e,
@@ -145,49 +137,6 @@ const HistoryTable = () => {
     [selectedRow]
   );
 
-  function onNewOrderNumRowChange(oldVal, newVal) {
-    const itemIndex = selectedRow?.items?.findIndex(
-      (e) =>
-        e.item.orderNumber === oldVal.orderNumber &&
-        e.item.partNumber === oldVal.partNumber
-    );
-    let updatedPackingSlip = {
-      ...selectedRow,
-    };
-
-    updatedPackingSlip.items[itemIndex] = {
-      ...updatedPackingSlip.items[itemIndex],
-      item: {
-        ...oldVal,
-        ...newVal,
-      },
-    };
-
-    API.getPackingQueue().then((data) => {
-      updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
-        if (e.item.isNew) {
-          const newPossibleChoices = data
-            .filter(
-              (m) =>
-                m.customer === selectedRow.customer._id &&
-                (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
-                  m._id === e.item._id)
-            )
-            .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
-          return {
-            ...e,
-            item: {
-              ...e.item,
-              possibleItems: newPossibleChoices,
-            },
-          };
-        }
-        return e;
-      });
-      setSelectedRow(updatedPackingSlip);
-    });
-  }
-
   function onNewPartRowChange(oldVal, newVal) {
     const itemIndex = selectedRow?.items?.findIndex(
       (e) =>
@@ -209,14 +158,13 @@ const HistoryTable = () => {
     API.getPackingQueue().then((data) => {
       updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
         if (e.item.isNew) {
-          const newPossibleChoices = data
-            .filter(
-              (m) =>
-                m.customer === selectedRow.customer._id &&
-                (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
-                  m._id === e.item._id)
-            )
-            .sort((a, b) => (a.orderNumber > b.orderNumber ? 1 : -1));
+          const newPossibleChoices = data.filter(
+            (m) =>
+              m.customer === selectedRow.customer._id &&
+              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                m._id === e.item._id)
+          );
+
           return {
             ...e,
             item: {
@@ -368,15 +316,12 @@ const HistoryTable = () => {
         onSubmit={onPackingSlipSubmit}
         packingSlipData={selectedRow}
         onAdd={onHistoryPackingSlipAdd}
-        onNewOrderNumRowChange={onNewOrderNumRowChange}
         onNewPartRowChange={onNewPartRowChange}
         onPackQtyChange={onPackQtyChange}
         onDelete={(params) => {
           setConfirmDeleteDialogOpen(true);
           setItemToDelete(params.row);
         }}
-        cellEditing={cellEditing}
-        setCellEditing={setCellEditing}
       />
 
       <ConfirmDialog
