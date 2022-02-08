@@ -105,15 +105,20 @@ const PackingSlipTable = ({
         pageSize={rowData.length}
         rowsPerPageOptions={[rowData.length]}
         hideFooter
-        onCellEditCommit={(params) => {
-          setFilledForm(
-            filledForm.map((e) => {
-              if (e.id === params.id && params.field === "packQty") {
-                return { ...e, packQty: params.value };
-              }
-              return e;
-            })
-          );
+        onEditRowsModelChange={(params) => {
+          if (params && Object.keys(params).length > 0) {
+            setFilledForm(
+              filledForm.map((e) => {
+                if (e.id === Object.keys(params)[0]) {
+                  return {
+                    ...e,
+                    packQty: params[Object.keys(params)[0]]["packQty"]["value"],
+                  };
+                }
+                return e;
+              })
+            );
+          }
         }}
       />
     </Box>
