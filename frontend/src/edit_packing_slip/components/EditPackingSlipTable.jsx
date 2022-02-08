@@ -112,6 +112,15 @@ const EditPackingSlipTable = ({
 
   return (
     <PackShipEditableTable
+      sx={{
+        "& .MuiDataGrid-cell--editable": {
+          border: "solid 1px grey",
+          fontStyle: "italic",
+          ":hover": {
+            border: "solid 1px black",
+          },
+        },
+      }}
       tableData={rowData.items.map((e) => {
         return {
           ...e.item,
