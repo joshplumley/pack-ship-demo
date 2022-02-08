@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
-import UnfinishedBatchesCheckbox from "../components/UnFinishedBatchesCheckbox";
+import PackSkipCheckbox from "../components/UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
 import { Box, Button, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
@@ -25,6 +25,7 @@ const PackingQueue = () => {
   const classes = useStyle();
 
   const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
+  const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
   const [packingQueue, setPackingQueue] = useState([]);
@@ -209,9 +210,29 @@ const PackingQueue = () => {
           <Search onSearch={onSearch} />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
-          <UnfinishedBatchesCheckbox
+          <PackSkipCheckbox
+            label="Show Unfinished Batches"
             onChange={onUnfinishedBatchesClick}
             checked={isShowUnfinishedBatches}
+          />
+        </Grid>
+        <Grid container item xs justifyContent="flex-end">
+          <PackSkipCheckbox
+            label="Show Fulfilled Batches"
+            onChange={() => {
+              setIsFulfilledBatchesOn(!isFulfilledBatchesOn);
+
+              if (isFulfilledBatchesOn) {
+                setFilteredPackingQueue(
+                  filteredPackingQueue.filter(
+                    (e) => e.fulfilledQty < e.batchQty
+                  )
+                );
+              } else {
+                setFilteredPackingQueue(packingQueue);
+              }
+            }}
+            checked={isFulfilledBatchesOn}
           />
         </Grid>
       </Grid>
