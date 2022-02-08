@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
-import PackSkipCheckbox from "../components/UnFinishedBatchesCheckbox";
+import PackShipCheckbox from "../components/UnFinishedBatchesCheckbox";
 import { API } from "../services/server";
 import { Box, Button, Grid } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
@@ -210,7 +210,7 @@ const PackingQueue = () => {
           <Search onSearch={onSearch} />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
-          <PackSkipCheckbox
+          <PackShipCheckbox
             label="Show Unfinished Batches"
             disabled={true}
             onChange={() => console.log("not implemented yet")}
@@ -218,7 +218,7 @@ const PackingQueue = () => {
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
-          <PackSkipCheckbox
+          <PackShipCheckbox
             label="Show Fulfilled Batches"
             onChange={(checked) => {
               setIsFulfilledBatchesOn(checked);
