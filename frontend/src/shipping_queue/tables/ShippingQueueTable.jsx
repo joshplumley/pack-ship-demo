@@ -128,6 +128,7 @@ const ShippingQueueTable = ({
         rowsPerPage={numRowsPerPage}
         onPageChange={handlePageChange}
         page={page}
+        sx={{ border: "0px" }}
       />
     );
   }, [page, queueData.length]);
@@ -163,7 +164,7 @@ const ShippingQueueTable = ({
         components={{
           Footer: () =>
             selectionOrderIds.length > 0 ? (
-              <Grid container item alignItems="center" spacing={2}>
+              <Grid container alignItems="center" spacing={2}>
                 <Grid container item xs={6} justifyContent="flex-start">
                   <Typography sx={{ padding: "8px" }}>
                     {selectionOrderIds.length} rows selected

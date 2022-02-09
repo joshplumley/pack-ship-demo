@@ -142,6 +142,7 @@ const PackingQueueTable = ({
         rowsPerPage={numRowsPerPage}
         onPageChange={handlePageChange}
         page={page}
+        sx={{ border: "0px" }}
       />
     );
   }, [page, queueData.length]);
