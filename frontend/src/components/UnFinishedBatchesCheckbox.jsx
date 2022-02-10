@@ -1,15 +1,21 @@
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
-const UnfinishedBatchesCheckbox = ({ onChange, checked = true }) => {
+const PackShipCheckbox = ({
+  label,
+  onChange,
+  checked = true,
+  disabled = false,
+}) => {
   return (
     <FormGroup>
       <FormControlLabel
         control={<Checkbox checked={checked} />}
-        label="Show Unfinished Batches"
-        onChange={onChange}
+        label={label}
+        onChange={(_, checked) => onChange(checked)}
+        disabled={disabled}
       />
     </FormGroup>
   );
 };
 
-export default UnfinishedBatchesCheckbox;
+export default PackShipCheckbox;

@@ -35,6 +35,11 @@ const schema = new Schema({
     qty: Number,
   }],
 
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
+
   // ref to the shipment ID that contains this packing slip
   // empty until it is assigned to a shipment
   shipment: ObjectId,

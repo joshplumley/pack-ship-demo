@@ -11,7 +11,6 @@ const TextInput = ({
 }) => {
   return (
     <TextField
-      InputProps={{ disableUnderline: true }}
       variant={readOnly ? "standard" : "outlined"}
       id="text-field-input"
       onChange={(e) => {
