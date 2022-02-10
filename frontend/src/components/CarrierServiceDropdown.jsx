@@ -15,10 +15,11 @@ const CarrierServiceDropdown = ({
   canErrorCheck,
   disabled = false,
 }) => {
+  const [localCarrier, setLocalCarrier] = useState(carrier);
   const [hasSelectError, setHasSelectError] = useState(!isCarrierValid(carrier));
 
   useEffect(()=> {
-    setHasSelectError(!isCarrierValid(carrier));
+    setLocalCarrier(carrier)
   }, [carrier]);
 
   return (
@@ -33,12 +34,13 @@ const CarrierServiceDropdown = ({
           required
           error={canErrorCheck && hasSelectError}
           sx={{ width: "100%" }}
-          value={carrier}
+          value={localCarrier}
           onChange={(event) => {
-            setCarrier(event.target.value);
+            setHasSelectError(!isCarrierValid(event.target.value));
+            setLocalCarrier(event.target.value);
           }}
           onBlur={() => {
-            setCarrier(carrier);
+            setCarrier(localCarrier);
           }}
         >
           {CARRIERS.map((carrier) => (
