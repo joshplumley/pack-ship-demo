@@ -20,6 +20,7 @@ const CarrierServiceDropdown = ({
 
   useEffect(()=> {
     setLocalCarrier(carrier)
+    setHasSelectError(!isCarrierValid(carrier))
   }, [carrier]);
 
   return (
