@@ -22,19 +22,19 @@ const CreateCarrierShipmentInfoForm = ({
     carrier: CARRIERS[0],
   });
 
-  const [chargeCustomer, setChargeCustomer] = useState(false)
-
   const defaultInfo = useMemo(() => {
     return {
       manifest: shippingInfo.manifest,
       customer: shippingInfo.customer,
       deliveryMethod: shippingInfo.deliveryMethod,
       carrier: CARRIERS[0],
+      checkedCustomer: shippingInfo.checkedCustomer
     };
   }, [
     shippingInfo.manifest,
     shippingInfo.customer,
     shippingInfo.deliveryMethod,
+    shippingInfo.checkedCustomer
   ]);
 
   useEffect(() => {
@@ -44,26 +44,6 @@ const CreateCarrierShipmentInfoForm = ({
       setReset(false);
     }
   }, [reset, setReset, defaultInfo, setShippingInfo]);
-
-  useEffect(() => {
-
-    if (chargeCustomer)
-    {
-      setShippingInfo(localShippingInfo)
-    }
-    else
-    {
-      setShippingInfo({
-        ...localShippingInfo,
-        customerAccount: undefined
-      })
-    }
-
-  }, [chargeCustomer])
-
-  function onChargeCustomerClick() {
-    setChargeCustomer(!chargeCustomer)
-  }
 
   return (
     <Box component="form">
@@ -137,7 +117,16 @@ const CreateCarrierShipmentInfoForm = ({
           </Grid>
           <Grid container item justifyContent="flex-end" alignContent="right">
             <CheckboxForm
-              onChange={onChargeCustomerClick}
+              onChange={(checked) => {
+                setLocalShippingInfo({
+                  ...localShippingInfo,
+                  checkedCustomer: checked
+                });
+                setShippingInfo({
+                  ...shippingInfo,
+                  checkedCustomer: checked
+                })
+              }}
               label={
                 <Typography
                   minWidth="max-content"
@@ -150,7 +139,7 @@ const CreateCarrierShipmentInfoForm = ({
               }
               checkBoxSx={{ padding: 0 }}
               formControlSx={{ margin: 0 }}
-              checked={chargeCustomer}
+              checked={localShippingInfo.checkedCustomer}
             />
           </Grid>
         </Grid>
@@ -167,7 +156,7 @@ const CreateCarrierShipmentInfoForm = ({
             onBlur={() => {
               setShippingInfo(localShippingInfo);
             }}
-            disabled={!chargeCustomer}
+            disabled={!localShippingInfo.checkedCustomer}
             sx={{ width: "75%" }}
           />
         </Grid>

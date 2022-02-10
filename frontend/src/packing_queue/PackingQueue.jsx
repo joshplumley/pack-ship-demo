@@ -214,14 +214,14 @@ const PackingQueue = () => {
         </Grid>
         <Grid container item xs justifyContent="flex-end">
           <CheckboxForm
-            onChange={onUnfinishedBatchesClick}
             label="Show Unfinished Batches"
-            checked={isShowUnfinishedBatches}
             disabled={true}
+            onChange={() => console.log("not implemented yet")}
+            checked={isShowUnfinishedBatches}
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
-          <PackShipCheckbox
+          <CheckboxForm
             label="Show Fulfilled Batches"
             onChange={(checked) => {
               setIsFulfilledBatchesOn(checked);
