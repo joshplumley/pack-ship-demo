@@ -21,7 +21,7 @@ const CarrierServiceDropdown = ({
   return (
     <Grid item xs>
       <FormControl
-        sx={{ width: "100%" }}
+        sx={{ width: "75%" }}
         error={canErrorCheck && hasSelectError}
       >
         <Select
