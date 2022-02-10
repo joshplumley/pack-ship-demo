@@ -242,7 +242,7 @@ const PackingQueue = () => {
       </Grid>
 
       <PackShipTabs
-        queueData={filteredPackingQueue}
+        queueTotal={packingQueue?.length}
         queueTab={
           <PackingQueueTable
             onRowClick={onQueueRowClick}

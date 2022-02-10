@@ -57,7 +57,7 @@ const TabPanel = styled(TabPanelUnstyled)`
 
 export default function PackShipTabs({
   onTabChange,
-  queueData,
+  queueTotal,
   queueTab,
   historyTab,
 }) {
@@ -70,7 +70,7 @@ export default function PackShipTabs({
     >
       <TabsUnstyled defaultValue={0}>
         <Tabs value={false} onChange={onTabChange}>
-          <Tab value={0}>Queue ({queueData.length})</Tab>
+          <Tab value={0}>Queue ({queueTotal})</Tab>
           <Tab value={1}>History</Tab>
         </Tabs>
         <TabPanel value={0}>{queueTab}</TabPanel>

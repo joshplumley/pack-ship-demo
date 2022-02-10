@@ -512,7 +512,7 @@ const ShippingQueue = () => {
 
       <PackShipTabs
         onTabChange={onTabChange}
-        queueData={filteredShippingQueue}
+        queueTotal={shippingQueue?.length}
         queueTab={
           <ShippingQueueTable
             onRowClick={onQueueRowClick}
