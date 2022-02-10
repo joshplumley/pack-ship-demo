@@ -22,6 +22,7 @@ const EditPackingSlipDialog = ({
       onClose={onClose}
       onSubmit={onSubmit}
       submitDisabled={cellEditing}
+      actions={viewOnly ? true : undefined}
     >
       <EditPackingSlipTable
         rowData={packingSlipData}
