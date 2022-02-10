@@ -24,7 +24,7 @@ const useStyle = makeStyles((theme) => ({
 const PackingQueue = () => {
   const classes = useStyle();
 
-  const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
+  const isShowUnfinishedBatches = true;
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -178,10 +178,6 @@ const PackingQueue = () => {
     },
     [selectedOrderIds, selectedOrderNumber]
   );
-
-  function onUnfinishedBatchesClick() {
-    setIsShowUnfinishedBatches(!isShowUnfinishedBatches);
-  }
 
   function onSearch(value) {
     const filtered = packingQueue.filter(
