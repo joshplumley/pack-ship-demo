@@ -49,7 +49,10 @@ async function searchPackingSlips(req, res) {
 async function getAllPackingSlips(_req, res) {
   handler(
     async () => {
-      const packingSlips = await PackingSlip.find().lean().exec();
+      const packingSlips = await PackingSlip.find()
+        .populate("customer items.item")
+        .lean()
+        .exec();
 
       return [null, { packingSlips }];
     },

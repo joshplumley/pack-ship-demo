@@ -25,6 +25,7 @@ const PackingQueue = () => {
   const classes = useStyle();
 
   const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
+  const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
   const [packingQueue, setPackingQueue] = useState([]);
@@ -98,33 +99,36 @@ const PackingQueue = () => {
       });
   }
 
-  function handleSelection(selection, tableData) {
-    let newSelection = selectedOrderIds;
-    if (selectedOrderIds.includes(selection)) {
-      // remove it
-      newSelection = selectedOrderIds.filter((e) => e !== selection);
-      // if something is deselected then selectAll is false
-      setIsSelectAll(false);
-    } else {
-      // add it
-      newSelection.push(selection);
+  const handleSelection = useCallback(
+    (selection, tableData) => {
+      let newSelection = selectedOrderIds;
+      if (selectedOrderIds.includes(selection)) {
+        // remove it
+        newSelection = selectedOrderIds.filter((e) => e !== selection);
+        // if something is deselected then selectAll is false
+        setIsSelectAll(false);
+      } else {
+        // add it
+        newSelection.push(selection);
 
-      // if the new selection contains all possible selected order numbers
-      // then select all is on
-      const selectedOrderNum = tableData?.find(
-        (e) => e.id === selection
-      )?.orderNumber;
-      const idsWithSelectedOrderNum = tableData
-        ?.filter((e) => e.orderNumber === selectedOrderNum)
-        .map((e) => e.id);
+        // if the new selection contains all possible selected order numbers
+        // then select all is on
+        const selectedOrderNum = tableData?.find(
+          (e) => e.id === selection
+        )?.orderNumber;
+        const idsWithSelectedOrderNum = tableData
+          ?.filter((e) => e.orderNumber === selectedOrderNum)
+          .map((e) => e.id);
 
-      setIsSelectAll(
-        idsWithSelectedOrderNum.sort().toString() ===
-          newSelection.sort().toString()
-      );
-    }
-    return newSelection;
-  }
+        setIsSelectAll(
+          idsWithSelectedOrderNum.sort().toString() ===
+            newSelection.sort().toString()
+        );
+      }
+      return newSelection;
+    },
+    [selectedOrderIds]
+  );
 
   const onQueueRowClick = useCallback(
     (selectionModel, tableData) => {
@@ -137,7 +141,7 @@ const PackingQueue = () => {
         )?.orderNumber ?? null
       );
     },
-    [selectedOrderIds, handleSelection]
+    [handleSelection]
   );
 
   const onSelectAllClick = useCallback(
@@ -172,7 +176,7 @@ const PackingQueue = () => {
         setSelectedOrderNumber(null);
       }
     },
-    [selectedOrderIds]
+    [selectedOrderIds, selectedOrderNumber]
   );
 
   function onUnfinishedBatchesClick() {
@@ -213,6 +217,26 @@ const PackingQueue = () => {
             onChange={onUnfinishedBatchesClick}
             label="Show Unfinished Batches"
             checked={isShowUnfinishedBatches}
+            disabled={true}
+          />
+        </Grid>
+        <Grid container item xs justifyContent="flex-end">
+          <PackShipCheckbox
+            label="Show Fulfilled Batches"
+            onChange={(checked) => {
+              setIsFulfilledBatchesOn(checked);
+
+              if (isFulfilledBatchesOn) {
+                setFilteredPackingQueue(
+                  filteredPackingQueue.filter(
+                    (e) => e.fulfilledQty < e.batchQty
+                  )
+                );
+              } else {
+                setFilteredPackingQueue(packingQueue);
+              }
+            }}
+            checked={isFulfilledBatchesOn}
           />
         </Grid>
       </Grid>
@@ -238,9 +262,15 @@ const PackingQueue = () => {
         onClose={onPackingSlipClose}
         orderNum={selectedOrderNumber}
         title={`Create Packing Slip for ${selectedOrderNumber}`}
-        parts={filteredPackingQueue.filter((e) =>
-          selectedOrderIds.includes(e.id)
-        )}
+        parts={filteredPackingQueue
+          .filter((e) => selectedOrderIds.includes(e.id))
+          .map((e) => {
+            return {
+              ...e,
+              packQty:
+                e.fulfilledQty > e.batchQty ? 0 : e.batchQty - e.fulfilledQty,
+            };
+          })}
       />
 
       <Grid

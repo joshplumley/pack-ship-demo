@@ -6,12 +6,12 @@ const schema = new Schema({
   // keep track of how many shipments & packing slips have been created
   numShipments: {
     type: Number,
-    default: 1
+    default: 0
   },
 
   numPackingSlips: {
     type: Number,
-    default: 1
+    default: 0
   },
 });
 

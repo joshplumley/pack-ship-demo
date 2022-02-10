@@ -1,19 +1,34 @@
 import React from "react";
 import { Select, MenuItem } from "@mui/material";
 
-const EditTableDropdown = ({ choices, onChange, value }) => {
+const EditTableDropdown = ({
+  choices,
+  onChange,
+  value,
+  valueKey,
+  menuKeyValue,
+}) => {
   return (
     <Select
       required
-      value={value.packingSlipId}
+      value={value[valueKey]}
       onChange={(event) => {
-        onChange(choices.find((e) => e.packingSlipId === event.target.value));
+        onChange(
+          value,
+          choices.find((e) => e[valueKey] === event.target.value)
+        );
+      }}
+      MenuProps={{
+        sx: { maxHeight: "250px" },
       }}
     >
       {choices.map((e) => {
         return (
-          <MenuItem key={e.packingSlipId} value={e.packingSlipId}>
-            {e.packingSlipId}
+          <MenuItem
+            key={`${e[valueKey]}-${e[menuKeyValue]}`}
+            value={e[valueKey]}
+          >
+            {e[valueKey]}
           </MenuItem>
         );
       })}
