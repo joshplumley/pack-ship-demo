@@ -33,7 +33,7 @@ const columns = [
     flex: 1,
   },
   {
-    field: "packingSlipN",
+    field: "packingSlipId",
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Packing Slip #</Typography>;
     },
@@ -48,13 +48,14 @@ const columns = [
   },
 ];
 
-const HistoryTable = () => {
+const HistoryTable = ({ searchString }) => {
   const classes = useStyle();
 
   const [menuPosition, setMenuPosition] = useState();
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
 
   // Deletions
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
@@ -73,18 +74,29 @@ const HistoryTable = () => {
     }
 
     fetchData().then((data) => {
-      let packingSlips = [];
-      data?.packingSlips?.forEach((e) => {
-        packingSlips.push({
+      let packingSlips = data?.packingSlips?.map((e) => {
+        return {
           ...e,
           id: e._id,
           orderId: e.orderNumber,
-          packingSlipN: e.packingSlipId,
-        });
+        };
       });
       setRows(packingSlips);
+      setFilteredRows(packingSlips);
     });
   }, []);
+
+  useEffect(() => {
+    setFilteredRows(
+      rows.filter(
+        (order) =>
+          order.orderNumber
+            .toLowerCase()
+            .includes(searchString.toLowerCase()) ||
+          order.packingSlipId.toLowerCase().includes(searchString.toLowerCase())
+      )
+    );
+  }, [rows, searchString]);
 
   useEffect(() => {
     reloadData();
@@ -223,7 +235,6 @@ const HistoryTable = () => {
   const openDeleteDialog = (event) => {
     setDeleteDialog(true);
     setMenuPosition(null);
-    setIsEditPackingSlipOpen({ open: true, viewOnly: true });
   };
 
   const handleDeleteConfirm = () => {
@@ -232,7 +243,10 @@ const HistoryTable = () => {
 
   async function deletePackingSlip() {
     API.deletePackingSlip(selectedRow?.id)
-      .then(handleDeleteConfirm())
+      .then(() => {
+        handleDeleteConfirm();
+        reloadData();
+      })
       .catch(() => {
         alert("An error occurred deleting packing slip");
       });
@@ -292,7 +306,7 @@ const HistoryTable = () => {
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        rows={rows}
+        rows={filteredRows}
         columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10]}
