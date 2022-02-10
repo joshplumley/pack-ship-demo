@@ -42,6 +42,9 @@ const CreateShipmentTable = ({ rowData }) => {
       columns={columns}
       disableSelectionOnClick
       rowHeight={65}
+      pageSize={rowData.length}
+      rowsPerPageOptions={[rowData.length]}
+      hideFooter
     />
   );
 };
