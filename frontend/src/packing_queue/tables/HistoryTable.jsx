@@ -1,11 +1,11 @@
 import { DataGrid } from "@mui/x-data-grid";
 import React, { useCallback, useEffect, useState } from "react";
-import ContextMenu from "../../components/GenericContextMenu"
-import MenuItem from '@mui/material/MenuItem';
-import PackingSlipDialog from "../../packing_slip/PackingSlipDialog";
+import ContextMenu from "../../components/GenericContextMenu";
+import MenuItem from "@mui/material/MenuItem";
 import { API } from "../../services/server";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography } from "@mui/material";
+import EditPackingSlipDialog from "../../edit_packing_slip/EditPackingSlipDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
 
 const useStyle = makeStyles((theme) => ({
@@ -30,7 +30,7 @@ const columns = [
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Order</Typography>;
     },
-    flex: 1
+    flex: 1,
   },
   {
     field: "packingSlipN",
@@ -40,20 +40,32 @@ const columns = [
     flex: 2,
   },
   {
-    field: "dateCreated", 
+    field: "dateCreated",
     renderHeader: () => {
       return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
-    },    flex: 1 },
+    },
+    flex: 1,
+  },
 ];
 
 const HistoryTable = () => {
   const classes = useStyle();
 
   const [menuPosition, setMenuPosition] = useState();
+
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [rows, setRows] = useState([]);
+
+  // Deletions
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState();
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [viewPackingSlip, setViewPackingSlip] = useState(false)
-  const [selectedRow, setSelectedRow] = useState(null)
-  const [rows, setRows] = useState([])
+
+  //Edit/View
+  const [isEditPackingSlipOpen, setIsEditPackingSlipOpen] = useState({
+    open: false,
+    viewOnly: false,
+  });
 
   const reloadData = useCallback(() => {
     async function fetchData() {
@@ -64,33 +76,155 @@ const HistoryTable = () => {
       let packingSlips = [];
       data?.packingSlips?.forEach((e) => {
         packingSlips.push({
+          ...e,
           id: e._id,
           orderId: e.orderNumber,
           packingSlipN: e.packingSlipId,
-        })
+        });
       });
-      setRows(packingSlips)
+      setRows(packingSlips);
     });
-  }, [deleteDialog]);
-  
+  }, []);
+
   useEffect(() => {
     reloadData();
   }, [reloadData]);
 
+  const onHistoryPackingSlipAdd = useCallback(
+    (pageNum) => {
+      API.getPackingQueue().then((data) => {
+        let newSelectedRow = { ...selectedRow };
+
+        const possibleChoices = data.filter(
+          (e) =>
+            e.orderNumber === selectedRow.orderNumber &&
+            !selectedRow.items.some((t) => t.item._id === e._id)
+        );
+        if (data?.length > 0 && possibleChoices.length > 0) {
+          newSelectedRow.items = newSelectedRow.items.map((e) => {
+            if (e.item.isNew) {
+              const newPossibleChoices = e.item.possibleItems.filter((t) => {
+                return t._id !== possibleChoices[0]._id || t._id === e.item._id;
+              });
+
+              return {
+                ...e,
+                item: {
+                  ...e.item,
+                  possibleItems: newPossibleChoices,
+                },
+              };
+            }
+            return e;
+          });
+          newSelectedRow.items.push({
+            _id: "",
+            pageNum: pageNum,
+            item: {
+              isNew: true,
+              possibleItems: possibleChoices,
+              ...possibleChoices[0],
+            },
+            qty: undefined,
+          });
+
+          setSelectedRow(newSelectedRow);
+        } else {
+          alert("There are no additions that can be made.");
+        }
+      });
+    },
+    [selectedRow]
+  );
+
+  function onNewPartRowChange(oldVal, newVal) {
+    const itemIndex = selectedRow?.items?.findIndex(
+      (e) =>
+        e.item.orderNumber === oldVal.orderNumber &&
+        e.item.partNumber === oldVal.partNumber
+    );
+    let updatedPackingSlip = {
+      ...selectedRow,
+    };
+
+    updatedPackingSlip.items[itemIndex] = {
+      ...updatedPackingSlip.items[itemIndex],
+      item: {
+        ...oldVal,
+        ...newVal,
+      },
+    };
+
+    API.getPackingQueue().then((data) => {
+      updatedPackingSlip.items = updatedPackingSlip.items.map((e) => {
+        if (e.item.isNew) {
+          const newPossibleChoices = data.filter(
+            (m) =>
+              m.customer === selectedRow.customer._id &&
+              (!updatedPackingSlip.items.some((t) => t.item._id === m._id) ||
+                m._id === e.item._id)
+          );
+
+          return {
+            ...e,
+            item: {
+              ...e.item,
+              possibleItems: newPossibleChoices,
+            },
+          };
+        }
+        return e;
+      });
+      setSelectedRow(updatedPackingSlip);
+    });
+  }
+
+  function onPackQtyChange(id, value) {
+    const itemIndex = selectedRow?.items?.findIndex(
+      (e) => e._id === id || e.item._id === id
+    );
+    let updatedPackingSlip = {
+      ...selectedRow,
+    };
+
+    updatedPackingSlip.items[itemIndex] = {
+      ...updatedPackingSlip.items[itemIndex],
+      item: { ...updatedPackingSlip.items[itemIndex].item, packQty: value },
+      qty: value,
+    };
+
+    setSelectedRow(updatedPackingSlip);
+  }
+
+  function onItemDelete() {
+    if (itemToDelete) {
+      const itemsWithoutItem = selectedRow.items
+        .filter((e) => e.item._id !== itemToDelete._id)
+        .map((e) => {
+          return {
+            item: { ...e.item },
+            qty: e.qty || e.item.packQty,
+          };
+        });
+      API.patchPackingSlip(selectedRow.id, {
+        items: itemsWithoutItem,
+      })
+        .then((_) => {
+          setSelectedRow({
+            ...selectedRow,
+            items: itemsWithoutItem,
+          });
+          reloadData();
+        })
+        .catch((_) => alert("Failed to delete item from packing slip"));
+    }
+  }
+
   const openDeleteDialog = (event) => {
-      setDeleteDialog(true)
-      setMenuPosition(null)
-      setViewPackingSlip(false)
-  }
-
-  const openViewPackingSlip = () => {
-    setViewPackingSlip(true)
-    setMenuPosition(null)
-  }
-
-  const onPackingSlipClose = () => {
-    setViewPackingSlip(false)
-  }
+    setDeleteDialog(true);
+    setMenuPosition(null);
+    setIsEditPackingSlipOpen({ open: true, viewOnly: true });
+  };
 
   const handleDeleteConfirm = () => {
     setDeleteDialog(false);
@@ -104,11 +238,53 @@ const HistoryTable = () => {
       });
   }
 
+  const openViewPackingSlip = () => {
+    setIsEditPackingSlipOpen({ open: true, viewOnly: true });
+    setMenuPosition(null);
+  };
+
+  const onPackingSlipClose = () => {
+    setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+  };
+
+  const onPackingSlipSubmit = () => {
+    if (isEditPackingSlipOpen.viewOnly) {
+      setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+    } else {
+      API.patchPackingSlip(selectedRow.id, {
+        items: selectedRow.items.map((e) => {
+          return {
+            item: { ...e.item },
+            qty: e.qty || e.item.packQty,
+          };
+        }),
+      })
+        .then(() => {
+          setIsEditPackingSlipOpen({ open: false, viewOnly: false });
+          reloadData();
+        })
+        .catch(() => {
+          alert("Failed to submit edits.");
+        });
+    }
+  };
+
+  const openEditPackingSlip = () => {
+    setIsEditPackingSlipOpen({ open: true, viewOnly: false });
+    setMenuPosition(null);
+  };
+
   const historyRowMenuOptions = [
-    <MenuItem key={"View"} onClick={openViewPackingSlip}>View</MenuItem>,
+    <MenuItem key={"View"} onClick={openViewPackingSlip}>
+      View
+    </MenuItem>,
     <MenuItem key={"Download"}>Download</MenuItem>,
-    <MenuItem key={"Edit"}>Edit</MenuItem>,
-    <MenuItem key={"Delete"} onClick={openDeleteDialog}>Delete</MenuItem>
+    <MenuItem key={"Edit"} onClick={openEditPackingSlip}>
+      Edit
+    </MenuItem>,
+    <MenuItem key={"Delete"} onClick={openDeleteDialog}>
+      Delete
+    </MenuItem>,
   ];
 
   return (
@@ -118,26 +294,43 @@ const HistoryTable = () => {
         className={classes.table}
         rows={rows}
         columns={columns}
-        pageSize={5}
-        rowsPerPageOptions={[5]}
+        pageSize={10}
+        rowsPerPageOptions={[10]}
         checkboxSelection={false}
+        disableSelectionOnClick
         onRowClick={(params, event, details) => {
-          setSelectedRow(params.row)
-          setMenuPosition({left: event.pageX, top: event.pageY});
+          setSelectedRow(params.row);
+          setMenuPosition({ left: event.pageX, top: event.pageY });
         }}
       />
-      <ContextMenu menuPosition={menuPosition} setMenuPosition={setMenuPosition}>
+      <ContextMenu
+        menuPosition={menuPosition}
+        setMenuPosition={setMenuPosition}
+      >
         {historyRowMenuOptions}
       </ContextMenu>
-      <PackingSlipDialog
-        open={viewPackingSlip}
+      <EditPackingSlipDialog
+        isOpen={isEditPackingSlipOpen.open}
+        viewOnly={isEditPackingSlipOpen.viewOnly}
         onClose={onPackingSlipClose}
-        orderNum={selectedRow?.orderId}
-        parts={[{batchQty: 10, fulfilledQty: 0, id: "abcdef76886", orderNumber: "ABC456", part: "AB-123", partDescription:"Zach's Dummy Part"}]}
-        title={`Packing Slip for ${selectedRow?.orderId}`}
-        actions={null}
-        viewOnly={true}
+        onSubmit={onPackingSlipSubmit}
+        packingSlipData={selectedRow}
+        onAdd={onHistoryPackingSlipAdd}
+        onNewPartRowChange={onNewPartRowChange}
+        onPackQtyChange={onPackQtyChange}
+        onDelete={(params) => {
+          setConfirmDeleteDialogOpen(true);
+          setItemToDelete(params.row);
+        }}
       />
+
+      <ConfirmDialog
+        title="Are You Sure You Want To Delete This?"
+        open={confirmDeleteDialogOpen}
+        setOpen={setConfirmDeleteDialogOpen}
+        onConfirm={onItemDelete}
+      />
+
       <ConfirmDialog
         title="Do You Want To Delete This?"
         open={deleteDialog}

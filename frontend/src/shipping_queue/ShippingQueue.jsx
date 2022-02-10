@@ -130,33 +130,35 @@ const ShippingQueue = () => {
     reloadData();
   }, [reloadData]);
 
-  function handleSelection(selection, tableData) {
-    let newSelection = selectedOrderIds;
-    if (selectedOrderIds.includes(selection)) {
-      // remove it
-      newSelection = selectedOrderIds.filter((e) => e !== selection);
-      // if something is deselected then selectAll is false
-      setIsSelectAll(false);
-    } else {
-      // add it
-      newSelection.push(selection);
+  const handleSelection = useCallback(
+    (selection, tableData) => {
+      let newSelection = selectedOrderIds;
+      if (selectedOrderIds.includes(selection)) {
+        // remove it
+        newSelection = selectedOrderIds.filter((e) => e !== selection);
+        // if something is deselected then selectAll is false
+        setIsSelectAll(false);
+      } else {
+        // add it
+        newSelection.push(selection);
 
-      // if the new selection contains all possible selected order numbers
-      // then select all is on
-      const selectedCustId = tableData?.find(
-        (e) => e.id === selection
-      )?.orderNumber;
-      const idsWithSelectedCustId = tableData
-        ?.filter((e) => e.orderNumber === selectedCustId)
-        .map((e) => e.id);
+        // if the new selection contains all possible selected order numbers
+        // then select all is on
+        const selectedCustId = tableData?.find((e) => e.id === selection)
+          ?.customer._id;
+        const idsWithSelectedCustId = tableData
+          ?.filter((e) => e.customer._id === selectedCustId)
+          .map((e) => e.id);
 
-      setIsSelectAll(
-        idsWithSelectedCustId.sort().toString() ===
-          newSelection.sort().toString()
-      );
-    }
-    return newSelection;
-  }
+        setIsSelectAll(
+          idsWithSelectedCustId.sort().toString() ===
+            newSelection.sort().toString()
+        );
+      }
+      return newSelection;
+    },
+    [selectedOrderIds]
+  );
 
   const onQueueRowClick = useCallback(
     (selectionModel, tableData) => {
@@ -204,7 +206,7 @@ const ShippingQueue = () => {
         setSelectedCustomerId(null);
       }
     },
-    [selectedOrderIds]
+    [selectedOrderIds, selectedCustomerId]
   );
 
   function onCreateShipmentClick() {
@@ -289,7 +291,11 @@ const ShippingQueue = () => {
     let updatedShipment = {
       ...clickedHistShipment,
     };
-    updatedShipment.manifest[manifestIndex] = { ...oldVal, ...newVal };
+
+    updatedShipment.manifest[manifestIndex] = {
+      ...oldVal,
+      ...newVal,
+    };
     API.searchPackingSlips(updatedShipment?.customer?._id, null).then(
       (data) => {
         updatedShipment.manifest = updatedShipment.manifest.map((e) => {
@@ -441,11 +447,9 @@ const ShippingQueue = () => {
   ];
 
   const packingSlipIds = useMemo(() => {
-    return(
-      shippingQueue
+    return shippingQueue
       .filter((e) => selectedOrderIds.includes(e.id))
-      .map((e) => e.id)
-    )
+      .map((e) => e.id);
   }, [shippingQueue, selectedOrderIds]);
 
   return (

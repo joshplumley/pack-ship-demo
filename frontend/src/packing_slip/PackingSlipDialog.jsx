@@ -2,7 +2,16 @@ import React, { useState, useEffect } from "react";
 import PackingSlipTable from "./components/PackingSlipTable";
 import PackingDialog from "../components/PackingDialog";
 
-const PackingSlipDialog = ({ onSubmit, open, onClose, orderNum, parts, title, actions=undefined, viewOnly=false }) => {
+const PackingSlipDialog = ({
+  onSubmit,
+  open,
+  onClose,
+  orderNum,
+  parts,
+  title,
+  actions = undefined,
+  viewOnly = false,
+}) => {
   const [filledForm, setFilledForm] = useState([]);
 
   useEffect(() => {
