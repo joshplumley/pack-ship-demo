@@ -71,6 +71,7 @@ const EditShipmentTableDialog = ({
         }`}
         onClose={onClose}
         onSubmit={onSubmit}
+        actions={viewOnly ? true : undefined}
       >
         <PackShipEditableTable
           tableData={shipment?.manifest?.map((e) => {
