@@ -24,7 +24,9 @@ const useStyle = makeStyles((theme) => ({
 const PackingQueue = () => {
   const classes = useStyle();
 
-  const isShowUnfinishedBatches = true;
+  const [searchString, setSearchString] = useState("");
+
+  const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -180,14 +182,15 @@ const PackingQueue = () => {
   );
 
   function onSearch(value) {
-    const filtered = packingQueue.filter(
+    setSearchString(value);
+    const filteredQueue = packingQueue.filter(
       (order) =>
         order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
         order.part.toLowerCase().includes(value.toLowerCase()) ||
         selectedOrderIds.includes(order.id) // Ensure selected rows are included
     );
 
-    setFilteredPackingQueue(filtered);
+    setFilteredPackingQueue(filteredQueue);
   }
 
   return (
@@ -249,7 +252,7 @@ const PackingQueue = () => {
             selectionOrderIds={selectedOrderIds}
           />
         }
-        historyTab={<HistoryTable />}
+        historyTab={<HistoryTable searchString={searchString} />}
       />
 
       <PackingSlipDialog
