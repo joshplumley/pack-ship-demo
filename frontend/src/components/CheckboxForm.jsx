@@ -1,21 +1,24 @@
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
-const PackShipCheckbox = ({
-  label,
+const CheckboxForm = ({
   onChange,
+  label,
+  checkBoxSx,
+  formControlSx,
   checked = true,
   disabled = false,
 }) => {
   return (
     <FormGroup>
       <FormControlLabel
-        control={<Checkbox checked={checked} />}
+        control={<Checkbox sx={{ ...checkBoxSx }} checked={checked} />}
         label={label}
         onChange={(_, checked) => onChange(checked)}
+        sx={{ ...formControlSx }}
         disabled={disabled}
       />
     </FormGroup>
   );
 };
 
-export default PackShipCheckbox;
+export default CheckboxForm;

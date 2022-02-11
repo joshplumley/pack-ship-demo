@@ -23,6 +23,7 @@ const CreateShipmentDialog = ({
     manifest: [],
     customer: "",
     deliveryMethod: "",
+    checkedCustomer: false
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
@@ -45,6 +46,7 @@ const CreateShipmentDialog = ({
       manifest: packingSlipIds,
       customer: customer?._id,
       deliveryMethod: "",
+      checkedCustomer: false
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
@@ -89,7 +91,7 @@ const CreateShipmentDialog = ({
         shippingInfo.cost,
         shippingInfo.carrier,
         shippingInfo.deliverySpeed,
-        shippingInfo.customerAccount,
+        shippingInfo.checkedCustomer ? shippingInfo.customerAccount : undefined,
         customerName
       )
         .then(() => {
