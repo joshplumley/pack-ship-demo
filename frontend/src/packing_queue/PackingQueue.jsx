@@ -34,6 +34,17 @@ const PackingQueue = () => {
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
+  const [sortPackQueueModel, setSortPackQueueModel] = useState([
+    { field: "orderNumber", sort: "asc" },
+    { field: "part", sort: "asc" },
+    { field: "batchQty", sort: "asc" },
+    { field: "fulfilledQty", sort: "asc" },
+  ]);
+  const [sortPackHistoryModel, setSortPackHistoryModel] = useState([
+    { field: "orderId", sort: "asc" },
+    { field: "packingSlipId", sort: "asc" },
+    { field: "dateCreated", sort: "asc" },
+  ]);
 
   useEffect(() => {
     async function fetchData() {
@@ -250,9 +261,17 @@ const PackingQueue = () => {
             tableData={filteredPackingQueue}
             selectedOrderNumber={selectedOrderNumber}
             selectionOrderIds={selectedOrderIds}
+            sortModel={sortPackQueueModel}
+            setSortModel={setSortPackQueueModel}
           />
         }
-        historyTab={<HistoryTable searchString={searchString} />}
+        historyTab={
+          <HistoryTable
+            sortModel={sortPackHistoryModel}
+            setSortModel={setSortPackHistoryModel}
+            searchString={searchString}
+          />
+        }
       />
 
       <PackingSlipDialog

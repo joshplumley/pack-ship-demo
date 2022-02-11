@@ -48,7 +48,7 @@ const columns = [
   },
 ];
 
-const HistoryTable = ({ searchString }) => {
+const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   const classes = useStyle();
 
   const [menuPosition, setMenuPosition] = useState();
@@ -316,6 +316,8 @@ const HistoryTable = ({ searchString }) => {
           setSelectedRow(params.row);
           setMenuPosition({ left: event.pageX, top: event.pageY });
         }}
+        sortModel={sortModel}
+        onSortModelChange={setSortModel}
       />
       <ContextMenu
         menuPosition={menuPosition}

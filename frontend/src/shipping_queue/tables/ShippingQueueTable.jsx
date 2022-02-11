@@ -51,13 +51,11 @@ const ShippingQueueTable = ({
   onSelectAll,
   selectedCustomerId,
   selectionOrderIds,
+  sortModel,
+  setSortModel,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
-  const [sortModel, setSortModel] = useState([
-    { field: "orderNumber", sort: "asc" },
-    { field: "packingSlipId", sort: "asc" },
-  ]);
 
   const numRowsPerPage = 10;
 
@@ -111,9 +109,32 @@ const ShippingQueueTable = ({
     ]
   );
 
+  const sortDataByModel = useCallback(
+    (model) => {
+      if (model.length !== 0) {
+        // find the filter handler based on the column clicked
+        const clickedColumnField = createColumnFilters(columns, tableData).find(
+          (e) => e.field === model[0]?.field
+        );
+        // execute the handler
+        // setQueueData(
+        return clickedColumnField?.handler(
+          model[0]?.sort,
+          selectionOrderIds,
+          tableData
+        );
+        // );
+      } else {
+        return tableData;
+      }
+    },
+    [columns, selectionOrderIds, tableData]
+  );
+
   useEffect(() => {
-    setQueueData(tableData);
-  }, [tableData]);
+    const d = sortDataByModel(sortModel);
+    setQueueData(d);
+  }, [sortModel, sortDataByModel]);
 
   const [page, setPage] = useState(0)
 
@@ -163,23 +184,7 @@ const ShippingQueueTable = ({
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          if (model.length !== 0) {
-            // find the filter handler based on the column clicked
-            const clickedColumnField = createColumnFilters(
-              columns,
-              tableData
-            ).find((e) => e.field === model[0]?.field);
-            // execute the handler
-            setQueueData(
-              clickedColumnField?.handler(
-                model[0]?.sort,
-                selectionOrderIds,
-                tableData
-              )
-            );
-          } else {
-            setQueueData(tableData);
-          }
+          sortDataByModel(model);
         }}
         components={{
           Footer: () =>
