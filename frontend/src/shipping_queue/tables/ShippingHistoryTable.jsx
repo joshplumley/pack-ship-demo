@@ -55,6 +55,8 @@ const ShippingHistoryTable = ({
   rowCount,
   perPageCount,
   onRowClick,
+  sortModel,
+  setSortModel,
 }) => {
   const classes = useStyle();
 
@@ -99,6 +101,8 @@ const ShippingHistoryTable = ({
         checkboxSelection={false}
         editMode="row"
         onRowClick={onRowClick}
+        sortModel={sortModel}
+        onSortModelChange={setSortModel}
       />
     </div>
   );
