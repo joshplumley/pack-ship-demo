@@ -72,6 +72,7 @@ const CreateShipmentDialog = ({
 
   const onResetClick = () => {
     setReset(true);
+    setCanErrorCheck(false)
   };
 
   const onBackClick = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Select,
@@ -16,7 +16,12 @@ const CarrierServiceDropdown = ({
   disabled = false,
 }) => {
   const [localCarrier, setLocalCarrier] = useState(carrier);
-  const [hasSelectError, setHasSelectError] = useState(false);
+  const [hasSelectError, setHasSelectError] = useState(!isCarrierValid(carrier));
+
+  useEffect(()=> {
+    setLocalCarrier(carrier)
+    setHasSelectError(!isCarrierValid(carrier))
+  }, [carrier]);
 
   return (
     <Grid item xs>
