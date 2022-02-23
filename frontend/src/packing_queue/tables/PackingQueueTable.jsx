@@ -5,6 +5,7 @@ import { Typography, TablePagination, Grid } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
+import { API } from "../../services/server";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -32,18 +33,24 @@ const useStyle = makeStyles((theme) => ({
 
 const PackingQueueTable = ({
   tableData,
-  onRowClick,
-  isSelectAllOn,
-  onSelectAll,
+  packingQueue,
   selectedOrderNumber,
   selectionOrderIds,
   sortModel,
   setSortModel,
+  setPackingQueue,
+  setFilteredPackingQueue,
+  isShowUnfinishedBatches,
+  setSelectedOrderIds,
+  selectedOrderIds,
+  setSelectedOrderNumber,
+  searchString,
 }) => {
   const classes = useStyle();
   const numRowsPerPage = 10;
 
   const [queueData, setQueueData] = useState(tableData);
+  const [isSelectAllOn, setIsSelectAll] = useState(false);
 
   const isDisabled = useCallback(
     (params) => {
@@ -55,6 +62,133 @@ const PackingQueueTable = ({
     [selectedOrderNumber]
   );
 
+  const handleSelection = useCallback(
+    (selection, tableData) => {
+      let newSelection = selectedOrderIds;
+      if (selectedOrderIds.includes(selection)) {
+        // remove it
+        newSelection = selectedOrderIds.filter((e) => e !== selection);
+        // if something is deselected then selectAll is false
+        setIsSelectAll(false);
+      } else {
+        // add it
+        newSelection.push(selection);
+
+        // if the new selection contains all possible selected order numbers
+        // then select all is on
+        const selectedOrderNum = tableData?.find(
+          (e) => e.id === selection
+        )?.orderNumber;
+        const idsWithSelectedOrderNum = tableData
+          ?.filter((e) => e.orderNumber === selectedOrderNum)
+          .map((e) => e.id);
+
+        setIsSelectAll(
+          idsWithSelectedOrderNum.sort().toString() ===
+            newSelection.sort().toString()
+        );
+      }
+      return newSelection;
+    },
+    [selectedOrderIds]
+  );
+
+  const onQueueRowClick = useCallback(
+    (selectionModel, tableData) => {
+      const newSelectedOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newSelectedOrderIds]);
+
+      setSelectedOrderNumber(
+        tableData?.find(
+          (e) => newSelectedOrderIds.length > 0 && e.id === selectionModel
+        )?.orderNumber ?? null
+      );
+    },
+    [handleSelection, setSelectedOrderNumber, setSelectedOrderIds]
+  );
+
+  const onSelectAllClick = useCallback(
+    (value, tableData) => {
+      setIsSelectAll(value);
+
+      if (value) {
+        if (selectedOrderIds.length > 0) {
+          // Something is selected, so we need to select the remaining
+          // that matach selectedOrderNumber
+          setSelectedOrderIds(
+            tableData
+              .filter((e) => e.orderNumber === selectedOrderNumber)
+              .map((e) => e.id)
+          );
+        } else if (selectedOrderIds.length === 0) {
+          // Nothing selected yet, so select the first row and all that match
+          // the first row order number
+
+          setSelectedOrderIds(
+            tableData
+              .filter((e) => e.orderNumber === tableData[0]?.orderNumber)
+              .map((e) => e.id)
+          );
+          setSelectedOrderNumber(
+            tableData?.find((e) => e.id === tableData[0].id)?.orderNumber ??
+              null
+          );
+        }
+      } else {
+        setSelectedOrderIds([]);
+        setSelectedOrderNumber(null);
+      }
+    },
+    [
+      selectedOrderIds,
+      selectedOrderNumber,
+      setSelectedOrderIds,
+      setSelectedOrderNumber,
+    ]
+  );
+
+  useEffect(() => {
+    async function fetchData() {
+      if (isShowUnfinishedBatches) {
+        return await API.getAllWorkOrders();
+      } else {
+        return await API.getPackingQueue();
+      }
+    }
+
+    fetchData().then((data) => {
+      let tableData = [];
+      data?.forEach((e) => {
+        tableData.push({
+          id: e._id,
+          orderNumber: e.orderNumber,
+          part: `${e.partNumber} - ${e.partRev}`,
+          partDescription: e.partDescription,
+          batchQty: e.batchQty,
+          fulfilledQty: e.packedQty,
+          customer: e.customer,
+        });
+      });
+      setPackingQueue(tableData);
+      setFilteredPackingQueue(tableData);
+    });
+  }, [isShowUnfinishedBatches, setFilteredPackingQueue, setPackingQueue]);
+
+  useEffect(() => {
+    if (searchString) {
+      const filteredQueue = packingQueue.filter(
+        (order) =>
+          order.orderNumber
+            .toLowerCase()
+            .includes(searchString.toLowerCase()) ||
+          order.part.toLowerCase().includes(searchString.toLowerCase()) ||
+          selectedOrderIds.includes(order.id) // Ensure selected rows are included
+      );
+
+      setFilteredPackingQueue(filteredQueue);
+    }
+  }, [packingQueue, searchString, selectedOrderIds, setFilteredPackingQueue]);
+
   const storedTableData = useMemo(() => tableData, [tableData]);
 
   const columns = useMemo(
@@ -64,8 +198,8 @@ const PackingQueueTable = ({
         selectionOrderIds,
         isSelectAllOn,
         storedTableData,
-        onSelectAll,
-        onRowClick
+        onSelectAllClick,
+        onQueueRowClick
       ),
       {
         field: "orderNumber",
@@ -117,8 +251,8 @@ const PackingQueueTable = ({
       selectionOrderIds,
       classes.fulfilledQtyHeader,
       isSelectAllOn,
-      onRowClick,
-      onSelectAll,
+      onQueueRowClick,
+      onSelectAllClick,
     ]
   );
 
@@ -147,10 +281,10 @@ const PackingQueueTable = ({
     setQueueData(sortDataByModel(sortModel));
   }, [sortModel, sortDataByModel]);
 
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useState(0);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage)
+    setPage(newPage);
   };
 
   const generateTablePagination = useCallback(() => {
@@ -171,7 +305,10 @@ const PackingQueueTable = ({
       <DataGrid
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
-        rows={queueData.slice(page * numRowsPerPage, page * numRowsPerPage + numRowsPerPage)}
+        rows={queueData.slice(
+          page * numRowsPerPage,
+          page * numRowsPerPage + numRowsPerPage
+        )}
         columns={columns}
         pageSize={numRowsPerPage}
         rowsPerPageOptions={[numRowsPerPage]}
@@ -197,7 +334,7 @@ const PackingQueueTable = ({
                   </Typography>
                 </Grid>
                 <Grid container item xs={6} justifyContent="flex-end">
-                {generateTablePagination()}
+                  {generateTablePagination()}
                 </Grid>
               </Grid>
             ) : (
