@@ -23,6 +23,12 @@ const ShipmentDetails = ({
             return (
               <Grid container direction="row" alignItems="flex-start">
                 <Grid item container xs={6} direction="column">
+                  <TitleTextInput
+                    title="Delivery Method:"
+                    value={shipment?.deliveryMethod}
+                    viewOnly={true}
+                    onChange={onTrackingChange}
+                  />
                   {viewOnly ? (
                     <TitleTextInput
                       title="Carrier Service:"
@@ -88,12 +94,20 @@ const ShipmentDetails = ({
           case "PICKUP":
           default:
             return (
-              <TitleTextInput
-                title="Received By:"
-                value={shipment?.customerHandoffName}
-                viewOnly={viewOnly}
-                onChange={onCustomerNameChange}
-              />
+              <React.Fragment>
+                <TitleTextInput
+                  title="Delivery Method:"
+                  value={shipment?.deliveryMethod}
+                  viewOnly={true}
+                  onChange={onTrackingChange}
+                />
+                <TitleTextInput
+                  title="Received By:"
+                  value={shipment?.customerHandoffName}
+                  viewOnly={viewOnly}
+                  onChange={onCustomerNameChange}
+                />
+              </React.Fragment>
             );
         }
       })()}

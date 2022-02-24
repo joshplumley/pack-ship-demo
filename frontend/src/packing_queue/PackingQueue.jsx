@@ -26,7 +26,7 @@ const PackingQueue = () => {
 
   const [searchString, setSearchString] = useState("");
 
-  const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
+  // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -48,7 +48,7 @@ const PackingQueue = () => {
 
   useEffect(() => {
     async function fetchData() {
-      if (isShowUnfinishedBatches) {
+      if (true/*isShowUnfinishedBatches*/) {
         return await API.getAllWorkOrders();
       } else {
         return await API.getPackingQueue();
@@ -71,7 +71,7 @@ const PackingQueue = () => {
       setPackingQueue(tableData);
       setFilteredPackingQueue(tableData);
     });
-  }, [isShowUnfinishedBatches]);
+  }, []);
 
   function onPackingSlipClick() {
     setPackingSlipOpen(true);
@@ -227,7 +227,7 @@ const PackingQueue = () => {
             label="Show Unfinished Batches"
             disabled={true}
             onChange={() => console.log("not implemented yet")}
-            checked={isShowUnfinishedBatches}
+            checked={true/*isShowUnfinishedBatches*/}
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
