@@ -17,6 +17,7 @@ const CreateShipmentDialog = ({
   currentState,
   setCurrentState,
   parts,
+  reloadData,
 }) => {
   const [customerName, setCustomerName] = useState("");
   const [shippingInfo, setShippingInfo] = useState({
@@ -102,6 +103,7 @@ const CreateShipmentDialog = ({
             customer: "",
             deliveryMethod: "",
           });
+          reloadData();
           onClose();
         })
         .catch(() => {
