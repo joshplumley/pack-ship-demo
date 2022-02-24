@@ -124,6 +124,7 @@ const ShippingQueue = () => {
       setSelectedOrderIds([]);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
+      setIsSelectAll(false);
 
       // Gather the history data for the table
       let historyTableData = extractHistoryDetails(
@@ -568,6 +569,7 @@ const ShippingQueue = () => {
               ),
             []
           )}
+        reloadData={reloadData}
       />
 
       <EditShipmentTableDialog
