@@ -26,7 +26,7 @@ const PackingQueue = () => {
 
   const [searchString, setSearchString] = useState("");
 
-  const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
+  // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
   const [selectedOrderNumber, setSelectedOrderNumber] = useState(null);
@@ -110,8 +110,8 @@ const PackingQueue = () => {
           <CheckboxForm
             label="Show Unfinished Batches"
             disabled={true}
-            onChange={(checked) => setIsShowUnfinishedBatches(checked)}
-            checked={isShowUnfinishedBatches}
+            onChange={() => console.log("not implemented yet")}
+            checked={true/*isShowUnfinishedBatches*/}
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
@@ -147,7 +147,7 @@ const PackingQueue = () => {
             setSortModel={setSortPackQueueModel}
             setPackingQueue={setPackingQueue}
             setFilteredPackingQueue={setFilteredPackingQueue}
-            isShowUnfinishedBatches={isShowUnfinishedBatches}
+            isShowUnfinishedBatches={true/*isShowUnfinishedBatches*/}
             setSelectedOrderIds={setSelectedOrderIds}
             selectedOrderIds={selectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}

@@ -29,8 +29,8 @@ const PackingSlipDrowdown = ({ params, packingSlipId, manifest }) => {
                 return {
                   id: e.item._id,
                   part: e.item,
-                  batchQty: e.item.batch,
-                  shipQty: e.item.quantity,
+                  batchQty: e.item.quantity,
+                  shipQty: e.qty,
                 };
               })}
             columns={[

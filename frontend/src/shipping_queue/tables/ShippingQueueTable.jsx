@@ -103,6 +103,7 @@ const ShippingQueueTable = ({
       setSelectedOrderIds([]);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
+      setIsSelectAll(false);
     });
   }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
 
@@ -358,6 +359,7 @@ const ShippingQueueTable = ({
               ),
             []
           )}
+        reloadData={reloadData}
       />
     </div>
   );

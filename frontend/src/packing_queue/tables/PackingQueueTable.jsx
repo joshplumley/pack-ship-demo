@@ -149,7 +149,7 @@ const PackingQueueTable = ({
 
   useEffect(() => {
     async function fetchData() {
-      if (isShowUnfinishedBatches) {
+      if (true /*isShowUnfinishedBatches*/) {
         return await API.getAllWorkOrders();
       } else {
         return await API.getPackingQueue();
