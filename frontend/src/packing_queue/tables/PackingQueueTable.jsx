@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
-import { Typography, TablePagination, Grid } from "@mui/material";
+import { Typography, TablePagination, Grid, TableRow } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { createColumnFilters } from "../../utils/TableFilters";
 import { getCheckboxColumn } from "../../components/CheckboxColumn";
@@ -289,14 +289,20 @@ const PackingQueueTable = ({
 
   const generateTablePagination = useCallback(() => {
     return (
-      <TablePagination
-        count={queueData.length}
-        rowsPerPageOptions={[numRowsPerPage]}
-        rowsPerPage={numRowsPerPage}
-        onPageChange={handlePageChange}
-        page={page}
-        sx={{ border: "0px" }}
-      />
+      <table>
+        <tbody>
+          <tr>
+            <TablePagination
+              count={queueData.length}
+              rowsPerPageOptions={[numRowsPerPage]}
+              rowsPerPage={numRowsPerPage}
+              onPageChange={handlePageChange}
+              page={page}
+              sx={{ border: "0px" }}
+            />
+          </tr>
+        </tbody>
+      </table>
     );
   }, [page, queueData.length]);
 

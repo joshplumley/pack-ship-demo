@@ -268,14 +268,20 @@ const ShippingQueueTable = ({
 
   const generateTablePagination = useCallback(() => {
     return (
-      <TablePagination
-        count={queueData.length}
-        rowsPerPageOptions={[numRowsPerPage]}
-        rowsPerPage={numRowsPerPage}
-        onPageChange={handlePageChange}
-        page={page}
-        sx={{ border: "0px" }}
-      />
+      <table>
+        <tbody>
+          <tr>
+            <TablePagination
+              count={queueData.length}
+              rowsPerPageOptions={[numRowsPerPage]}
+              rowsPerPage={numRowsPerPage}
+              onPageChange={handlePageChange}
+              page={page}
+              sx={{ border: "0px" }}
+            />
+          </tr>
+        </tbody>
+      </table>
     );
   }, [page, queueData.length]);
 

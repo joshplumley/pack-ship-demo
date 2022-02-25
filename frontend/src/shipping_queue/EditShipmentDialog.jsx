@@ -1,6 +1,6 @@
 import React from "react";
 import makeStyles from "@mui/styles/makeStyles";
-import { Typography } from "@mui/material";
+import { Typography, DialogActions } from "@mui/material";
 import PackShipEditableTable from "../components/EdittableTable";
 import PopupDialog from "../components/PackingDialog";
 import PackingSlipDrowdown from "./PackingSlipDropdown";
@@ -71,7 +71,7 @@ const EditShipmentTableDialog = ({
         }`}
         onClose={onClose}
         onSubmit={onSubmit}
-        actions={viewOnly ? true : undefined}
+        actions={viewOnly ? <DialogActions/> : undefined}
       >
         <PackShipEditableTable
           tableData={shipment?.manifest?.map((e) => {
