@@ -48,7 +48,7 @@ const ShipmentDetails = ({
                           {"Carrier Service:"}
                         </Typography>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid item xs={5}>
                         <CarrierServiceDropdown
                           canErrorCheck={canErrorCheck}
                           carrier={shipment?.carrier}
