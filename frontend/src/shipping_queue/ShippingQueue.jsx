@@ -132,7 +132,6 @@ const ShippingQueue = () => {
       );
       setFilteredShippingHist(historyTableData);
       setShippingHistory(historyTableData);
-      console.log(data?.history)
       setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
   }, [extractHistoryDetails, orderNumber, partNumber]);
