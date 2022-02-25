@@ -109,7 +109,7 @@ const CreateCarrierShipmentInfoForm = ({
           <Grid item>
             <Typography
               minWidth="max-content"
-              align="flex-end"
+              align="right"
               sx={{ fontWeight: 700 }}
             >
               Customer Account:
