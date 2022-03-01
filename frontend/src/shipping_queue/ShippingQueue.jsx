@@ -622,10 +622,7 @@ const ShippingQueue = () => {
         open={confirmShippingDeleteDialogOpen}
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
-          API.deleteShipment(clickedHistShipment._id);
-          setFilteredShippingHist(
-            filteredShippingHist.filter((e) => e.id !== clickedHistShipment._id)
-          );
+          API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
         }}
       >
         <Typography sx={{ fontWeight: 900 }}>
