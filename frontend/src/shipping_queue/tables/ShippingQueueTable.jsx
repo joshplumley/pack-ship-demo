@@ -132,9 +132,8 @@ const ShippingQueueTable = ({
   );
 
   useEffect(() => {
-    const d = sortDataByModel(sortModel);
-    setQueueData(d);
-  }, [sortModel, sortDataByModel]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   const [page, setPage] = useState(0)
 
@@ -184,7 +183,7 @@ const ShippingQueueTable = ({
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          sortDataByModel(model);
+          setQueueData(sortDataByModel(model));
         }}
         components={{
           Footer: () =>
