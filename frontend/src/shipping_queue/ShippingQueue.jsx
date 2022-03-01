@@ -357,22 +357,12 @@ const ShippingQueue = () => {
         .map((e) => e._id);
 
       API.patchShipment(sentData?._id, sentData)
-        .then(() => {
+        .then(async () => {
           setIsEditShipmentOpen(false);
 
           // Update the shippingHistory tracking # for main table as well
-          setFilteredShippingHist(
-            filteredShippingHist.map((obj) => {
-              if (obj.id === clickedHistShipment?._id) {
-                return {
-                  ...obj,
-                  trackingNumber: clickedHistShipment?.trackingNumber,
-                };
-              } else {
-                return obj;
-              }
-            })
-          );
+          await reloadData();
+
           //close context menu
           setHistoryMenuPosition(null);
 
