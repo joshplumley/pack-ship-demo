@@ -576,7 +576,10 @@ const ShippingQueue = () => {
               ),
             []
           )}
-        reloadData={reloadData}
+        reloadData={() => {
+          reloadData();
+          reloadHistory();
+        }}
       />
 
       <EditShipmentTableDialog
