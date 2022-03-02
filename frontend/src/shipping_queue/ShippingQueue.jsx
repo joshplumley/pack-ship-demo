@@ -92,24 +92,28 @@ const ShippingQueue = () => {
     });
   }, []);
 
+  const reloadHistory = useCallback(() => {
+    async function fetchData() {
+      return await API.searchShippingHistory(null, null, histResultsPerPage, 0);
+    }
+
+    fetchData().then((data) => {
+      let historyTableData = extractHistoryDetails(data?.data.shipments);
+      setFilteredShippingHist(historyTableData);
+      setShippingHistory(historyTableData);
+      setHistSearchTotalCount(data?.history?.data?.totalCount);
+    });
+  }, [extractHistoryDetails]);
+
   const reloadData = useCallback(() => {
     async function fetchData() {
-      const data = await Promise.all([
-        API.getShippingQueue(),
-        API.searchShippingHistory(
-          orderNumber,
-          partNumber,
-          histResultsPerPage,
-          0
-        ),
-      ]);
-      return { queue: data[0], history: data[1] };
+      return API.getShippingQueue();
     }
 
     fetchData().then((data) => {
       // Gather the queue data for the table
       let queueTableData = [];
-      data?.queue?.packingSlips.forEach((e) => {
+      data?.packingSlips.forEach((e) => {
         queueTableData.push({
           id: e._id,
           orderNumber: e.orderNumber,
@@ -125,20 +129,13 @@ const ShippingQueue = () => {
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
       setIsSelectAll(false);
-
-      // Gather the history data for the table
-      let historyTableData = extractHistoryDetails(
-        data?.history?.data.shipments
-      );
-      setFilteredShippingHist(historyTableData);
-      setShippingHistory(historyTableData);
-      setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
-  }, [extractHistoryDetails, orderNumber, partNumber]);
+  }, []);
 
   useEffect(() => {
     reloadData();
-  }, [reloadData]);
+    reloadHistory();
+  }, [reloadData, reloadHistory]);
 
   const handleSelection = useCallback(
     (selection, tableData) => {
@@ -361,7 +358,7 @@ const ShippingQueue = () => {
           setIsEditShipmentOpen(false);
 
           // Update the shippingHistory tracking # for main table as well
-          await reloadData();
+          await reloadHistory();
 
           //close context menu
           setHistoryMenuPosition(null);
@@ -481,14 +478,24 @@ const ShippingQueue = () => {
         >
           <Grid container item xs={"auto"}>
             <TextInput
-              onChange={setOrderNumber}
+              onChange={(e) => {
+                if (e === "" || e === undefined || e === null) {
+                  onHistoryClearClick();
+                }
+                setOrderNumber(e);
+              }}
               placeholder="Order"
               value={orderNumber}
             />
           </Grid>
           <Grid container item xs={2}>
             <TextInput
-              onChange={setPartNumber}
+              onChange={(e) => {
+                if (e === "" || e === undefined || e === null) {
+                  onHistoryClearClick();
+                }
+                setPartNumber(e);
+              }}
               placeholder="Part"
               value={partNumber}
             />
@@ -622,7 +629,9 @@ const ShippingQueue = () => {
         open={confirmShippingDeleteDialogOpen}
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
-          API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
+          API.deleteShipment(clickedHistShipment._id).then(() =>
+            reloadHistory()
+          );
         }}
       >
         <Typography sx={{ fontWeight: 900 }}>
