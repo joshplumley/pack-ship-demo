@@ -28,13 +28,13 @@ const CreateCarrierShipmentInfoForm = ({
       customer: shippingInfo.customer,
       deliveryMethod: shippingInfo.deliveryMethod,
       carrier: CARRIERS[0],
-      checkedCustomer: shippingInfo.checkedCustomer
+      checkedCustomer: shippingInfo.checkedCustomer,
     };
   }, [
     shippingInfo.manifest,
     shippingInfo.customer,
     shippingInfo.deliveryMethod,
-    shippingInfo.checkedCustomer
+    shippingInfo.checkedCustomer,
   ]);
 
   useEffect(() => {
@@ -53,21 +53,23 @@ const CreateCarrierShipmentInfoForm = ({
             Carrier Service*:
           </Typography>
         </Grid>
-        <CarrierServiceDropdown
-          carrier={localShippingInfo?.carrier}
-          setCarrier={(value) => {
-            setShippingInfo({
-              ...localShippingInfo,
-              carrier: value,
-            });
-            setLocalShippingInfo({
-              ...localShippingInfo,
-              carrier: value,
-            });
-          }}
-          canErrorCheck={canErrorCheck}
-          width="75%"
-        />
+        <Grid item xs>
+          <CarrierServiceDropdown
+            carrier={localShippingInfo?.carrier}
+            setCarrier={(value) => {
+              setShippingInfo({
+                ...localShippingInfo,
+                carrier: value,
+              });
+              setLocalShippingInfo({
+                ...localShippingInfo,
+                carrier: value,
+              });
+            }}
+            canErrorCheck={canErrorCheck}
+            width="75%"
+          />
+        </Grid>
       </Grid>
       <Grid container item alignItems="center" spacing={2}>
         <Grid container item xs={5} justifyContent="flex-end">
@@ -121,12 +123,12 @@ const CreateCarrierShipmentInfoForm = ({
               onChange={(checked) => {
                 setLocalShippingInfo({
                   ...localShippingInfo,
-                  checkedCustomer: checked
+                  checkedCustomer: checked,
                 });
                 setShippingInfo({
                   ...shippingInfo,
-                  checkedCustomer: checked
-                })
+                  checkedCustomer: checked,
+                });
               }}
               label={
                 <Typography
