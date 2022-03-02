@@ -479,7 +479,12 @@ const ShippingQueue = () => {
           <Grid container item xs={"auto"}>
             <TextInput
               onChange={(e) => {
-                if (e === "" || e === undefined || e === null) {
+                if (
+                  (e === "" || e === undefined || e === null) &&
+                  (partNumber === "" ||
+                    partNumber === undefined ||
+                    partNumber === null)
+                ) {
                   onHistoryClearClick();
                 }
                 setOrderNumber(e);
@@ -491,7 +496,12 @@ const ShippingQueue = () => {
           <Grid container item xs={2}>
             <TextInput
               onChange={(e) => {
-                if (e === "" || e === undefined || e === null) {
+                if (
+                  (e === "" || e === undefined || e === null) &&
+                  (orderNumber === "" ||
+                    orderNumber === undefined ||
+                    orderNumber === null)
+                ) {
                   onHistoryClearClick();
                 }
                 setPartNumber(e);
