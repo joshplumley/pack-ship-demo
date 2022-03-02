@@ -66,6 +66,7 @@ const CreateCarrierShipmentInfoForm = ({
             });
           }}
           canErrorCheck={canErrorCheck}
+          width="75%"
         />
       </Grid>
       <Grid container item alignItems="center" spacing={2}>

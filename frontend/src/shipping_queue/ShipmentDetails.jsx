@@ -54,6 +54,7 @@ const ShipmentDetails = ({
                           carrier={shipment?.carrier}
                           setCarrier={onCarrierInputChange}
                           disabled={viewOnly}
+                          width={"77%"}
                         />
                       </Grid>
                     </Grid>

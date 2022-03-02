@@ -13,6 +13,7 @@ const CarrierServiceDropdown = ({
   carrier,
   setCarrier,
   canErrorCheck,
+  width="100%",
   disabled = false,
 }) => {
   const [localCarrier, setLocalCarrier] = useState(carrier);
@@ -26,7 +27,7 @@ const CarrierServiceDropdown = ({
   return (
     <Grid item xs>
       <FormControl
-        sx={{ width: "77%" }}
+        sx={{ width: width }}
         error={canErrorCheck && hasSelectError}
       >
         <Select
