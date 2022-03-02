@@ -112,7 +112,7 @@ const ShippingHistoryTable = ({
         .map((e) => e._id);
 
       API.patchShipment(sentData?._id, sentData)
-        .then(() => {
+        .then(async () => {
           setIsEditShipmentOpen(false);
 
           // Update the shippingHistory tracking # for main table as well
@@ -128,6 +128,8 @@ const ShippingHistoryTable = ({
               }
             })
           );
+          await reloadData();
+
           //close context menu
           setHistoryMenuPosition(null);
 
@@ -137,7 +139,7 @@ const ShippingHistoryTable = ({
           alert("Something went wrong submitting edits");
         });
     }
-  }, [clickedHistShipment, filteredShippingHist, setFilteredShippingHist]);
+  }, [clickedHistShipment, filteredShippingHist, setFilteredShippingHist, reloadData]);
 
   const onHistoryPackingSlipAdd = useCallback(
     (pageNum) => {
@@ -421,10 +423,7 @@ const ShippingHistoryTable = ({
         open={confirmShippingDeleteDialogOpen}
         setOpen={setConfirmShippingDeleteDialogOpen}
         onConfirm={() => {
-          API.deleteShipment(clickedHistShipment._id);
-          setFilteredShippingHist(
-            filteredShippingHist.filter((e) => e.id !== clickedHistShipment._id)
-          );
+          API.deleteShipment(clickedHistShipment._id).then(() => reloadData());
         }}
       >
         <Typography sx={{ fontWeight: 900 }}>

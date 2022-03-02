@@ -278,8 +278,8 @@ const PackingQueueTable = ({
   );
 
   useEffect(() => {
-    setQueueData(sortDataByModel(sortModel));
-  }, [sortModel, sortDataByModel]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   const [page, setPage] = useState(0);
 
@@ -328,7 +328,7 @@ const PackingQueueTable = ({
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          sortDataByModel(model);
+          setQueueData(sortDataByModel(model));
         }}
         components={{
           Footer: () =>
