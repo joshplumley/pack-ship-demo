@@ -1,8 +1,10 @@
 import { Box } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/system";
+import { useGridApiRef, DataGridPro } from "@mui/x-data-grid-pro";
+// import { DataGrid } from "@mui/x-data-grid";
+import React from "react";
 
-const ThisDataGrid = styled(DataGrid)`
+const ThisDataGrid = styled(DataGridPro)`
   .MuiDataGrid-row {
     max-height: fit-content !important;
   }
@@ -38,6 +40,19 @@ const PackShipDataGrid = ({
   onEditRowsModelChange,
   hideFooter,
 }) => {
+  const apiRef = useGridApiRef();
+
+  const handleCellClick = React.useCallback(
+    (params) => {
+      console.log(params)
+      if (params.field === "packQty")
+      {
+        apiRef.current.setCellMode(params.id, params.field, "edit");
+      }
+    },
+    [apiRef]
+  );
+
   return (
     <Box
       sx={{
@@ -72,6 +87,8 @@ const PackShipDataGrid = ({
         editMode={editMode}
         sort={sort}
         hideFooter={hideFooter}
+        apiRef={apiRef}
+        onCellClick={handleCellClick}
       />
     </Box>
   );

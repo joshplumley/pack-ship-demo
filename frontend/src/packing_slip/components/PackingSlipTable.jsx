@@ -1,9 +1,9 @@
 import React from "react";
 import { Typography, Box } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
+import { useGridApiRef, DataGridPro } from "@mui/x-data-grid-pro";
 
 const useStyle = makeStyles((theme) => ({
   fulfilledQtyHeader: {
@@ -20,6 +20,18 @@ const PackingSlipTable = ({
   viewOnly = false,
 }) => {
   const classes = useStyle();
+  const apiRef = useGridApiRef();
+
+  const handleCellClick = React.useCallback(
+    (params) => {
+      if (params.field === "packQty")
+      {
+        console.log(params)
+        apiRef.current.setCellMode(params.id, params.field, "edit");
+      }
+    },
+    [apiRef]
+  );
 
   const columns = [
     {
@@ -87,7 +99,7 @@ const PackingSlipTable = ({
         },
       }}
     >
-      <DataGrid
+      <DataGridPro
         sx={{
           border: "none",
           height: "50vh",
@@ -120,6 +132,8 @@ const PackingSlipTable = ({
             );
           }
         }}
+        apiRef={apiRef}
+        onCellClick={handleCellClick}
       />
     </Box>
   );
