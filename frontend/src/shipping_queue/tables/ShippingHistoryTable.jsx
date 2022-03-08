@@ -101,6 +101,42 @@ const ShippingHistoryTable = ({
     setCanErrorCheck(false);
   }, []);
 
+  const reloadData = useCallback(() => {
+    async function fetchData() {
+      const data = await Promise.all([
+        API.searchShippingHistory(
+          orderNumber,
+          partNumber,
+          histResultsPerPage,
+          0
+        ),
+      ]);
+      return { history: data[0] };
+    }
+
+    fetchData().then((data) => {
+      // Gather the history data for the table
+      let historyTableData = extractHistoryDetails(
+        data?.history?.data.shipments
+      );
+      setFilteredShippingHist(historyTableData);
+      setShippingHistory(historyTableData);
+      setHistSearchTotalCount(data?.history?.data?.totalCount);
+    });
+  }, [
+    orderNumber,
+    partNumber,
+    histResultsPerPage,
+    setFilteredShippingHist,
+    setHistSearchTotalCount,
+    setShippingHistory,
+  ]);
+
+  useEffect(() => {
+    reloadData();
+  }, [reloadData]);
+
+
   const onEditShipmentSubmit = useCallback(() => {
     setCanErrorCheck(true);
 
@@ -244,41 +280,6 @@ const ShippingHistoryTable = ({
     },
     [fetchSearch]
   );
-
-  const reloadData = useCallback(() => {
-    async function fetchData() {
-      const data = await Promise.all([
-        API.searchShippingHistory(
-          orderNumber,
-          partNumber,
-          histResultsPerPage,
-          0
-        ),
-      ]);
-      return { history: data[0] };
-    }
-
-    fetchData().then((data) => {
-      // Gather the history data for the table
-      let historyTableData = extractHistoryDetails(
-        data?.history?.data.shipments
-      );
-      setFilteredShippingHist(historyTableData);
-      setShippingHistory(historyTableData);
-      setHistSearchTotalCount(data?.history?.data?.totalCount);
-    });
-  }, [
-    orderNumber,
-    partNumber,
-    histResultsPerPage,
-    setFilteredShippingHist,
-    setHistSearchTotalCount,
-    setShippingHistory,
-  ]);
-
-  useEffect(() => {
-    reloadData();
-  }, [reloadData]);
 
   const columns = [
     {
