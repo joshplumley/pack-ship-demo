@@ -11,6 +11,7 @@ import CommonButton from "../common/Button";
 import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
 import PackingQueueTable from "./tables/PackingQueueTable";
 import HistoryTable from "./tables/HistoryTable";
+import { useLocalStorage } from "../utils/localStorage";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -34,21 +35,27 @@ const PackingQueue = () => {
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
   const [isSelectAllOn, setIsSelectAll] = useState(false);
-  const [sortPackQueueModel, setSortPackQueueModel] = useState([
-    { field: "orderNumber", sort: "asc" },
-    { field: "part", sort: "asc" },
-    { field: "batchQty", sort: "asc" },
-    { field: "fulfilledQty", sort: "asc" },
-  ]);
-  const [sortPackHistoryModel, setSortPackHistoryModel] = useState([
-    { field: "orderId", sort: "asc" },
-    { field: "packingSlipId", sort: "asc" },
-    { field: "dateCreated", sort: "asc" },
-  ]);
+  const [sortPackQueueModel, setSortPackQueueModel] = useLocalStorage(
+    "sortPackQueueModel",
+    [
+      { field: "orderNumber", sort: "asc" },
+      { field: "part", sort: "asc" },
+      { field: "batchQty", sort: "asc" },
+      { field: "fulfilledQty", sort: "asc" },
+    ]
+  );
+  const [sortPackHistoryModel, setSortPackHistoryModel] = useLocalStorage(
+    "sortPackHistoryModel",
+    [
+      { field: "orderId", sort: "asc" },
+      { field: "packingSlipId", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
+    ]
+  );
 
   useEffect(() => {
     async function fetchData() {
-      if (true/*isShowUnfinishedBatches*/) {
+      if (true /*isShowUnfinishedBatches*/) {
         return await API.getAllWorkOrders();
       } else {
         return await API.getPackingQueue();
@@ -227,7 +234,7 @@ const PackingQueue = () => {
             label="Show Unfinished Batches"
             disabled={true}
             onChange={() => console.log("not implemented yet")}
-            checked={true/*isShowUnfinishedBatches*/}
+            checked={true /*isShowUnfinishedBatches*/}
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">

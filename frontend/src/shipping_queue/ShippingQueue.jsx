@@ -16,6 +16,7 @@ import EditShipmentTableDialog from "./EditShipmentDialog";
 import ContextMenu from "../components/GenericContextMenu";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { isShippingInfoValid } from "../utils/Validators";
+import { useLocalStorage } from "../utils/localStorage";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -47,10 +48,13 @@ const ShippingQueue = () => {
     ShippingDialogStates.CreateShipmentTable
   );
   const [isSelectAllOn, setIsSelectAll] = useState(false);
-  const [sortShippingQueueModel, setSortShippingQueueModel] = useState([
-    { field: "orderNumber", sort: "asc" },
-    { field: "packingSlipId", sort: "asc" },
-  ]);
+  const [sortShippingQueueModel, setSortShippingQueueModel] = useLocalStorage(
+    "sortShippingQueueModel",
+    [
+      { field: "orderNumber", sort: "asc" },
+      { field: "packingSlipId", sort: "asc" },
+    ]
+  );
 
   // Shipping History States
   const [shippingHistory, setShippingHistory] = useState([]);
@@ -61,11 +65,14 @@ const ShippingQueue = () => {
   const histResultsPerPage = 10;
   const [clickedHistShipment, setClickedHistShipment] = useState();
   const [historyMenuPosition, setHistoryMenuPosition] = useState(null);
-  const [sortShippingHistModel, setSortShippingHistModel] = useState([
-    { field: "shipmentId", sort: "asc" },
-    { field: "trackingNumber", sort: "asc" },
-    { field: "dateCreated", sort: "asc" },
-  ]);
+  const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
+    "sortShippingHistModel",
+    [
+      { field: "shipmentId", sort: "asc" },
+      { field: "trackingNumber", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
+    ]
+  );
 
   // Edit Shipment Dialog
   const [isEditShipmentOpen, setIsEditShipmentOpen] = useState(false);
