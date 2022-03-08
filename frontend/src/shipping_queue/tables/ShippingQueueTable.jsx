@@ -110,10 +110,10 @@ const ShippingQueueTable = ({
   );
 
   const sortDataByModel = useCallback(
-    (model) => {
+    (model, data) => {
       if (model.length !== 0) {
         // find the filter handler based on the column clicked
-        const clickedColumnField = createColumnFilters(columns, tableData).find(
+        const clickedColumnField = createColumnFilters(columns, data).find(
           (e) => e.field === model[0]?.field
         );
         // execute the handler
@@ -121,24 +121,24 @@ const ShippingQueueTable = ({
         return clickedColumnField?.handler(
           model[0]?.sort,
           selectionOrderIds,
-          tableData
+          data
         );
         // );
       } else {
-        return tableData;
+        return data;
       }
     },
-    [columns, selectionOrderIds, tableData]
+    [columns, selectionOrderIds]
   );
 
   useEffect(() => {
-    setQueueData(tableData);
-  }, [tableData]);
+    setQueueData(sortDataByModel(sortModel, tableData));
+  }, [tableData, sortModel, sortDataByModel]);
 
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useState(0);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage)
+    setPage(newPage);
   };
 
   const generateTablePagination = useCallback(() => {
@@ -183,7 +183,7 @@ const ShippingQueueTable = ({
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          setQueueData(sortDataByModel(model));
+          setQueueData(sortDataByModel(model, tableData));
         }}
         components={{
           Footer: () =>
@@ -195,7 +195,7 @@ const ShippingQueueTable = ({
                   </Typography>
                 </Grid>
                 <Grid container item xs={6} justifyContent="flex-end">
-                {generateTablePagination()}
+                  {generateTablePagination()}
                 </Grid>
               </Grid>
             ) : (
