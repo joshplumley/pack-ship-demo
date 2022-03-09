@@ -56,8 +56,7 @@ const ShippingQueue = () => {
     { field: "trackingNumber", sort: "asc" },
     { field: "dateCreated", sort: "asc" },
   ]);
-  const [shippingHistory, setShippingHistory] = useState([]);
-  const [histSearchTotalCount, setHistSearchTotalCount] = useState(0);
+  const [histTotalCount, setHistTotalCount] = useState(0);
 
   function onCreateShipmentClick() {
     setCreateShipmentOpen(true);
@@ -84,32 +83,26 @@ const ShippingQueue = () => {
     setCurrentTab(Object.keys(TabNames)[newValue]);
   }
 
-  const fetchSearch = useCallback(
-    (pageNumber) => {
-      API.searchShippingHistory(
-        orderNumber,
-        partNumber,
-        histResultsPerPage,
-        pageNumber
-      ).then((data) => {
+  const fetchSearch = useCallback((pageNumber, oNum, pNum) => {
+    API.searchShippingHistory(oNum, pNum, histResultsPerPage, pageNumber).then(
+      (data) => {
         if (data) {
           let historyTableData = extractHistoryDetails(data?.data?.shipments);
           setFilteredShippingHist(historyTableData);
-          setHistSearchTotalCount(data?.data?.totalCount);
+          setHistTotalCount(data?.data?.totalCount);
         }
-      });
-    },
-    [orderNumber, partNumber]
-  );
+      }
+    );
+  }, []);
 
   function onHistorySearchClick() {
-    fetchSearch(0);
+    fetchSearch(0, orderNumber, partNumber);
   }
 
   function onHistoryClearClick() {
-    setFilteredShippingHist(shippingHistory);
     setOrderNumber("");
     setPartNumber("");
+    fetchSearch(0, "", "");
   }
 
   return (
@@ -211,17 +204,13 @@ const ShippingQueue = () => {
         }
         historyTab={
           <ShippingHistoryTable
-            orderNumber={orderNumber}
-            partNumber={partNumber}
             fetchSearch={fetchSearch}
             setSortModel={setSortShippingHistModel}
             sortModel={sortShippingHistModel}
             filteredShippingHist={filteredShippingHist}
             setFilteredShippingHist={setFilteredShippingHist}
             histResultsPerPage={histResultsPerPage}
-            setShippingHistory={setShippingHistory}
-            histSearchTotalCount={histSearchTotalCount}
-            setHistSearchTotalCount={setHistSearchTotalCount}
+            histTotalCount={histTotalCount}
           />
         }
       />
