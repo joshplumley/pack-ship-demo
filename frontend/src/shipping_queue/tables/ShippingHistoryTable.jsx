@@ -56,8 +56,6 @@ const ThisDataGrid = styled(DataGrid)`
 `;
 
 const ShippingHistoryTable = ({
-  orderNumber,
-  partNumber,
   sortModel,
   setSortModel,
   fetchSearch,
@@ -104,12 +102,7 @@ const ShippingHistoryTable = ({
   const reloadData = useCallback(() => {
     async function fetchData() {
       const data = await Promise.all([
-        API.searchShippingHistory(
-          orderNumber,
-          partNumber,
-          histResultsPerPage,
-          0
-        ),
+        API.searchShippingHistory(null, null, histResultsPerPage, 0),
       ]);
       return { history: data[0] };
     }
@@ -124,8 +117,6 @@ const ShippingHistoryTable = ({
       setHistSearchTotalCount(data?.history?.data?.totalCount);
     });
   }, [
-    orderNumber,
-    partNumber,
     histResultsPerPage,
     setFilteredShippingHist,
     setHistSearchTotalCount,
@@ -135,7 +126,6 @@ const ShippingHistoryTable = ({
   useEffect(() => {
     reloadData();
   }, [reloadData]);
-
 
   const onEditShipmentSubmit = useCallback(() => {
     setCanErrorCheck(true);
@@ -175,7 +165,12 @@ const ShippingHistoryTable = ({
           alert("Something went wrong submitting edits");
         });
     }
-  }, [clickedHistShipment, filteredShippingHist, setFilteredShippingHist, reloadData]);
+  }, [
+    clickedHistShipment,
+    filteredShippingHist,
+    setFilteredShippingHist,
+    reloadData,
+  ]);
 
   const onHistoryPackingSlipAdd = useCallback(
     (pageNum) => {
