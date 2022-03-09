@@ -1,5 +1,5 @@
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import ContextMenu from "../../components/GenericContextMenu";
 import MenuItem from "@mui/material/MenuItem";
 import { API } from "../../services/server";
@@ -288,7 +288,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     setMenuPosition(null);
   };
 
-  const historyRowMenuOptions = [
+  const historyRowMenuOptions = useMemo(() => [
     <MenuItem key={"View"} onClick={openViewPackingSlip}>
       View
     </MenuItem>,
@@ -299,7 +299,7 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
     <MenuItem key={"Delete"} onClick={openDeleteDialog}>
       Delete
     </MenuItem>,
-  ];
+  ], [] );
 
   return (
     <div className={classes.root}>

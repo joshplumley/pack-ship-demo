@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import CheckboxForm from "../components/CheckboxForm";
@@ -33,7 +33,6 @@ const PackingQueue = () => {
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
-  const [isSelectAllOn, setIsSelectAll] = useState(false);
   const [sortPackQueueModel, setSortPackQueueModel] = useState([
     { field: "orderNumber", sort: "asc" },
     { field: "part", sort: "asc" },
@@ -46,33 +45,6 @@ const PackingQueue = () => {
     { field: "dateCreated", sort: "asc" },
   ]);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (true/*isShowUnfinishedBatches*/) {
-        return await API.getAllWorkOrders();
-      } else {
-        return await API.getPackingQueue();
-      }
-    }
-
-    fetchData().then((data) => {
-      let tableData = [];
-      data?.forEach((e) => {
-        tableData.push({
-          id: e._id,
-          orderNumber: e.orderNumber,
-          part: `${e.partNumber} - ${e.partRev}`,
-          partDescription: e.partDescription,
-          batchQty: e.batchQty,
-          fulfilledQty: e.packedQty,
-          customer: e.customer,
-        });
-      });
-      setPackingQueue(tableData);
-      setFilteredPackingQueue(tableData);
-    });
-  }, []);
-
   function onPackingSlipClick() {
     setPackingSlipOpen(true);
   }
@@ -81,7 +53,7 @@ const PackingQueue = () => {
     setPackingSlipOpen(false);
   }
 
-  function onPackingSlipSubmit(filledForm, orderNum) {
+  const onPackingSlipSubmit = useCallback((filledForm, orderNum) => {
     const items = filledForm.map((e) => {
       return { item: e.id, qty: e.packQty };
     });
@@ -110,98 +82,10 @@ const PackingQueue = () => {
       .catch(() => {
         alert("An error occurred submitting packing slip");
       });
-  }
-
-  const handleSelection = useCallback(
-    (selection, tableData) => {
-      let newSelection = selectedOrderIds;
-      if (selectedOrderIds.includes(selection)) {
-        // remove it
-        newSelection = selectedOrderIds.filter((e) => e !== selection);
-        // if something is deselected then selectAll is false
-        setIsSelectAll(false);
-      } else {
-        // add it
-        newSelection.push(selection);
-
-        // if the new selection contains all possible selected order numbers
-        // then select all is on
-        const selectedOrderNum = tableData?.find(
-          (e) => e.id === selection
-        )?.orderNumber;
-        const idsWithSelectedOrderNum = tableData
-          ?.filter((e) => e.orderNumber === selectedOrderNum)
-          .map((e) => e.id);
-
-        setIsSelectAll(
-          idsWithSelectedOrderNum.sort().toString() ===
-            newSelection.sort().toString()
-        );
-      }
-      return newSelection;
-    },
-    [selectedOrderIds]
-  );
-
-  const onQueueRowClick = useCallback(
-    (selectionModel, tableData) => {
-      const newSelectedOrderIds = handleSelection(selectionModel, tableData);
-      setSelectedOrderIds([...newSelectedOrderIds]);
-
-      setSelectedOrderNumber(
-        tableData?.find(
-          (e) => newSelectedOrderIds.length > 0 && e.id === selectionModel
-        )?.orderNumber ?? null
-      );
-    },
-    [handleSelection]
-  );
-
-  const onSelectAllClick = useCallback(
-    (value, tableData) => {
-      setIsSelectAll(value);
-
-      if (value) {
-        if (selectedOrderIds.length > 0) {
-          // Something is selected, so we need to select the remaining
-          // that matach selectedOrderNumber
-          setSelectedOrderIds(
-            tableData
-              .filter((e) => e.orderNumber === selectedOrderNumber)
-              .map((e) => e.id)
-          );
-        } else if (selectedOrderIds.length === 0) {
-          // Nothing selected yet, so select the first row and all that match
-          // the first row order number
-
-          setSelectedOrderIds(
-            tableData
-              .filter((e) => e.orderNumber === tableData[0]?.orderNumber)
-              .map((e) => e.id)
-          );
-          setSelectedOrderNumber(
-            tableData?.find((e) => e.id === tableData[0].id)?.orderNumber ??
-              null
-          );
-        }
-      } else {
-        setSelectedOrderIds([]);
-        setSelectedOrderNumber(null);
-      }
-    },
-    [selectedOrderIds, selectedOrderNumber]
-  );
+  }, [filteredPackingQueue]);
 
   function onSearch(value) {
     setSearchString(value);
-    const filteredQueue = packingQueue.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().includes(value.toLowerCase()) ||
-        order.part.toLowerCase().includes(value.toLowerCase()) ||
-        selectedOrderIds.includes(order.id) // Ensure selected rows are included
-    );
-
-    setFilteredPackingQueue(filteredQueue);
   }
 
   return (
@@ -255,14 +139,19 @@ const PackingQueue = () => {
         queueTotal={packingQueue?.length}
         queueTab={
           <PackingQueueTable
-            onRowClick={onQueueRowClick}
-            isSelectAllOn={isSelectAllOn}
-            onSelectAll={onSelectAllClick}
             tableData={filteredPackingQueue}
+            packingQueue={packingQueue}
             selectedOrderNumber={selectedOrderNumber}
             selectionOrderIds={selectedOrderIds}
             sortModel={sortPackQueueModel}
             setSortModel={setSortPackQueueModel}
+            setPackingQueue={setPackingQueue}
+            setFilteredPackingQueue={setFilteredPackingQueue}
+            isShowUnfinishedBatches={true/*isShowUnfinishedBatches*/}
+            setSelectedOrderIds={setSelectedOrderIds}
+            selectedOrderIds={selectedOrderIds}
+            setSelectedOrderNumber={setSelectedOrderNumber}
+            searchString={searchString}
           />
         }
         historyTab={
