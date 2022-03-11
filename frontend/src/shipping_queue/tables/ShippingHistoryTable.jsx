@@ -4,7 +4,6 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Typography, MenuItem } from "@mui/material";
 import { styled } from "@mui/system";
 import ContextMenu from "../../components/GenericContextMenu";
-import { extractHistoryDetails } from "../utils/historyDetails";
 import EditShipmentTableDialog from "../EditShipmentDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { isShippingInfoValid } from "../../utils/Validators";
@@ -56,17 +55,13 @@ const ThisDataGrid = styled(DataGrid)`
 `;
 
 const ShippingHistoryTable = ({
-  orderNumber,
-  partNumber,
   sortModel,
   setSortModel,
   fetchSearch,
   filteredShippingHist,
   setFilteredShippingHist,
   histResultsPerPage,
-  setShippingHistory,
-  histSearchTotalCount,
-  setHistSearchTotalCount,
+  histTotalCount,
 }) => {
   const classes = useStyle();
 
@@ -102,40 +97,12 @@ const ShippingHistoryTable = ({
   }, []);
 
   const reloadData = useCallback(() => {
-    async function fetchData() {
-      const data = await Promise.all([
-        API.searchShippingHistory(
-          orderNumber,
-          partNumber,
-          histResultsPerPage,
-          0
-        ),
-      ]);
-      return { history: data[0] };
-    }
-
-    fetchData().then((data) => {
-      // Gather the history data for the table
-      let historyTableData = extractHistoryDetails(
-        data?.history?.data.shipments
-      );
-      setFilteredShippingHist(historyTableData);
-      setShippingHistory(historyTableData);
-      setHistSearchTotalCount(data?.history?.data?.totalCount);
-    });
-  }, [
-    orderNumber,
-    partNumber,
-    histResultsPerPage,
-    setFilteredShippingHist,
-    setHistSearchTotalCount,
-    setShippingHistory,
-  ]);
+    fetchSearch(0, "", "");
+  }, [fetchSearch]);
 
   useEffect(() => {
     reloadData();
   }, [reloadData]);
-
 
   const onEditShipmentSubmit = useCallback(() => {
     setCanErrorCheck(true);
@@ -175,7 +142,12 @@ const ShippingHistoryTable = ({
           alert("Something went wrong submitting edits");
         });
     }
-  }, [clickedHistShipment, filteredShippingHist, setFilteredShippingHist, reloadData]);
+  }, [
+    clickedHistShipment,
+    filteredShippingHist,
+    setFilteredShippingHist,
+    reloadData,
+  ]);
 
   const onHistoryPackingSlipAdd = useCallback(
     (pageNum) => {
@@ -275,6 +247,7 @@ const ShippingHistoryTable = ({
 
   const onPageChange = useCallback(
     (pageNumber) => {
+      // setPage(pageNumber);
       // API Pages are 1 based. MUI pages are 0 based.
       fetchSearch(pageNumber + 1);
     },
@@ -336,12 +309,37 @@ const ShippingHistoryTable = ({
     </MenuItem>,
   ];
 
+  // const [page, setPage] = useState(0);
+
+  // const handlePageChange = (event, newPage) => {
+  //   setPage(newPage);
+  // };
+
+  // const generateTablePagination = useCallback(() => {
+  //   return (
+  //     <table>
+  //       <tbody>
+  //         <tr>
+  //           <TablePagination
+  //             count={histSearchTotalCount}
+  //             rowsPerPageOptions={[histResultsPerPage]}
+  //             rowsPerPage={histResultsPerPage}
+  //             onPageChange={(_, page) => onPageChange(page)}
+  //             page={page}
+  //             sx={{ border: "0px" }}
+  //           />
+  //         </tr>
+  //       </tbody>
+  //     </table>
+  //   );
+  // }, [histSearchTotalCount]);
+
   return (
     <div className={classes.root}>
       <ThisDataGrid
         paginationMode="server"
         onPageChange={(page, _) => onPageChange(page)}
-        rowCount={histSearchTotalCount}
+        rowCount={histTotalCount}
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}
         disableSelectionOnClick={true}
@@ -355,6 +353,13 @@ const ShippingHistoryTable = ({
         onRowClick={onHistoryRowClick}
         sortModel={sortModel}
         onSortModelChange={setSortModel}
+        // components={{
+        //   Footer: () => (
+        //     <Grid container item xs={12} justifyContent="flex-end">
+        //       {generateTablePagination()}
+        //     </Grid>
+        //   ),
+        // }}
       />
 
       <ContextMenu
