@@ -143,7 +143,7 @@ async function deletePackingSlip(req, res) {
     async () => {
       const { pid } = req.params;
       const doc = PackingSlip.findOne({ _id: pid }).lean();
-      if (doc.shipment) return [{ status: 400, message: 'That packing slip has already been shipped.' }];
+      if (doc.shipment) return [{ status: 405, message: 'That packing slip has already been shipped.' }];
 
       await PackingSlip.deleteOne({ _id: pid });
       return [null];
