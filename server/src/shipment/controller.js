@@ -46,7 +46,6 @@ async function searchShipments(req, res) {
         ];
 
       if (sortBy !== "CUSTOMER" || sortBy !== "DATE") sortBy = "DATE";
-      if (sortOrder !== -1 || sortOrder !== 1) sortOrder = 1;
       if (isNaN(+pageNumber) || pageNumber < 1) pageNumber = 1;
 
       const allShipments = await Shipment.find()

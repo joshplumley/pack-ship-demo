@@ -12,6 +12,7 @@ import ShippingDialogStates from "../create_shipment/constants/ShippingDialogCon
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
 import { extractHistoryDetails } from "./utils/historyDetails";
+import { getSortFromModel } from "./utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -53,7 +54,6 @@ const ShippingQueue = () => {
   const histResultsPerPage = 10;
   const [sortShippingHistModel, setSortShippingHistModel] = useState([
     { field: "shipmentId", sort: "asc" },
-    { field: "trackingNumber", sort: "asc" },
     { field: "dateCreated", sort: "asc" },
   ]);
   const [histTotalCount, setHistTotalCount] = useState(0);
@@ -83,8 +83,8 @@ const ShippingQueue = () => {
     setCurrentTab(Object.keys(TabNames)[newValue]);
   }
 
-  const fetchSearch = useCallback((pageNumber, oNum, pNum) => {
-    API.searchShippingHistory(oNum, pNum, histResultsPerPage, pageNumber).then(
+  const fetchSearch = useCallback((sort, pageNumber, oNum, pNum) => {
+    API.searchShippingHistory(sort.sortBy, sort.sortOrder, oNum, pNum, histResultsPerPage, pageNumber).then(
       (data) => {
         if (data) {
           let historyTableData = extractHistoryDetails(data?.data?.shipments);
@@ -96,13 +96,13 @@ const ShippingQueue = () => {
   }, []);
 
   function onHistorySearchClick() {
-    fetchSearch(0, orderNumber, partNumber);
+    fetchSearch(getSortFromModel(sortShippingHistModel), 0, orderNumber, partNumber);
   }
 
   function onHistoryClearClick() {
     setOrderNumber("");
     setPartNumber("");
-    fetchSearch(0, "", "");
+    fetchSearch(getSortFromModel(sortShippingHistModel), 0, "", "");
   }
 
   return (

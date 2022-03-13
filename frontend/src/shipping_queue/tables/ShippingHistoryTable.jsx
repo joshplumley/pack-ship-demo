@@ -8,6 +8,7 @@ import EditShipmentTableDialog from "../EditShipmentDialog";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { isShippingInfoValid } from "../../utils/Validators";
 import { API } from "../../services/server";
+import { getSortFromModel } from "../utils/sortModelFunctions";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -97,8 +98,8 @@ const ShippingHistoryTable = ({
   }, []);
 
   const reloadData = useCallback(() => {
-    fetchSearch(0, "", "");
-  }, [fetchSearch]);
+    fetchSearch(getSortFromModel(sortModel), 0, "", "");
+  }, [fetchSearch, sortModel]);
 
   useEffect(() => {
     reloadData();
@@ -249,15 +250,16 @@ const ShippingHistoryTable = ({
     (pageNumber) => {
       // setPage(pageNumber);
       // API Pages are 1 based. MUI pages are 0 based.
-      fetchSearch(pageNumber + 1);
+      fetchSearch(getSortFromModel(sortModel), pageNumber + 1);
     },
-    [fetchSearch]
+    [fetchSearch, sortModel]
   );
 
   const columns = [
     {
       field: "shipmentId",
       flex: 1,
+      sortingOrder: ['desc', 'asc'],
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
       },
@@ -265,6 +267,7 @@ const ShippingHistoryTable = ({
     {
       field: "trackingNumber",
       flex: 2,
+      sortable: false,
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Tracking #</Typography>;
       },
@@ -272,6 +275,7 @@ const ShippingHistoryTable = ({
     {
       field: "dateCreated",
       flex: 1,
+      sortingOrder: ['desc', 'asc'],
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
       },
@@ -350,8 +354,9 @@ const ShippingHistoryTable = ({
         rowsPerPageOptions={[10]}
         checkboxSelection={false}
         editMode="row"
+        sortingMode="server"
         onRowClick={onHistoryRowClick}
-        sortModel={sortModel}
+        // sortModel={sortModel}
         onSortModelChange={setSortModel}
         // components={{
         //   Footer: () => (
