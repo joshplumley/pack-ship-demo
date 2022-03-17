@@ -1,5 +1,6 @@
 import PackingDialog from "../components/PackingDialog";
 import EditPackingSlipTable from "./components/EditPackingSlipTable";
+import { DialogActions } from "@mui/material";
 
 const EditPackingSlipDialog = ({
   packingSlipData,
@@ -22,7 +23,7 @@ const EditPackingSlipDialog = ({
       onClose={onClose}
       onSubmit={onSubmit}
       submitDisabled={cellEditing}
-      actions={viewOnly ? true : undefined}
+      actions={viewOnly ? <DialogActions/> : undefined}
     >
       <EditPackingSlipTable
         rowData={packingSlipData}
