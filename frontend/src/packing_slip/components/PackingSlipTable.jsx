@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Typography, Box } from "@mui/material";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
@@ -24,14 +24,25 @@ const PackingSlipTable = ({
 
   const handleCellClick = React.useCallback(
     (params) => {
-      if (params.field === "packQty")
-      {
-        console.log(params)
+      if (params.field === "packQty") {
         apiRef.current.setCellMode(params.id, params.field, "edit");
       }
     },
     [apiRef]
   );
+
+  useEffect(() => {
+    apiRef.current.setCellFocus(rowData[0].id, "packQty");
+    apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
+
+    return apiRef.current.subscribeEvent(
+      "cellModeChange",
+      (event) => {
+        event.defaultMuiPrevented = true;
+      },
+      { isFirst: true }
+    );
+  }, [apiRef, rowData]);
 
   const columns = [
     {
@@ -74,7 +85,7 @@ const PackingSlipTable = ({
       },
       flex: 1,
       default: 0,
-      editable: !viewOnly,
+      editable: true,
       preProcessEditCellProps: (params) => {
         const hasError = !hasValueError(params.props.value);
         return { ...params.props, error: hasError };
@@ -87,7 +98,7 @@ const PackingSlipTable = ({
       sx={{
         height: "55vh",
         width: 1,
-        "& .MuiDataGrid-cell--editing": {
+        "& .MuiDataGridPro-cell--editing": {
           bgcolor: "rgb(255,215,115, 0.19)",
           color: "#1a3e72",
         },
@@ -103,7 +114,7 @@ const PackingSlipTable = ({
         sx={{
           border: "none",
           height: "50vh",
-          "& .MuiDataGrid-cell--editable": {
+          "& .MuiDataGridPro-cell--editable": {
             border: "solid 1px grey",
             fontStyle: "italic",
             ":hover": {
@@ -132,6 +143,7 @@ const PackingSlipTable = ({
             );
           }
         }}
+        editMode={undefined}
         apiRef={apiRef}
         onCellClick={handleCellClick}
       />

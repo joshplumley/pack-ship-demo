@@ -29,7 +29,6 @@ const PackShipEditableTable = ({
   tableData,
   onDelete,
   onAdd,
-  onRowClick,
   viewOnly,
   onEditRowsModelChange,
   pageSize = 10,
@@ -82,7 +81,6 @@ const PackShipEditableTable = ({
         sx={{ border: "none", height: "50vh", ...sx }}
         className={classes.table}
         disableSelectionOnClick={true}
-        onRowClick={onRowClick}
         rows={newRows}
         rowHeight={65}
         columns={newColumns}
