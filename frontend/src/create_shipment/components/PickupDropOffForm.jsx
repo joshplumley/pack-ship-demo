@@ -19,6 +19,7 @@ const PickupDropOffForm = ({ customerName, setCustomerName }) => {
         <Grid item xs>
           <TextField
             required
+            autoFocus
             value={customerName}
             onChange={(event) => {
               setCustomerName(event.target.value);
