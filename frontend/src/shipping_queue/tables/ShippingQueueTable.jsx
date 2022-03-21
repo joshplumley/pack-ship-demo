@@ -298,7 +298,10 @@ const ShippingQueueTable = ({
           tmpData[tmpIndex].open = !tmpData || !tmpData[tmpIndex].open;
           setQueueData(tmpData);
         }}
-        rows={queueData}
+        rows={queueData.slice(
+          page * numRowsPerPage,
+          page * numRowsPerPage + numRowsPerPage
+        )}
         rowHeight={65}
         columns={columns}
         pageSize={numRowsPerPage}

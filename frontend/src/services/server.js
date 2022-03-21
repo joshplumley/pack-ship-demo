@@ -101,8 +101,6 @@ export const API = {
   },
 
   async searchShippingHistory(
-    sortBy, 
-    sortOrder,
     matchOrder,
     matchPart,
     resultsPerPage,
@@ -113,8 +111,6 @@ export const API = {
         `${REACT_APP_API_URL}/shipments/search`,
         {
           params: {
-            sortBy, 
-            sortOrder,
             matchOrder,
             matchPart,
             resultsPerPage,
