@@ -63,6 +63,8 @@ const ShippingHistoryTable = ({
   setFilteredShippingHist,
   histResultsPerPage,
   histTotalCount,
+  orderNumber,
+  partNumber,
 }) => {
   const classes = useStyle();
 
@@ -77,6 +79,7 @@ const ShippingHistoryTable = ({
     useState(false);
   const [packingSlipToDelete, setPackingSlipToDelete] = useState();
   const [canErrorCheck, setCanErrorCheck] = useState(false);
+  const [page, setPage] = useState(0);
 
   const onHistoryRowClick = useCallback((params, event, __) => {
     API.getShipment(params.id).then((data) => {
@@ -98,12 +101,12 @@ const ShippingHistoryTable = ({
   }, []);
 
   const reloadData = useCallback(() => {
-    fetchSearch(getSortFromModel(sortModel), 0, "", "");
-  }, [fetchSearch, sortModel]);
+    fetchSearch(getSortFromModel(sortModel), page + 1, orderNumber, partNumber);
+  }, [fetchSearch, sortModel, page, orderNumber, partNumber]);
 
   useEffect(() => {
-    reloadData();
-  }, [reloadData]);
+    fetchSearch(getSortFromModel(sortModel), page + 1, orderNumber, partNumber);
+  }, [sortModel, page, fetchSearch, orderNumber, partNumber]);
 
   const onEditShipmentSubmit = useCallback(() => {
     setCanErrorCheck(true);
@@ -246,20 +249,15 @@ const ShippingHistoryTable = ({
     }
   }, [clickedHistShipment, packingSlipToDelete]);
 
-  const onPageChange = useCallback(
-    (pageNumber) => {
-      // setPage(pageNumber);
-      // API Pages are 1 based. MUI pages are 0 based.
-      fetchSearch(getSortFromModel(sortModel), pageNumber + 1);
-    },
-    [fetchSearch, sortModel]
-  );
+  const onPageChange = useCallback((pageNumber, details) => {
+    setPage(pageNumber);
+  }, []);
 
   const columns = [
     {
       field: "shipmentId",
       flex: 1,
-      sortingOrder: ['desc', 'asc'],
+      sortingOrder: ["desc", "asc"],
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Shipment ID</Typography>;
       },
@@ -275,7 +273,7 @@ const ShippingHistoryTable = ({
     {
       field: "dateCreated",
       flex: 1,
-      sortingOrder: ['desc', 'asc'],
+      sortingOrder: ["desc", "asc"],
       renderHeader: (params) => {
         return <Typography sx={{ fontWeight: 900 }}>Date Created</Typography>;
       },
@@ -313,8 +311,6 @@ const ShippingHistoryTable = ({
     </MenuItem>,
   ];
 
-  // const [page, setPage] = useState(0);
-
   // const handlePageChange = (event, newPage) => {
   //   setPage(newPage);
   // };
@@ -342,7 +338,7 @@ const ShippingHistoryTable = ({
     <div className={classes.root}>
       <ThisDataGrid
         paginationMode="server"
-        onPageChange={(page, _) => onPageChange(page)}
+        onPageChange={onPageChange}
         rowCount={histTotalCount}
         sx={{ border: "none", height: "65vh" }}
         className={classes.table}

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Search from "../components/Search";
 import PackShipTabs from "../components/Tabs";
 import { API } from "../services/server";
@@ -83,20 +83,45 @@ const ShippingQueue = () => {
     setCurrentTab(Object.keys(TabNames)[newValue]);
   }
 
-  const fetchSearch = useCallback((sort, pageNumber, oNum, pNum) => {
-    API.searchShippingHistory(sort.sortBy, sort.sortOrder, oNum, pNum, histResultsPerPage, pageNumber).then(
-      (data) => {
+  const fetchSearch = useCallback(
+    (sort, pageNumber, oNum, pNum) => {
+      API.searchShippingHistory(
+        sort.sortBy,
+        sort.sortOrder,
+        oNum,
+        pNum,
+        histResultsPerPage,
+        pageNumber
+      ).then((data) => {
         if (data) {
           let historyTableData = extractHistoryDetails(data?.data?.shipments);
           setFilteredShippingHist(historyTableData);
           setHistTotalCount(data?.data?.totalCount);
         }
-      }
+      });
+    },
+    [histResultsPerPage]
+  );
+
+  useEffect(() => {
+    fetchSearch(
+      getSortFromModel([
+        { field: "shipmentId", sort: "asc" },
+        { field: "dateCreated", sort: "asc" },
+      ]),
+      0,
+      "",
+      ""
     );
-  }, []);
+  }, [fetchSearch]);
 
   function onHistorySearchClick() {
-    fetchSearch(getSortFromModel(sortShippingHistModel), 0, orderNumber, partNumber);
+    fetchSearch(
+      getSortFromModel(sortShippingHistModel),
+      0,
+      orderNumber,
+      partNumber
+    );
   }
 
   function onHistoryClearClick() {
@@ -211,6 +236,8 @@ const ShippingQueue = () => {
             setFilteredShippingHist={setFilteredShippingHist}
             histResultsPerPage={histResultsPerPage}
             histTotalCount={histTotalCount}
+            orderNumber={orderNumber}
+            partNumber={partNumber}
           />
         }
       />

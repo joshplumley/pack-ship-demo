@@ -44,9 +44,14 @@ async function searchShipments(req, res) {
         return [
           { status: 400, data: "resultsPerPage must be a positive integer." },
         ];
-
-      if (sortBy !== "CUSTOMER" || sortBy !== "DATE") sortBy = "DATE";
-      if (sortOrder !== -1 || sortOrder !== 1) sortOrder = 1;
+        
+      if (sortBy !== "CUSTOMER" && sortBy !== "DATE") sortBy = "DATE";
+      if (sortOrder === "-1" || sortOrder === "1") {
+        sortOrder = parseInt(sortOrder);
+      }
+      else {
+        sortOrder = 1;
+      }
       if (isNaN(+pageNumber) || pageNumber < 1) pageNumber = 1;
 
       const allShipments = await Shipment.find()
@@ -78,8 +83,9 @@ async function searchShipments(req, res) {
 
       const sortFunc = (a, b) => {
         let testVal;
-        if (sortBy === "CUSTOMER")
-          testVal = a.customer.customerTag - b.customer.customerTag;
+        if (sortBy === "CUSTOMER") {
+          testVal = a.customer.customerTag.localeCompare(b.customer.customerTag);
+        }
         else testVal = a.dateCreated.getTime() - b.dateCreated.getTime();
 
         if (testVal * sortOrder < 1) return -1;
