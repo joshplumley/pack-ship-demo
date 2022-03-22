@@ -278,9 +278,8 @@ const PackingQueueTable = ({
   );
 
   useEffect(() => {
-    const data = sortDataByModel(sortModel, tableData);
-    setQueueData(data);
-  }, [tableData, sortDataByModel, sortModel]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   const [page, setPage] = useState(0);
 
