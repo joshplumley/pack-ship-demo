@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { DataGrid } from "@mui/x-data-grid";
 import { Typography, MenuItem } from "@mui/material";
@@ -103,10 +103,6 @@ const ShippingHistoryTable = ({
   const reloadData = useCallback(() => {
     fetchSearch(getSortFromModel(sortModel), page + 1, orderNumber, partNumber);
   }, [fetchSearch, sortModel, page, orderNumber, partNumber]);
-
-  useEffect(() => {
-    fetchSearch(getSortFromModel(sortModel), page + 1, orderNumber, partNumber);
-  }, [sortModel, page, fetchSearch, orderNumber, partNumber]);
 
   const onEditShipmentSubmit = useCallback(() => {
     setCanErrorCheck(true);
@@ -353,7 +349,10 @@ const ShippingHistoryTable = ({
         sortingMode="server"
         onRowClick={onHistoryRowClick}
         // sortModel={sortModel}
-        onSortModelChange={setSortModel}
+        onSortModelChange={(model) => {
+          setSortModel(model);
+          fetchSearch(getSortFromModel(model), page + 1, orderNumber, partNumber);
+        }}
         // components={{
         //   Footer: () => (
         //     <Grid container item xs={12} justifyContent="flex-end">

@@ -87,7 +87,7 @@ async function searchShipments(req, res) {
           testVal = a.customer.customerTag.localeCompare(b.customer.customerTag);
         }
         else testVal = a.dateCreated.getTime() - b.dateCreated.getTime();
-
+        
         if (testVal * sortOrder < 1) return -1;
         else return 1;
       };
