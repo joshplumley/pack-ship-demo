@@ -9,6 +9,7 @@ import { DialogActions, Grid } from "@mui/material";
 import { API } from "../services/server";
 import { useEffect } from "react";
 import { isShippingInfoValid } from "../utils/Validators";
+
 const CreateShipmentDialog = ({
   customer,
   packingSlipIds,
@@ -24,7 +25,7 @@ const CreateShipmentDialog = ({
     manifest: [],
     customer: "",
     deliveryMethod: "",
-    checkedCustomer: false
+    checkedCustomer: false,
   });
   const [canErrorCheck, setCanErrorCheck] = useState(false);
   const [reset, setReset] = useState(false);
@@ -47,7 +48,7 @@ const CreateShipmentDialog = ({
       manifest: packingSlipIds,
       customer: customer?._id,
       deliveryMethod: "",
-      checkedCustomer: false
+      checkedCustomer: false,
     });
     setCanErrorCheck(false);
   }, [open, customer?._id, packingSlipIds]);
@@ -73,7 +74,7 @@ const CreateShipmentDialog = ({
 
   const onResetClick = () => {
     setReset(true);
-    setCanErrorCheck(false)
+    setCanErrorCheck(false);
   };
 
   const onBackClick = () => {
@@ -179,7 +180,7 @@ const CreateShipmentDialog = ({
                   />
                 </Grid>
                 <Grid item>
-                  <CommonButton autoFocus onClick={onSubmit} label={"OK"} />
+                  <CommonButton autoFocus onClick={onSubmit} label={"OK"} type="submit"/>
                 </Grid>
               </Grid>
             </Grid>
@@ -193,7 +194,12 @@ const CreateShipmentDialog = ({
               label="Back"
               color="secondary"
             />
-            <CommonButton autoFocus onClick={onSubmit} label={"Ok"} />
+            <CommonButton
+              autoFocus
+              onClick={onSubmit}
+              label={"Ok"}
+              type="submit"
+            />
           </DialogActions>
         );
       case ShippingDialogStates.CreateShipmentTable:
