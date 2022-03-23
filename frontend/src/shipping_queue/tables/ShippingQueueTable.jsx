@@ -101,11 +101,13 @@ const ShippingQueueTable = ({
       // The set state order is important
       setSelectedCustomerId(null);
       setSelectedOrderIds([]);
+      queueTableData = sortDataByModel(sortModel, queueTableData);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
       setIsSelectAll(false);
     });
-  }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
+    // }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
+  }, []);
 
   useEffect(() => {
     reloadData();

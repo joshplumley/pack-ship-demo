@@ -169,10 +169,13 @@ const PackingQueueTable = ({
           customer: e.customer,
         });
       });
+
+      tableData = sortDataByModel(sortModel, tableData);
       setPackingQueue(tableData);
       setFilteredPackingQueue(tableData);
     });
-  }, [isShowUnfinishedBatches, setFilteredPackingQueue, setPackingQueue]);
+    // }, [isShowUnfinishedBatches, setFilteredPackingQueue, setPackingQueue]);
+  }, []);
 
   useEffect(() => {
     if (searchString) {
