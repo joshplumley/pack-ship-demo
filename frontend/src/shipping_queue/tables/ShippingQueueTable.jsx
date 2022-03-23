@@ -248,7 +248,7 @@ const ShippingQueueTable = ({
         return clickedColumnField?.handler(
           model[0]?.sort,
           selectedOrderIds,
-          tableData
+          data
         );
         // );
       } else {
