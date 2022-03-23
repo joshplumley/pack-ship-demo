@@ -245,9 +245,9 @@ const ShippingHistoryTable = ({
     }
   }, [clickedHistShipment, packingSlipToDelete]);
 
-  const onPageChange = useCallback((pageNumber, details) => {
-    setPage(pageNumber);
-  }, []);
+  const onPageChange = useCallback((pageNumber) => {
+    fetchSearch(getSortFromModel(sortModel), pageNumber + 1, orderNumber, partNumber);
+  }, [fetchSearch, sortModel, orderNumber, partNumber]);
 
   const columns = [
     {
