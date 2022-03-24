@@ -245,9 +245,17 @@ const ShippingHistoryTable = ({
     }
   }, [clickedHistShipment, packingSlipToDelete]);
 
-  const onPageChange = useCallback((pageNumber) => {
-    fetchSearch(getSortFromModel(sortModel), pageNumber + 1, orderNumber, partNumber);
-  }, [fetchSearch, sortModel, orderNumber, partNumber]);
+  const onPageChange = useCallback(
+    (pageNumber) => {
+      fetchSearch(
+        getSortFromModel(sortModel),
+        pageNumber + 1,
+        orderNumber,
+        partNumber
+      );
+    },
+    [fetchSearch, sortModel, orderNumber, partNumber]
+  );
 
   const columns = [
     {
@@ -351,7 +359,12 @@ const ShippingHistoryTable = ({
         // sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          fetchSearch(getSortFromModel(model), page + 1, orderNumber, partNumber);
+          fetchSearch(
+            getSortFromModel(model),
+            page + 1,
+            orderNumber,
+            partNumber
+          );
         }}
         // components={{
         //   Footer: () => (

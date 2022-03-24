@@ -170,40 +170,22 @@ const PackingQueueTable = ({
         });
       });
 
-      tableData = sortDataByModel(sortModel, tableData);
+      tableData = sortDataByModel(
+        sortModel,
+        tableData,
+        columns,
+        selectedOrderIds
+      );
       setPackingQueue(tableData);
       setFilteredPackingQueue(tableData);
     });
-    // }, [isShowUnfinishedBatches, setFilteredPackingQueue, setPackingQueue]);
+    // eslint-disable-next-line
   }, []);
-
-  useEffect(() => {
-    if (searchString) {
-      const filteredQueue = packingQueue.filter(
-        (order) =>
-          order.orderNumber
-            .toLowerCase()
-            .includes(searchString.toLowerCase()) ||
-          order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-          selectedOrderIds.includes(order.id) // Ensure selected rows are included
-      );
-
-      setFilteredPackingQueue(filteredQueue);
-    }
-  }, [packingQueue, searchString, selectedOrderIds, setFilteredPackingQueue]);
 
   const storedTableData = useMemo(() => tableData, [tableData]);
 
-  const columns = useMemo(
+  const staticCols = useMemo(
     () => [
-      getCheckboxColumn(
-        isDisabled,
-        selectionOrderIds,
-        isSelectAllOn,
-        storedTableData,
-        onSelectAllClick,
-        onQueueRowClick
-      ),
       {
         field: "orderNumber",
         flex: 1,
@@ -248,11 +230,26 @@ const PackingQueueTable = ({
         flex: 1,
       },
     ],
+    [classes.fulfilledQtyHeader]
+  );
+
+  const columns = useMemo(
+    () => [
+      getCheckboxColumn(
+        isDisabled,
+        selectionOrderIds,
+        isSelectAllOn,
+        storedTableData,
+        onSelectAllClick,
+        onQueueRowClick
+      ),
+      ...staticCols,
+    ],
     [
+      staticCols,
       storedTableData,
       isDisabled,
       selectionOrderIds,
-      classes.fulfilledQtyHeader,
       isSelectAllOn,
       onQueueRowClick,
       onSelectAllClick,
@@ -260,7 +257,7 @@ const PackingQueueTable = ({
   );
 
   const sortDataByModel = useCallback(
-    (model, data) => {
+    (model, data, columns, selectionOrderIds) => {
       if (model.length !== 0) {
         // find the filter handler based on the column clicked
         const clickedColumnField = createColumnFilters(columns, data).find(
@@ -277,8 +274,42 @@ const PackingQueueTable = ({
         return data;
       }
     },
-    [columns, selectionOrderIds]
+    []
   );
+
+  useEffect(() => {
+    if (searchString) {
+      let filteredQueue = packingQueue.filter(
+        (order) =>
+          order.orderNumber
+            .toLowerCase()
+            .includes(searchString.toLowerCase()) ||
+          order.part.toLowerCase().includes(searchString.toLowerCase()) ||
+          selectedOrderIds.includes(order.id) // Ensure selected rows are included
+      );
+
+      filteredQueue = sortDataByModel(
+        sortModel,
+        filteredQueue,
+        staticCols,
+        selectedOrderIds
+      );
+      setFilteredPackingQueue(filteredQueue);
+    } else {
+      setFilteredPackingQueue(
+        sortDataByModel(sortModel, packingQueue, staticCols, selectedOrderIds)
+      );
+    }
+    // eslint-disable-next-line
+  }, [
+    sortDataByModel,
+    sortModel,
+    staticCols,
+    packingQueue,
+    searchString,
+    // selectedOrderIds,
+    setFilteredPackingQueue,
+  ]);
 
   useEffect(() => {
     setQueueData(tableData);
@@ -331,7 +362,9 @@ const PackingQueueTable = ({
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          setQueueData(sortDataByModel(model, tableData));
+          setQueueData(
+            sortDataByModel(model, tableData, columns, selectedOrderIds)
+          );
         }}
         components={{
           Footer: () =>

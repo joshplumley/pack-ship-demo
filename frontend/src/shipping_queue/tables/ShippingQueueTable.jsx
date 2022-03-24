@@ -259,8 +259,8 @@ const ShippingQueueTable = ({
   );
 
   useEffect(() => {
-    setQueueData(sortDataByModel(sortModel, tableData));
-  }, [tableData, sortModel, sortDataByModel]);
+    setQueueData(tableData);
+  }, [tableData]);
 
   const [page, setPage] = useState(0);
 
