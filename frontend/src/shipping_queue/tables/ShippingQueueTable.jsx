@@ -59,6 +59,7 @@ const ShippingQueueTable = ({
   createShipmentOpen,
   currentDialogState,
   setCurrentDialogState,
+  searchText,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
@@ -76,8 +77,6 @@ const ShippingQueueTable = ({
     },
     [selectedCustomerId]
   );
-
-  const storedTableData = useMemo(() => tableData, [tableData]);
 
   const reloadData = useCallback(() => {
     async function fetchData() {
@@ -198,7 +197,7 @@ const ShippingQueueTable = ({
         isDisabled,
         selectedOrderIds,
         isSelectAllOn,
-        storedTableData,
+        tableData,
         onSelectAll,
         onRowClick
       ),
@@ -226,7 +225,7 @@ const ShippingQueueTable = ({
       onRowClick,
       onSelectAll,
       selectedOrderIds,
-      storedTableData,
+      tableData
     ]
   );
 
@@ -257,6 +256,19 @@ const ShippingQueueTable = ({
     },
     [columns, selectedOrderIds]
   );
+
+  useEffect(() => {
+    const filtered = shippingQueue.filter(
+      (order) =>
+        order?.orderNumber?.toLowerCase().includes(searchText?.toLowerCase()) ||
+        order?.items?.filter((e) =>
+          e.item?.partNumber?.toLowerCase().includes(searchText?.toLowerCase())
+        ).length > 0 ||
+        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
+    );
+    setFilteredShippingQueue(sortDataByModel(sortModel, filtered));
+    // eslint-disable-next-line
+  }, [searchText, setFilteredShippingQueue]);
 
   useEffect(() => {
     setQueueData(tableData);

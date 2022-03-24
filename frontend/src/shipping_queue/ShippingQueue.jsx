@@ -50,6 +50,7 @@ const ShippingQueue = () => {
       { field: "packingSlipId", sort: "asc" },
     ]
   );
+  const [queueSearchText, setQueueSearchText] = useState("");
 
   // Shipping History States
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
@@ -76,15 +77,7 @@ const ShippingQueue = () => {
   }
 
   function onQueueSearch(value) {
-    const filtered = shippingQueue.filter(
-      (order) =>
-        order?.orderNumber?.toLowerCase().includes(value?.toLowerCase()) ||
-        order?.items?.filter((e) =>
-          e.item?.partNumber?.toLowerCase().includes(value?.toLowerCase())
-        ).length > 0 ||
-        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
-    );
-    setFilteredShippingQueue(filtered);
+    setQueueSearchText(value);
   }
 
   function onTabChange(event, newValue) {
@@ -233,6 +226,7 @@ const ShippingQueue = () => {
             createShipmentOpen={createShipmentOpen}
             currentDialogState={currentDialogState}
             setCurrentDialogState={setCurrentDialogState}
+            searchText={queueSearchText}
           />
         }
         historyTab={

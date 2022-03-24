@@ -155,7 +155,6 @@ const PackingQueue = () => {
             setFilteredPackingQueue={setFilteredPackingQueue}
             isShowUnfinishedBatches={true/*isShowUnfinishedBatches*/}
             setSelectedOrderIds={setSelectedOrderIds}
-            selectedOrderIds={selectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}
             searchString={searchString}
           />

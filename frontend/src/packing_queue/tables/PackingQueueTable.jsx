@@ -42,7 +42,6 @@ const PackingQueueTable = ({
   setFilteredPackingQueue,
   isShowUnfinishedBatches,
   setSelectedOrderIds,
-  selectedOrderIds,
   setSelectedOrderNumber,
   searchString,
 }) => {
@@ -64,10 +63,10 @@ const PackingQueueTable = ({
 
   const handleSelection = useCallback(
     (selection, tableData) => {
-      let newSelection = selectedOrderIds;
-      if (selectedOrderIds.includes(selection)) {
+      let newSelection = selectionOrderIds;
+      if (selectionOrderIds.includes(selection)) {
         // remove it
-        newSelection = selectedOrderIds.filter((e) => e !== selection);
+        newSelection = selectionOrderIds.filter((e) => e !== selection);
         // if something is deselected then selectAll is false
         setIsSelectAll(false);
       } else {
@@ -90,17 +89,17 @@ const PackingQueueTable = ({
       }
       return newSelection;
     },
-    [selectedOrderIds]
+    [selectionOrderIds]
   );
 
   const onQueueRowClick = useCallback(
     (selectionModel, tableData) => {
-      const newSelectedOrderIds = handleSelection(selectionModel, tableData);
-      setSelectedOrderIds([...newSelectedOrderIds]);
+      const newselectionOrderIds = handleSelection(selectionModel, tableData);
+      setSelectedOrderIds([...newselectionOrderIds]);
 
       setSelectedOrderNumber(
         tableData?.find(
-          (e) => newSelectedOrderIds.length > 0 && e.id === selectionModel
+          (e) => newselectionOrderIds.length > 0 && e.id === selectionModel
         )?.orderNumber ?? null
       );
     },
@@ -112,7 +111,7 @@ const PackingQueueTable = ({
       setIsSelectAll(value);
 
       if (value) {
-        if (selectedOrderIds.length > 0) {
+        if (selectionOrderIds.length > 0) {
           // Something is selected, so we need to select the remaining
           // that matach selectedOrderNumber
           setSelectedOrderIds(
@@ -120,7 +119,7 @@ const PackingQueueTable = ({
               .filter((e) => e.orderNumber === selectedOrderNumber)
               .map((e) => e.id)
           );
-        } else if (selectedOrderIds.length === 0) {
+        } else if (selectionOrderIds.length === 0) {
           // Nothing selected yet, so select the first row and all that match
           // the first row order number
 
@@ -140,7 +139,7 @@ const PackingQueueTable = ({
       }
     },
     [
-      selectedOrderIds,
+      selectionOrderIds,
       selectedOrderNumber,
       setSelectedOrderIds,
       setSelectedOrderNumber,
@@ -174,7 +173,7 @@ const PackingQueueTable = ({
         sortModel,
         tableData,
         columns,
-        selectedOrderIds
+        selectionOrderIds
       );
       setPackingQueue(tableData);
       setFilteredPackingQueue(tableData);
@@ -285,19 +284,19 @@ const PackingQueueTable = ({
             .toLowerCase()
             .includes(searchString.toLowerCase()) ||
           order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-          selectedOrderIds.includes(order.id) // Ensure selected rows are included
+          selectionOrderIds.includes(order.id) // Ensure selected rows are included
       );
 
       filteredQueue = sortDataByModel(
         sortModel,
         filteredQueue,
         staticCols,
-        selectedOrderIds
+        selectionOrderIds
       );
       setFilteredPackingQueue(filteredQueue);
     } else {
       setFilteredPackingQueue(
-        sortDataByModel(sortModel, packingQueue, staticCols, selectedOrderIds)
+        sortDataByModel(sortModel, packingQueue, staticCols, selectionOrderIds)
       );
     }
     // eslint-disable-next-line
@@ -307,7 +306,7 @@ const PackingQueueTable = ({
     staticCols,
     packingQueue,
     searchString,
-    // selectedOrderIds,
+    // selectionOrderIds,
     setFilteredPackingQueue,
   ]);
 
@@ -363,7 +362,7 @@ const PackingQueueTable = ({
         onSortModelChange={(model) => {
           setSortModel(model);
           setQueueData(
-            sortDataByModel(model, tableData, columns, selectedOrderIds)
+            sortDataByModel(model, tableData, columns, selectionOrderIds)
           );
         }}
         components={{
