@@ -106,8 +106,8 @@ const ShippingQueueTable = ({
       setFilteredShippingQueue(queueTableData);
       setIsSelectAll(false);
     });
-    // }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
-  }, []);
+    // eslint-disable-next-line
+  }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
 
   useEffect(() => {
     reloadData();
@@ -255,7 +255,7 @@ const ShippingQueueTable = ({
         return data;
       }
     },
-    [columns, selectedOrderIds, tableData]
+    [columns, selectedOrderIds]
   );
 
   useEffect(() => {
