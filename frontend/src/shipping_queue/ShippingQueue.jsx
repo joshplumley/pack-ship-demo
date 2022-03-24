@@ -106,14 +106,12 @@ const ShippingQueue = () => {
 
   useEffect(() => {
     fetchSearch(
-      getSortFromModel([
-        { field: "shipmentId", sort: "asc" },
-        { field: "dateCreated", sort: "asc" },
-      ]),
+      getSortFromModel(sortShippingHistModel),
       0,
       "",
       ""
     );
+    // eslint-disable-next-line
   }, [fetchSearch]);
 
   function onHistorySearchClick() {
