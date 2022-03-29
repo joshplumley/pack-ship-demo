@@ -132,10 +132,11 @@ const PackingSlipTable = ({
           if (params && Object.keys(params).length > 0) {
             setFilledForm(
               filledForm.map((e) => {
-                if (e.id === Object.keys(params)[0]) {
+                if (Object.keys(params).includes(e.id))
+                {
                   return {
                     ...e,
-                    packQty: params[Object.keys(params)[0]]["packQty"]["value"],
+                    packQty: params[e.id]["packQty"]["value"],
                   };
                 }
                 return e;
@@ -143,7 +144,7 @@ const PackingSlipTable = ({
             );
           }
         }}
-        editMode={undefined}
+        editMode={"row"}
         apiRef={apiRef}
         onCellClick={handleCellClick}
       />

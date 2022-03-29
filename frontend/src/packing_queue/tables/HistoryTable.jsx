@@ -284,8 +284,10 @@ const HistoryTable = ({ sortModel, setSortModel, searchString }) => {
   };
 
   const openEditPackingSlip = () => {
-    setIsEditPackingSlipOpen({ open: true, viewOnly: false });
-    setMenuPosition(null);
+    setTimeout(() => {
+      setIsEditPackingSlipOpen({ open: true, viewOnly: false });
+      setMenuPosition(null);
+    }, 0);
   };
 
   const historyRowMenuOptions = useMemo(() => [
