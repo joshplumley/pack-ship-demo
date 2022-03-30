@@ -19,7 +19,7 @@ const PackingSlipDialog = ({
   }, [parts]);
 
   function isSubmittable() {
-    return filledForm;
+    return filledForm.every((e) => e.packQty && e.packQty >= 0);
   }
 
   return (
