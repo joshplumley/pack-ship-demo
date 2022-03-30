@@ -66,7 +66,7 @@ const PackShipEditableTable = ({
       newColumns = deleteCol.concat(columns);
     }
     return newColumns;
-  }, []);
+  }, [columns, onAdd, onDelete, viewOnly]);
 
   const newRows = React.useMemo(() => {
     // Add row for the ability to add a new row
@@ -75,11 +75,12 @@ const PackShipEditableTable = ({
       id: addRowId,
     });
     return newRows;
-  }, []);
+  // eslint-disable-next-line
+  }, [tableData.length]);
 
   const localPageSize = useMemo(() => {
     return viewOnly ? pageSize : newRows.length
-  }, [newRows])
+  }, [newRows.length, viewOnly, pageSize])
 
   return (
     <div className={classes.root}>

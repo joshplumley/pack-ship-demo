@@ -24,25 +24,28 @@ const PackingSlipTable = ({
 
   const handleCellClick = React.useCallback(
     (params) => {
-      if (params.field === "packQty") {
+      if (params.field === "packQty" && !viewOnly) {
         apiRef.current.setCellMode(params.id, params.field, "edit");
       }
     },
-    [apiRef]
+    [apiRef, viewOnly]
   );
 
   useEffect(() => {
-    apiRef.current.setCellFocus(rowData[0].id, "packQty");
-    apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
+    if (!viewOnly) {
+      apiRef.current.setCellFocus(rowData[0].id, "packQty");
+      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
 
-    return apiRef.current.subscribeEvent(
-      "cellModeChange",
-      (event) => {
-        event.defaultMuiPrevented = true;
-      },
-      { isFirst: true }
-    );
-  }, [apiRef, rowData]);
+      return apiRef.current.subscribeEvent(
+        "cellModeChange",
+        (event) => {
+          event.defaultMuiPrevented = true;
+        },
+        { isFirst: true }
+      );
+    }
+  // eslint-disable-next-line
+  }, []);
 
   const columns = [
     {

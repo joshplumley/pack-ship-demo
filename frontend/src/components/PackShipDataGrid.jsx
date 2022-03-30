@@ -56,7 +56,8 @@ const PackShipDataGrid = ({
         { isFirst: true }
       );
     }
-  }, [apiRef, rowData]);
+  // eslint-disable-next-line
+  }, []);
 
   const handleCellClick = React.useCallback(
     (params) => {
@@ -64,7 +65,7 @@ const PackShipDataGrid = ({
         apiRef.current.setCellMode(params.id, params.field, "edit");
       }
     },
-    [apiRef]
+    [apiRef, packQtyCol]
   );
 
   return (
