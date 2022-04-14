@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Typography, Box } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import HelpTooltip from "../../components/HelpTooltip";
 import { makeStyles } from "@mui/styles";
 import { hasValueError } from "../../utils/validators/number_validator";
+import { useGridApiRef, DataGridPro } from "@mui/x-data-grid-pro";
 
 const useStyle = makeStyles((theme) => ({
   fulfilledQtyHeader: {
@@ -20,6 +20,32 @@ const PackingSlipTable = ({
   viewOnly = false,
 }) => {
   const classes = useStyle();
+  const apiRef = useGridApiRef();
+
+  const handleCellClick = React.useCallback(
+    (params) => {
+      if (params.field === "packQty" && !viewOnly) {
+        apiRef.current.setCellMode(params.id, params.field, "edit");
+      }
+    },
+    [apiRef, viewOnly]
+  );
+
+  useEffect(() => {
+    if (!viewOnly) {
+      apiRef.current.setCellFocus(rowData[0].id, "packQty");
+      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
+
+      return apiRef.current.subscribeEvent(
+        "cellModeChange",
+        (event) => {
+          event.defaultMuiPrevented = true;
+        },
+        { isFirst: true }
+      );
+    }
+  // eslint-disable-next-line
+  }, []);
 
   const columns = [
     {
@@ -62,7 +88,7 @@ const PackingSlipTable = ({
       },
       flex: 1,
       default: 0,
-      editable: !viewOnly,
+      editable: true,
       preProcessEditCellProps: (params) => {
         const hasError = !hasValueError(params.props.value);
         return { ...params.props, error: hasError };
@@ -75,7 +101,7 @@ const PackingSlipTable = ({
       sx={{
         height: "55vh",
         width: 1,
-        "& .MuiDataGrid-cell--editing": {
+        "& .MuiDataGridPro-cell--editing": {
           bgcolor: "rgb(255,215,115, 0.19)",
           color: "#1a3e72",
         },
@@ -87,11 +113,11 @@ const PackingSlipTable = ({
         },
       }}
     >
-      <DataGrid
+      <DataGridPro
         sx={{
           border: "none",
           height: "50vh",
-          "& .MuiDataGrid-cell--editable": {
+          "& .MuiDataGridPro-cell--editable": {
             border: "solid 1px grey",
             fontStyle: "italic",
             ":hover": {
@@ -109,10 +135,11 @@ const PackingSlipTable = ({
           if (params && Object.keys(params).length > 0) {
             setFilledForm(
               filledForm.map((e) => {
-                if (e.id === Object.keys(params)[0]) {
+                if (Object.keys(params).includes(e.id))
+                {
                   return {
                     ...e,
-                    packQty: params[Object.keys(params)[0]]["packQty"]["value"],
+                    packQty: params[e.id]["packQty"]["value"],
                   };
                 }
                 return e;
@@ -120,6 +147,9 @@ const PackingSlipTable = ({
             );
           }
         }}
+        editMode={"row"}
+        apiRef={apiRef}
+        onCellClick={handleCellClick}
       />
     </Box>
   );

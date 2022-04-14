@@ -46,7 +46,7 @@ const PackingQueue = () => {
   ]);
 
   function onPackingSlipClick() {
-    setPackingSlipOpen(true);
+    setTimeout(() => setPackingSlipOpen(true), 0);
   }
 
   function onPackingSlipClose() {

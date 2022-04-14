@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import makeStyles from "@mui/styles/makeStyles";
 import { Typography, IconButton } from "@mui/material";
 
@@ -29,7 +29,6 @@ const PackShipEditableTable = ({
   tableData,
   onDelete,
   onAdd,
-  onRowClick,
   viewOnly,
   onEditRowsModelChange,
   pageSize = 10,
@@ -38,42 +37,50 @@ const PackShipEditableTable = ({
   const addRowId = "add-row-id";
 
   // const [localPageSize, setLocalPageSize] = useState(pageSize);
-  let newColumns = columns;
-  let newRows = tableData;
-  let localPageSize = pageSize;
+  const newColumns = React.useMemo(() => {
+    let newColumns = columns;
 
-  // Add the delete action column if not view only
-  if (!viewOnly) {
-    const deleteCol = [
-      {
-        field: "actions",
-        flex: 1,
-        renderCell: (params) => {
-          return params.id.includes(addRowId) ? (
-            <IconButton onClick={() => onAdd(params.row.pageNum)}>
-              <AddCircleOutlineIcon />
-            </IconButton>
-          ) : (
-            <IconButton onClick={() => onDelete(params)}>
-              <DeleteIcon />
-            </IconButton>
-          );
+    // Add the delete action column if not view only
+    if (!viewOnly) {
+      const deleteCol = [
+        {
+          field: "actions",
+          flex: 1,
+          renderCell: (params) => {
+            return params.id.includes(addRowId) ? (
+              <IconButton onClick={() => onAdd(params.row.pageNum)}>
+                <AddCircleOutlineIcon />
+              </IconButton>
+            ) : (
+              <IconButton onClick={() => onDelete(params)}>
+                <DeleteIcon />
+              </IconButton>
+            );
+          },
+          renderHeader: (params) => {
+            return <Typography sx={{ fontWeight: 900 }}>Actions</Typography>;
+          },
+          sortable: false,
         },
-        renderHeader: (params) => {
-          return <Typography sx={{ fontWeight: 900 }}>Actions</Typography>;
-        },
-        sortable: false,
-      },
-    ];
-    newColumns = deleteCol.concat(columns);
+      ];
+      newColumns = deleteCol.concat(columns);
+    }
+    return newColumns;
+  }, [columns, onAdd, onDelete, viewOnly]);
 
+  const newRows = React.useMemo(() => {
     // Add row for the ability to add a new row
-    newRows = [...tableData];
+    const newRows = [...tableData];
     newRows.push({
       id: addRowId,
     });
-    localPageSize = newRows.length;
-  }
+    return newRows;
+  // eslint-disable-next-line
+  }, [tableData.length]);
+
+  const localPageSize = useMemo(() => {
+    return viewOnly ? pageSize : newRows.length
+  }, [newRows.length, viewOnly, pageSize])
 
   return (
     <div className={classes.root}>
@@ -82,7 +89,6 @@ const PackShipEditableTable = ({
         sx={{ border: "none", height: "50vh", ...sx }}
         className={classes.table}
         disableSelectionOnClick={true}
-        onRowClick={onRowClick}
         rows={newRows}
         rowHeight={65}
         columns={newColumns}
@@ -94,6 +100,7 @@ const PackShipEditableTable = ({
           field: "actions",
           sort: "asc",
         }}
+        editMode={"row"}
         hideFooter
       />
     </div>

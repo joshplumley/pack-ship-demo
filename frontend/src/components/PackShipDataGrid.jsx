@@ -1,13 +1,14 @@
 import { Box } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 import { styled } from "@mui/system";
+import { useGridApiRef, DataGridPro } from "@mui/x-data-grid-pro";
+import React, { useEffect, useMemo } from "react";
 
-const ThisDataGrid = styled(DataGrid)`
+const ThisDataGrid = styled(DataGridPro)`
   .MuiDataGrid-row {
     max-height: fit-content !important;
   }
 
-  .MuiDataGrid-renderingZone {
+  .MuiDataGridPro-renderingZone {
     max-height: none !important;
   }
 
@@ -28,7 +29,6 @@ const PackShipDataGrid = ({
   sx,
   className,
   disableSelectionOnClick,
-  onRowClick,
   rowHeight,
   pageSize,
   rowsPerPageOptions,
@@ -38,12 +38,42 @@ const PackShipDataGrid = ({
   onEditRowsModelChange,
   hideFooter,
 }) => {
+  const apiRef = useGridApiRef();
+  const packQtyCol = useMemo(() => {
+    return columns.filter((e) => e.field === "packQty");
+  }, [columns]);
+
+  useEffect(() => {
+    if (rowData[0].packQty !== undefined && packQtyCol[0].editable) {
+      apiRef.current.setCellFocus(rowData[0].id, "packQty");
+      apiRef.current.setCellMode(rowData[0].id, "packQty", "edit");
+
+      return apiRef.current.subscribeEvent(
+        "cellModeChange",
+        (event) => {
+          event.defaultMuiPrevented = true;
+        },
+        { isFirst: true }
+      );
+    }
+  // eslint-disable-next-line
+  }, []);
+
+  const handleCellClick = React.useCallback(
+    (params) => {
+      if (params.field === "packQty" && packQtyCol[0].editable) {
+        apiRef.current.setCellMode(params.id, params.field, "edit");
+      }
+    },
+    [apiRef, packQtyCol]
+  );
+
   return (
     <Box
       sx={{
         height: "fit-content",
         width: 1,
-        "& .MuiDataGrid-cell--editing": {
+        "& .MuiDataGridPro-cell--editing": {
           bgcolor: "rgb(255,215,115, 0.19)",
           color: "#1a3e72",
         },
@@ -64,7 +94,6 @@ const PackShipDataGrid = ({
         }}
         className={className}
         disableSelectionOnClick={disableSelectionOnClick}
-        onRowClick={onRowClick}
         rowHeight={rowHeight}
         pageSize={pageSize}
         rowsPerPageOptions={rowsPerPageOptions}
@@ -72,6 +101,8 @@ const PackShipDataGrid = ({
         editMode={editMode}
         sort={sort}
         hideFooter={hideFooter}
+        apiRef={apiRef}
+        onCellClick={handleCellClick}
       />
     </Box>
   );
