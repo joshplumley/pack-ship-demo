@@ -75,13 +75,18 @@ const PackingQueue = () => {
           return tmp;
         });
 
-        // remove the old one
-        const updatedPackingQueue = filteredPackingQueue.filter(
-          (e) => !updatedFulfilled.map((f) => f.id).includes(e.id)
+        const updatedPackingQueue = [...filteredPackingQueue]
+
+        // Find all the replacements
+        const updatedFulfilledIndices = updatedFulfilled.map((e) =>
+          filteredPackingQueue.findIndex((f) => f.id === e.id)
         );
 
-        // add the new ones and set
-        setFilteredPackingQueue(updatedPackingQueue.concat(updatedFulfilled));
+        // Replace the old versions with the new versions. 
+        updatedFulfilledIndices.forEach((e, i) => updatedPackingQueue[e] = updatedFulfilled[i]);
+
+        // Replace the list with the updated version
+        setFilteredPackingQueue(updatedPackingQueue);
 
         onPackingSlipClose();
       })
