@@ -11,6 +11,7 @@ import ShippingQueueTable from "./tables/ShippingQueueTable";
 import ShippingDialogStates from "../create_shipment/constants/ShippingDialogConstants";
 import ShippingHistoryTable from "./tables/ShippingHistoryTable";
 import TextInput from "../components/TextInput";
+import { useLocalStorage } from "../utils/localStorage";
 import { extractHistoryDetails } from "./utils/historyDetails";
 import { getSortFromModel } from "./utils/sortModelFunctions";
 
@@ -42,20 +43,28 @@ const ShippingQueue = () => {
   const [currentDialogState, setCurrentDialogState] = useState(
     ShippingDialogStates.CreateShipmentTable
   );
-  const [sortShippingQueueModel, setSortShippingQueueModel] = useState([
-    { field: "orderNumber", sort: "asc" },
-    { field: "packingSlipId", sort: "asc" },
-  ]);
+  const [sortShippingQueueModel, setSortShippingQueueModel] = useLocalStorage(
+    "sortShippingQueueModel",
+    [
+      { field: "orderNumber", sort: "asc" },
+      { field: "packingSlipId", sort: "asc" },
+    ]
+  );
+  const [queueSearchText, setQueueSearchText] = useState("");
 
   // Shipping History States
   const [filteredShippingHist, setFilteredShippingHist] = useState([]);
   const [orderNumber, setOrderNumber] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const histResultsPerPage = 10;
-  const [sortShippingHistModel, setSortShippingHistModel] = useState([
-    { field: "shipmentId", sort: "asc" },
-    { field: "dateCreated", sort: "asc" },
-  ]);
+  const [sortShippingHistModel, setSortShippingHistModel] = useLocalStorage(
+    "sortShippingHistModel",
+    [
+      { field: "shipmentId", sort: "asc" },
+      { field: "trackingNumber", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
+    ]
+  );
   const [histTotalCount, setHistTotalCount] = useState(0);
 
   function onCreateShipmentClick() {
@@ -68,15 +77,7 @@ const ShippingQueue = () => {
   }
 
   function onQueueSearch(value) {
-    const filtered = shippingQueue.filter(
-      (order) =>
-        order?.orderNumber?.toLowerCase().includes(value?.toLowerCase()) ||
-        order?.items?.filter((e) =>
-          e.item?.partNumber?.toLowerCase().includes(value?.toLowerCase())
-        ).length > 0 ||
-        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
-    );
-    setFilteredShippingQueue(filtered);
+    setQueueSearchText(value);
   }
 
   function onTabChange(event, newValue) {
@@ -105,14 +106,12 @@ const ShippingQueue = () => {
 
   useEffect(() => {
     fetchSearch(
-      getSortFromModel([
-        { field: "shipmentId", sort: "asc" },
-        { field: "dateCreated", sort: "asc" },
-      ]),
+      getSortFromModel(sortShippingHistModel),
       0,
       "",
       ""
     );
+    // eslint-disable-next-line
   }, [fetchSearch]);
 
   function onHistorySearchClick() {
@@ -225,6 +224,7 @@ const ShippingQueue = () => {
             createShipmentOpen={createShipmentOpen}
             currentDialogState={currentDialogState}
             setCurrentDialogState={setCurrentDialogState}
+            searchText={queueSearchText}
           />
         }
         historyTab={

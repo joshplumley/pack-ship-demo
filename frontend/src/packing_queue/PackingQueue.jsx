@@ -11,6 +11,7 @@ import CommonButton from "../common/Button";
 import PackingSlipDialog from "../packing_slip/PackingSlipDialog";
 import PackingQueueTable from "./tables/PackingQueueTable";
 import HistoryTable from "./tables/HistoryTable";
+import { useLocalStorage } from "../utils/localStorage";
 
 const useStyle = makeStyles((theme) => ({
   topBarGrid: {
@@ -33,18 +34,23 @@ const PackingQueue = () => {
   const [packingQueue, setPackingQueue] = useState([]);
   const [filteredPackingQueue, setFilteredPackingQueue] = useState([]);
   const [packingSlipOpen, setPackingSlipOpen] = useState(false);
-  const [sortPackQueueModel, setSortPackQueueModel] = useState([
-    { field: "orderNumber", sort: "asc" },
-    { field: "part", sort: "asc" },
-    { field: "batchQty", sort: "asc" },
-    { field: "fulfilledQty", sort: "asc" },
-  ]);
-  const [sortPackHistoryModel, setSortPackHistoryModel] = useState([
-    { field: "orderId", sort: "asc" },
-    { field: "packingSlipId", sort: "asc" },
-    { field: "dateCreated", sort: "asc" },
-  ]);
-
+  const [sortPackQueueModel, setSortPackQueueModel] = useLocalStorage(
+    "sortPackQueueModel",
+    [
+      { field: "orderNumber", sort: "asc" },
+      { field: "part", sort: "asc" },
+      { field: "batchQty", sort: "asc" },
+      { field: "fulfilledQty", sort: "asc" },
+    ]
+  );
+  const [sortPackHistoryModel, setSortPackHistoryModel] = useLocalStorage(
+    "sortPackHistoryModel",
+    [
+      { field: "orderId", sort: "asc" },
+      { field: "packingSlipId", sort: "asc" },
+      { field: "dateCreated", sort: "asc" },
+    ]
+  );
   function onPackingSlipClick() {
     setTimeout(() => setPackingSlipOpen(true), 0);
   }
@@ -69,13 +75,18 @@ const PackingQueue = () => {
           return tmp;
         });
 
-        // remove the old one
-        const updatedPackingQueue = filteredPackingQueue.filter(
-          (e) => !updatedFulfilled.map((f) => f.id).includes(e.id)
+        const updatedPackingQueue = [...filteredPackingQueue]
+
+        // Find all the replacements
+        const updatedFulfilledIndices = updatedFulfilled.map((e) =>
+          filteredPackingQueue.findIndex((f) => f.id === e.id)
         );
 
-        // add the new ones and set
-        setFilteredPackingQueue(updatedPackingQueue.concat(updatedFulfilled));
+        // Replace the old versions with the new versions. 
+        updatedFulfilledIndices.forEach((e, i) => updatedPackingQueue[e] = updatedFulfilled[i]);
+
+        // Replace the list with the updated version
+        setFilteredPackingQueue(updatedPackingQueue);
 
         onPackingSlipClose();
       })
@@ -111,7 +122,7 @@ const PackingQueue = () => {
             label="Show Unfinished Batches"
             disabled={true}
             onChange={() => console.log("not implemented yet")}
-            checked={true/*isShowUnfinishedBatches*/}
+            checked={true /*isShowUnfinishedBatches*/}
           />
         </Grid>
         <Grid container item xs justifyContent="flex-end">
@@ -149,7 +160,6 @@ const PackingQueue = () => {
             setFilteredPackingQueue={setFilteredPackingQueue}
             isShowUnfinishedBatches={true/*isShowUnfinishedBatches*/}
             setSelectedOrderIds={setSelectedOrderIds}
-            selectedOrderIds={selectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}
             searchString={searchString}
           />

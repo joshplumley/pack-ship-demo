@@ -245,9 +245,18 @@ const ShippingHistoryTable = ({
     }
   }, [clickedHistShipment, packingSlipToDelete]);
 
-  const onPageChange = useCallback((pageNumber) => {
-    fetchSearch(getSortFromModel(sortModel), pageNumber + 1, orderNumber, partNumber);
-  }, [fetchSearch, sortModel, orderNumber, partNumber]);
+  const onPageChange = useCallback(
+    (pageNumber) => {
+      setPage(pageNumber);
+      fetchSearch(
+        getSortFromModel(sortModel),
+        pageNumber + 1,
+        orderNumber,
+        partNumber
+      );
+    },
+    [fetchSearch, sortModel, orderNumber, partNumber]
+  );
 
   const columns = [
     {
@@ -307,29 +316,6 @@ const ShippingHistoryTable = ({
     </MenuItem>,
   ];
 
-  // const handlePageChange = (event, newPage) => {
-  //   setPage(newPage);
-  // };
-
-  // const generateTablePagination = useCallback(() => {
-  //   return (
-  //     <table>
-  //       <tbody>
-  //         <tr>
-  //           <TablePagination
-  //             count={histSearchTotalCount}
-  //             rowsPerPageOptions={[histResultsPerPage]}
-  //             rowsPerPage={histResultsPerPage}
-  //             onPageChange={(_, page) => onPageChange(page)}
-  //             page={page}
-  //             sx={{ border: "0px" }}
-  //           />
-  //         </tr>
-  //       </tbody>
-  //     </table>
-  //   );
-  // }, [histSearchTotalCount]);
-
   return (
     <div className={classes.root}>
       <ThisDataGrid
@@ -348,18 +334,16 @@ const ShippingHistoryTable = ({
         editMode="row"
         sortingMode="server"
         onRowClick={onHistoryRowClick}
-        // sortModel={sortModel}
+        sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          fetchSearch(getSortFromModel(model), page + 1, orderNumber, partNumber);
+          fetchSearch(
+            getSortFromModel(model),
+            page + 1,
+            orderNumber,
+            partNumber
+          );
         }}
-        // components={{
-        //   Footer: () => (
-        //     <Grid container item xs={12} justifyContent="flex-end">
-        //       {generateTablePagination()}
-        //     </Grid>
-        //   ),
-        // }}
       />
 
       <ContextMenu

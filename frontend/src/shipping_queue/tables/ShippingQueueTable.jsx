@@ -59,6 +59,7 @@ const ShippingQueueTable = ({
   createShipmentOpen,
   currentDialogState,
   setCurrentDialogState,
+  searchText,
 }) => {
   const classes = useStyle();
   const [queueData, setQueueData] = useState(tableData);
@@ -76,8 +77,6 @@ const ShippingQueueTable = ({
     },
     [selectedCustomerId]
   );
-
-  const storedTableData = useMemo(() => tableData, [tableData]);
 
   const reloadData = useCallback(() => {
     async function fetchData() {
@@ -101,10 +100,12 @@ const ShippingQueueTable = ({
       // The set state order is important
       setSelectedCustomerId(null);
       setSelectedOrderIds([]);
+      queueTableData = sortDataByModel(sortModel, queueTableData);
       setShippingQueue(queueTableData);
       setFilteredShippingQueue(queueTableData);
       setIsSelectAll(false);
     });
+    // eslint-disable-next-line
   }, [setFilteredShippingQueue, setSelectedOrderIds, setShippingQueue]);
 
   useEffect(() => {
@@ -196,7 +197,7 @@ const ShippingQueueTable = ({
         isDisabled,
         selectedOrderIds,
         isSelectAllOn,
-        storedTableData,
+        tableData,
         onSelectAll,
         onRowClick
       ),
@@ -224,7 +225,7 @@ const ShippingQueueTable = ({
       onRowClick,
       onSelectAll,
       selectedOrderIds,
-      storedTableData,
+      tableData
     ]
   );
 
@@ -235,10 +236,10 @@ const ShippingQueueTable = ({
   }, [shippingQueue, selectedOrderIds]);
 
   const sortDataByModel = useCallback(
-    (model) => {
+    (model, data) => {
       if (model.length !== 0) {
         // find the filter handler based on the column clicked
-        const clickedColumnField = createColumnFilters(columns, tableData).find(
+        const clickedColumnField = createColumnFilters(columns, data).find(
           (e) => e.field === model[0]?.field
         );
         // execute the handler
@@ -246,15 +247,28 @@ const ShippingQueueTable = ({
         return clickedColumnField?.handler(
           model[0]?.sort,
           selectedOrderIds,
-          tableData
+          data
         );
         // );
       } else {
-        return tableData;
+        return data;
       }
     },
-    [columns, selectedOrderIds, tableData]
+    [columns, selectedOrderIds]
   );
+
+  useEffect(() => {
+    const filtered = shippingQueue.filter(
+      (order) =>
+        order?.orderNumber?.toLowerCase().includes(searchText?.toLowerCase()) ||
+        order?.items?.filter((e) =>
+          e.item?.partNumber?.toLowerCase().includes(searchText?.toLowerCase())
+        ).length > 0 ||
+        selectedOrderIds.includes(order?.id) // Ensure selected rows are included
+    );
+    setFilteredShippingQueue(sortDataByModel(sortModel, filtered));
+    // eslint-disable-next-line
+  }, [searchText, setFilteredShippingQueue]);
 
   useEffect(() => {
     setQueueData(tableData);
@@ -317,7 +331,7 @@ const ShippingQueueTable = ({
         sortModel={sortModel}
         onSortModelChange={(model) => {
           setSortModel(model);
-          setQueueData(sortDataByModel(model));
+          setQueueData(sortDataByModel(model, tableData));
         }}
         components={{
           Footer: () =>
