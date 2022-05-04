@@ -59,41 +59,52 @@ const PackingQueue = () => {
     setPackingSlipOpen(false);
   }
 
-  const onPackingSlipSubmit = useCallback((filledForm, orderNum) => {
-    const items = filledForm.map((e) => {
-      return { item: e.id, qty: e.packQty };
-    });
-    API.createPackingSlip(items, filledForm[0].customer, orderNum)
-      .then(() => {
-        // update the fullfilled Qty
-        const updatedFulfilled = filledForm.map((e) => {
-          let tmp = {
-            ...e,
-            fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
-          };
-          delete tmp.packQty;
-          return tmp;
-        });
-
-        const updatedPackingQueue = [...filteredPackingQueue]
-
-        // Find all the replacements
-        const updatedFulfilledIndices = updatedFulfilled.map((e) =>
-          filteredPackingQueue.findIndex((f) => f.id === e.id)
-        );
-
-        // Replace the old versions with the new versions. 
-        updatedFulfilledIndices.forEach((e, i) => updatedPackingQueue[e] = updatedFulfilled[i]);
-
-        // Replace the list with the updated version
-        setFilteredPackingQueue(updatedPackingQueue);
-
-        onPackingSlipClose();
-      })
-      .catch(() => {
-        alert("An error occurred submitting packing slip");
+  const onPackingSlipSubmit = useCallback(
+    (filledForm, orderNum) => {
+      const items = filledForm.map((e) => {
+        return { item: e.id, qty: e.packQty };
       });
-  }, [filteredPackingQueue]);
+      API.createPackingSlip(items, filledForm[0].customer, orderNum)
+        .then(() => {
+          // update the fullfilled Qty
+          const updatedFulfilled = filledForm.map((e) => {
+            let tmp = {
+              ...e,
+              fulfilledQty: e.fulfilledQty + parseInt(e.packQty),
+            };
+            delete tmp.packQty;
+            return tmp;
+          });
+
+          // Find updated ids
+          const updatedIds = updatedFulfilled.map((e) => e.id);
+
+          // Replace the items with the updated ones based on id
+          const updatedFilteredPackingQueue = filteredPackingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id == a.id);
+            }
+            return e;
+          });
+          const updatedPackingQueue = packingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id == a.id);
+            }
+            return e;
+          });
+
+          // Replace the list with the updated version
+          setFilteredPackingQueue(updatedFilteredPackingQueue);
+          setPackingQueue(updatedPackingQueue);
+
+          onPackingSlipClose();
+        })
+        .catch(() => {
+          alert("An error occurred submitting packing slip");
+        });
+    },
+    [filteredPackingQueue]
+  );
 
   function onSearch(value) {
     setSearchString(value);
@@ -158,7 +169,7 @@ const PackingQueue = () => {
             setSortModel={setSortPackQueueModel}
             setPackingQueue={setPackingQueue}
             setFilteredPackingQueue={setFilteredPackingQueue}
-            isShowUnfinishedBatches={true/*isShowUnfinishedBatches*/}
+            isShowUnfinishedBatches={true /*isShowUnfinishedBatches*/}
             setSelectedOrderIds={setSelectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}
             searchString={searchString}
