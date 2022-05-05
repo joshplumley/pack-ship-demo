@@ -302,7 +302,6 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, [
     sortDataByModel,
-    sortModel,
     staticCols,
     packingQueue,
     searchString,
