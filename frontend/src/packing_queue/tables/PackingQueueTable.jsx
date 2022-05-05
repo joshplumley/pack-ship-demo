@@ -147,6 +147,10 @@ const PackingQueueTable = ({
   );
 
   useEffect(() => {
+    if(selectedOrderNumber === null && selectionOrderIds.length === 0) setIsSelectAll(false);
+  }, [selectedOrderNumber, selectionOrderIds]);
+
+  useEffect(() => {
     async function fetchData() {
       if (true /*isShowUnfinishedBatches*/) {
         return await API.getAllWorkOrders();

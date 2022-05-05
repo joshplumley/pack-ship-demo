@@ -87,6 +87,9 @@ const PackingQueue = () => {
 
         // Replace the list with the updated version
         setFilteredPackingQueue(updatedPackingQueue);
+        
+        setSelectedOrderNumber(null);
+        setSelectedOrderIds([]);
 
         onPackingSlipClose();
       })
