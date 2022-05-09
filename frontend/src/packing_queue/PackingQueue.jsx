@@ -82,13 +82,13 @@ const PackingQueue = () => {
           // Replace the items with the updated ones based on id
           const updatedFilteredPackingQueue = filteredPackingQueue.map((e) => {
             if (updatedIds.includes(e.id)) {
-              return updatedFulfilled.find((a) => e.id == a.id);
+              return updatedFulfilled.find((a) => e.id === a.id);
             }
             return e;
           });
           const updatedPackingQueue = packingQueue.map((e) => {
             if (updatedIds.includes(e.id)) {
-              return updatedFulfilled.find((a) => e.id == a.id);
+              return updatedFulfilled.find((a) => e.id === a.id);
             }
             return e;
           });
@@ -103,7 +103,7 @@ const PackingQueue = () => {
           alert("An error occurred submitting packing slip");
         });
     },
-    [filteredPackingQueue]
+    [filteredPackingQueue, packingQueue]
   );
 
   function onSearch(value) {
