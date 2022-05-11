@@ -181,6 +181,22 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    // Find the select all state when this first renders since this could re-render from a tab change.
+    const selectedOrderNum = selectedOrderNumber;
+
+    const idsWithSelectedOrderNum = tableData
+      ?.filter((e) => e.orderNumber === selectedOrderNum)
+      .map((e) => e.id);
+
+    setIsSelectAll(
+      idsWithSelectedOrderNum.length !== 0 &&
+        idsWithSelectedOrderNum.sort().toString() ===
+          selectionOrderIds.sort().toString()
+    );
+    // eslint-disable-next-line
+  }, []);
+
   const storedTableData = useMemo(() => tableData, [tableData]);
 
   const staticCols = useMemo(
@@ -302,7 +318,6 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, [
     sortDataByModel,
-    sortModel,
     staticCols,
     searchString,
     setFilteredPackingQueue,

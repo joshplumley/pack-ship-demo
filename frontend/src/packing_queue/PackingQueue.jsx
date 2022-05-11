@@ -26,6 +26,7 @@ const PackingQueue = () => {
   const classes = useStyle();
 
   const [searchString, setSearchString] = useState("");
+  const [tabValue, setTabValue] = useState(0);
 
   // const [isShowUnfinishedBatches, setIsShowUnfinishedBatches] = useState(true);
   const [isFulfilledBatchesOn, setIsFulfilledBatchesOn] = useState(true);
@@ -121,7 +122,7 @@ const PackingQueue = () => {
         <Grid container item xs={"auto"}>
           <CommonButton
             label="Make Packing Slip"
-            disabled={selectedOrderIds.length === 0}
+            disabled={selectedOrderIds.length === 0 || tabValue !== 0}
             onClick={onPackingSlipClick}
           />
         </Grid>
@@ -158,6 +159,9 @@ const PackingQueue = () => {
       </Grid>
 
       <PackShipTabs
+        onTabChange={(_, v) => {
+          setTabValue(v);
+        }}
         queueTotal={packingQueue?.length}
         queueTab={
           <PackingQueueTable
