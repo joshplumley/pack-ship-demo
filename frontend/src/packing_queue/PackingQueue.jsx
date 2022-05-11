@@ -168,6 +168,7 @@ const PackingQueue = () => {
             setSelectedOrderIds={setSelectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}
             searchString={searchString}
+            isFulfilledBatchesOn={isFulfilledBatchesOn}
           />
         }
         historyTab={

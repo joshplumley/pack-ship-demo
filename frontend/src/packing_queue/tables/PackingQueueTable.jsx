@@ -31,6 +31,31 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
+const applySearch = (
+  packingQueue,
+  searchString,
+  selectionOrderIds,
+  sortDataByModel,
+  sortModel,
+  staticCols,
+  setFilteredPackingQueue
+) => {
+  let filteredQueue = packingQueue.filter(
+    (order) =>
+      order.orderNumber.toLowerCase().includes(searchString.toLowerCase()) ||
+      order.part.toLowerCase().includes(searchString.toLowerCase()) ||
+      selectionOrderIds.includes(order.id) // Ensure selected rows are included
+  );
+
+  filteredQueue = sortDataByModel(
+    sortModel,
+    filteredQueue,
+    staticCols,
+    selectionOrderIds
+  );
+  setFilteredPackingQueue(filteredQueue);
+};
+
 const PackingQueueTable = ({
   tableData,
   packingQueue,
@@ -44,6 +69,7 @@ const PackingQueueTable = ({
   setSelectedOrderIds,
   setSelectedOrderNumber,
   searchString,
+  isFulfilledBatchesOn,
 }) => {
   const classes = useStyle();
   const numRowsPerPage = 10;
@@ -181,6 +207,21 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    // When we toggle on, we need to make sure to apply the search and sorting again.
+    if (isFulfilledBatchesOn)
+      applySearch(
+        packingQueue,
+        searchString,
+        selectionOrderIds,
+        sortDataByModel,
+        sortModel,
+        staticCols,
+        setFilteredPackingQueue
+      );
+      // eslint-disable-next-line
+  }, [isFulfilledBatchesOn]);
+
   const storedTableData = useMemo(() => tableData, [tableData]);
 
   const staticCols = useMemo(
@@ -278,22 +319,15 @@ const PackingQueueTable = ({
 
   useEffect(() => {
     if (searchString) {
-      let filteredQueue = packingQueue.filter(
-        (order) =>
-          order.orderNumber
-            .toLowerCase()
-            .includes(searchString.toLowerCase()) ||
-          order.part.toLowerCase().includes(searchString.toLowerCase()) ||
-          selectionOrderIds.includes(order.id) // Ensure selected rows are included
-      );
-
-      filteredQueue = sortDataByModel(
+      applySearch(
+        packingQueue,
+        searchString,
+        selectionOrderIds,
+        sortDataByModel,
         sortModel,
-        filteredQueue,
         staticCols,
-        selectionOrderIds
+        setFilteredPackingQueue
       );
-      setFilteredPackingQueue(filteredQueue);
     } else {
       setFilteredPackingQueue(
         sortDataByModel(sortModel, packingQueue, staticCols, selectionOrderIds)
