@@ -31,6 +31,20 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
+const recheckIfNeeded = (selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll) => {
+  const selectedOrderNum = selectedOrderNumber;
+
+    const idsWithSelectedOrderNum = tableData
+      ?.filter((e) => e.orderNumber === selectedOrderNum)
+      .map((e) => e.id);
+
+    setIsSelectAll(
+      idsWithSelectedOrderNum.length !== 0 &&
+        idsWithSelectedOrderNum.sort().toString() ===
+          selectionOrderIds.sort().toString()
+    );
+}
+
 const applySearch = (
   packingQueue,
   searchString,
@@ -209,7 +223,7 @@ const PackingQueueTable = ({
 
   useEffect(() => {
     // When we toggle on, we need to make sure to apply the search and sorting again.
-    if (isFulfilledBatchesOn)
+    if (isFulfilledBatchesOn){
       applySearch(
         packingQueue,
         searchString,
@@ -219,8 +233,17 @@ const PackingQueueTable = ({
         staticCols,
         setFilteredPackingQueue
       );
-      // eslint-disable-next-line
+    }
+
+    recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
   }, [isFulfilledBatchesOn]);
+
+  useEffect(() => {
+    // Find the select all state when this first renders since this could re-render from a tab change.
+    recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
+    
+    // eslint-disable-next-line
+  }, []);
 
   const storedTableData = useMemo(() => tableData, [tableData]);
 
@@ -336,7 +359,6 @@ const PackingQueueTable = ({
     // eslint-disable-next-line
   }, [
     sortDataByModel,
-    sortModel,
     staticCols,
     packingQueue,
     searchString,
