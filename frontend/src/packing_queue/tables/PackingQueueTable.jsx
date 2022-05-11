@@ -272,7 +272,7 @@ const PackingQueueTable = ({
   );
 
   const sortDataByModel = useCallback(
-    (model, data, columns, selectionOrderIds) => {
+    (model, data, columns, selectionOrderIds, ignoreSelected = false) => {
       if (model.length !== 0) {
         // find the filter handler based on the column clicked
         const clickedColumnField = createColumnFilters(columns, data).find(
@@ -283,7 +283,8 @@ const PackingQueueTable = ({
         return clickedColumnField?.handler(
           model[0]?.sort,
           selectionOrderIds,
-          data
+          data,
+          ignoreSelected
         );
       } else {
         return data;
@@ -316,15 +317,12 @@ const PackingQueueTable = ({
       );
     }
     // eslint-disable-next-line
-  }, [
-    sortDataByModel,
-    staticCols,
-    searchString,
-    setFilteredPackingQueue,
-  ]);
+  }, [sortDataByModel, staticCols, searchString, setFilteredPackingQueue]);
 
   useEffect(() => {
-    setQueueData(tableData);
+    setQueueData(
+      sortDataByModel(sortModel, tableData, staticCols, selectionOrderIds, true)
+    );
   }, [tableData]);
 
   const [page, setPage] = useState(0);
