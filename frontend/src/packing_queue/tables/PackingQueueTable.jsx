@@ -323,6 +323,7 @@ const PackingQueueTable = ({
     setQueueData(
       sortDataByModel(sortModel, tableData, staticCols, selectionOrderIds, true)
     );
+    // eslint-disable-next-line
   }, [tableData]);
 
   const [page, setPage] = useState(0);
