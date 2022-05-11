@@ -304,9 +304,7 @@ const PackingQueueTable = ({
     sortDataByModel,
     sortModel,
     staticCols,
-    packingQueue,
     searchString,
-    // selectionOrderIds,
     setFilteredPackingQueue,
   ]);
 
