@@ -236,6 +236,7 @@ const PackingQueueTable = ({
     }
 
     recheckIfNeeded(selectedOrderNumber, tableData, selectionOrderIds, setIsSelectAll);
+    // eslint-disable-next-line
   }, [isFulfilledBatchesOn]);
 
   useEffect(() => {
