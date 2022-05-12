@@ -144,11 +144,17 @@ const PackingQueue = () => {
               setIsFulfilledBatchesOn(checked);
 
               if (isFulfilledBatchesOn) {
-                setFilteredPackingQueue(
-                  filteredPackingQueue.filter(
-                    (e) => e.fulfilledQty < e.batchQty
-                  )
+                const tmpPackQueue = filteredPackingQueue.filter(
+                  (e) => e.fulfilledQty < e.batchQty
                 );
+                const orderIds = tmpPackQueue
+                  .filter((e) => selectedOrderIds.includes(e.id))
+                  .map((e) => e.id);
+                setSelectedOrderIds(orderIds);
+                setSelectedOrderNumber(
+                  orderIds.length === 0 ? null : selectedOrderNumber
+                );
+                setFilteredPackingQueue(tmpPackQueue);
               } else {
                 setFilteredPackingQueue(packingQueue);
               }
@@ -177,6 +183,7 @@ const PackingQueue = () => {
             setSelectedOrderIds={setSelectedOrderIds}
             setSelectedOrderNumber={setSelectedOrderNumber}
             searchString={searchString}
+            isFulfilledBatchesOn={isFulfilledBatchesOn}
           />
         }
         historyTab={
