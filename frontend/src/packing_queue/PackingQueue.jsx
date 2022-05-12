@@ -77,20 +77,26 @@ const PackingQueue = () => {
             return tmp;
           });
 
-          const updatedPackingQueue = [...filteredPackingQueue];
+          // Find updated ids
+          const updatedIds = updatedFulfilled.map((e) => e.id);
 
-          // Find all the replacements
-          const updatedFulfilledIndices = updatedFulfilled.map((e) =>
-            filteredPackingQueue.findIndex((f) => f.id === e.id)
-          );
-
-          // Replace the old versions with the new versions.
-          updatedFulfilledIndices.forEach(
-            (e, i) => (updatedPackingQueue[e] = updatedFulfilled[i])
-          );
+          // Replace the items with the updated ones based on id
+          const updatedFilteredPackingQueue = filteredPackingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
+          const updatedPackingQueue = packingQueue.map((e) => {
+            if (updatedIds.includes(e.id)) {
+              return updatedFulfilled.find((a) => e.id === a.id);
+            }
+            return e;
+          });
 
           // Replace the list with the updated version
-          setFilteredPackingQueue(updatedPackingQueue);
+          setFilteredPackingQueue(updatedFilteredPackingQueue);
+          setPackingQueue(updatedPackingQueue);
 
           onPackingSlipClose();
         })
@@ -98,7 +104,7 @@ const PackingQueue = () => {
           alert("An error occurred submitting packing slip");
         });
     },
-    [filteredPackingQueue]
+    [filteredPackingQueue, packingQueue]
   );
 
   function onSearch(value) {
